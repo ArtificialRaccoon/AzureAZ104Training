@@ -1,0 +1,186 @@
+[
+  {
+    "id": "lab-p01-template-01",
+    "section": "01-prerequisites-for-azure-administrators",
+    "pathName": "Path 1: Prerequisites for Azure Administrators",
+    "topic": "ARM Templates & Resource Groups",
+    "title": "Automate Infrastructure Provisioning via ARM Templates & CLI",
+    "difficulty": "Fundamental",
+    "estimatedMinutes": 20,
+    "summary": "Deploy parameterized Azure infrastructure declaratively using Azure Resource Manager (ARM) JSON templates, Azure CLI, and PowerShell.",
+    "scenarioTemplate": "You are a Cloud Administrator at {{companyName}}. Your organization is establishing standardized, declarative infrastructure deployments for new workloads in '{{region}}'. You are tasked with creating a target resource group '{{resourceGroup}}' and executing a parameterized ARM template deployment named '{{deploymentName}}' to provision a General-purpose v2 storage account named '{{storageAccount}}' with standard LRS redundancy and strict HTTPS enforcement.",
+    "variables": {
+      "companyName": [
+        "Contoso Enterprise",
+        "Fabrikam Manufacturing",
+        "Tailspin Space Systems",
+        "Northwind Logistics"
+      ],
+      "region": [
+        "eastus",
+        "westeurope",
+        "centralus",
+        "eastus2",
+        "northeurope"
+      ],
+      "resourceGroup": [
+        "rg-deploy-core-{{rand3}}",
+        "rg-infra-base-{{rand3}}",
+        "rg-automation-demo-{{rand3}}"
+      ],
+      "deploymentName": [
+        "deployStorageWorkload",
+        "deployStandardBaseline",
+        "deployInfraTier1"
+      ],
+      "storageAccount": [
+        "starmdemo{{rand5}}",
+        "stdeploytier{{rand5}}",
+        "stbaseinfra{{rand5}}"
+      ]
+    },
+    "acceptanceCriteria": [
+      "Create resource group '{{resourceGroup}}' in '{{region}}'.",
+      "Author an ARM template JSON file (template.json) defining a Standard_LRS StorageV2 account.",
+      "Execute declarative template deployment '{{deploymentName}}' against '{{resourceGroup}}' using Azure CLI or PowerShell.",
+      "Verify the template deployment succeeded by inspecting deployment operations and resource provisioningState."
+    ],
+    "steps": [
+      {
+        "stepNumber": 1,
+        "title": "Create the Target Resource Group",
+        "portalGuide": "In the Azure Portal search bar, type **Resource groups** > **+ Create**. Choose your subscription, name the resource group `{{resourceGroup}}`, and set Region to `{{region}}`. Click **Review + create** > **Create**.",
+        "cliCommand": "az group create \\\n  --name {{resourceGroup}} \\\n  --location {{region}}",
+        "powershellCommand": "New-AzResourceGroup -Name '{{resourceGroup}}' -Location '{{region}}'",
+        "validation": "az group show --name {{resourceGroup}} --query 'properties.provisioningState' -o tsv"
+      },
+      {
+        "stepNumber": 2,
+        "title": "Author Parameterized ARM Template",
+        "portalGuide": "In the Azure Portal, open **Cloud Shell** (Bash or PowerShell). Generate the local template file `template.json` specifying schema, parameters, and storage resources.",
+        "cliCommand": "cat << 'EOF' > template.json\n{\n  \"$schema\": \"https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#\",\n  \"contentVersion\": \"1.0.0.0\",\n  \"parameters\": {\n    \"storageName\": { \"type\": \"string\" },\n    \"location\": { \"type\": \"string\" }\n  },\n  \"resources\": [\n    {\n      \"type\": \"Microsoft.Storage/storageAccounts\",\n      \"apiVersion\": \"2022-09-01\",\n      \"name\": \"[parameters('storageName')]\",\n      \"location\": \"[parameters('location')]\",\n      \"sku\": { \"name\": \"Standard_LRS\" },\n      \"kind\": \"StorageV2\",\n      \"properties\": {\n        \"supportsHttpsTrafficOnly\": true,\n        \"minimumTlsVersion\": \"TLS1_2\"\n      }\n    }\n  ]\n}\nEOF",
+        "powershellCommand": "@'\n{\n  \"$schema\": \"https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#\",\n  \"contentVersion\": \"1.0.0.0\",\n  \"parameters\": {\n    \"storageName\": { \"type\": \"string\" },\n    \"location\": { \"type\": \"string\" }\n  },\n  \"resources\": [\n    {\n      \"type\": \"Microsoft.Storage/storageAccounts\",\n      \"apiVersion\": \"2022-09-01\",\n      \"name\": \"[parameters('storageName')]\",\n      \"location\": \"[parameters('location')]\",\n      \"sku\": { \"name\": \"Standard_LRS\" },\n      \"kind\": \"StorageV2\",\n      \"properties\": {\n        \"supportsHttpsTrafficOnly\": true,\n        \"minimumTlsVersion\": \"TLS1_2\"\n      }\n    }\n  ]\n}\n'@ | Out-File -FilePath template.json -Encoding utf8",
+        "validation": "head -n 10 template.json"
+      },
+      {
+        "stepNumber": 3,
+        "title": "Validate and Deploy the ARM Template",
+        "portalGuide": "In the portal search bar, search for **Deploy a custom template** > **Build your own template in the editor**. Paste the JSON schema > **Save**. Set Resource group to `{{resourceGroup}}`, `storageName` to `{{storageAccount}}`, `location` to `{{region}}` > Click **Review + create** > **Create**.",
+        "cliCommand": "# Preflight validation:\naz deployment group validate \\\n  --resource-group {{resourceGroup}} \\\n  --template-file template.json \\\n  --parameters storageName={{storageAccount}} location={{region}}\n\n# Execute deployment:\naz deployment group create \\\n  --name {{deploymentName}} \\\n  --resource-group {{resourceGroup}} \\\n  --template-file template.json \\\n  --parameters storageName={{storageAccount}} location={{region}}",
+        "powershellCommand": "# Preflight validation:\nTest-AzResourceGroupDeployment -ResourceGroupName '{{resourceGroup}}' -TemplateFile template.json -storageName '{{storageAccount}}' -location '{{region}}'\n\n# Execute deployment:\nNew-AzResourceGroupDeployment -Name '{{deploymentName}}' -ResourceGroupName '{{resourceGroup}}' -TemplateFile template.json -storageName '{{storageAccount}}' -location '{{region}}'",
+        "validation": "az deployment group show --name {{deploymentName}} --resource-group {{resourceGroup}} --query 'properties.provisioningState' -o tsv"
+      },
+      {
+        "stepNumber": 4,
+        "title": "Clean Up Lab Resources",
+        "portalGuide": "Navigate to **Resource groups** > find `{{resourceGroup}}` > click **Delete resource group** > type the name to confirm > click **Delete**.",
+        "cliCommand": "az group delete --name {{resourceGroup}} --yes --no-wait\nrm -f template.json",
+        "powershellCommand": "Remove-AzResourceGroup -Name '{{resourceGroup}}' -Force\nRemove-Item -Path template.json -Force -ErrorAction SilentlyContinue",
+        "validation": "az group exists --name {{resourceGroup}}"
+      }
+    ]
+  },
+  {
+    "id": "lab-p01-tags-locks-01",
+    "section": "01-prerequisites-for-azure-administrators",
+    "pathName": "Path 1: Prerequisites for Azure Administrators",
+    "topic": "Resource Governance & Locks",
+    "title": "Enforce Resource Tagging and Resource Locks for Governance",
+    "difficulty": "Fundamental",
+    "estimatedMinutes": 15,
+    "summary": "Standardize resource metadata using Azure Tags and apply management locks to prevent accidental deletion of critical infrastructure.",
+    "scenarioTemplate": "Enterprise governance policy at {{companyName}} mandates that all resources deployed for accounting and workload tracking must bear required tags: Environment = '{{environmentTag}}', CostCenter = '{{costCenter}}', and Owner = '{{ownerName}}'. In resource group '{{resourceGroup}}', provision a storage account '{{storageAccount}}', enforce the metadata tags, and attach a '{{lockType}}' management lock named '{{lockName}}' to guarantee administrators cannot delete the resource group accidentally.",
+    "variables": {
+      "companyName": [
+        "Woodgrove Financial",
+        "Adatum Systems",
+        "Contoso Retail",
+        "Litware Advisory"
+      ],
+      "environmentTag": [
+        "Production",
+        "Staging",
+        "Mission-Critical",
+        "SharedServices"
+      ],
+      "costCenter": [
+        "FIN-104-982",
+        "OPS-204-771",
+        "SEC-404-319",
+        "DEV-808-112"
+      ],
+      "ownerName": [
+        "CloudArchitectureTeam",
+        "SecOpsAdmin",
+        "FinOpsGovernance",
+        "Tier3Support"
+      ],
+      "region": [
+        "eastus",
+        "westeurope",
+        "centralus",
+        "southcentralus"
+      ],
+      "resourceGroup": [
+        "rg-governance-core-{{rand3}}",
+        "rg-compliance-tier1-{{rand3}}",
+        "rg-finops-tags-{{rand3}}"
+      ],
+      "storageAccount": [
+        "stlockedgov{{rand5}}",
+        "stfinopssecure{{rand5}}",
+        "stcompdemo{{rand5}}"
+      ],
+      "lockType": [
+        "CanNotDelete",
+        "ReadOnly"
+      ],
+      "lockName": [
+        "PreventAccidentalDeleteLock",
+        "LockCriticalGovWorkload",
+        "Tier1ProtectionLock"
+      ]
+    },
+    "acceptanceCriteria": [
+      "Create resource group '{{resourceGroup}}' in '{{region}}'.",
+      "Apply tags Environment='{{environmentTag}}', CostCenter='{{costCenter}}', and Owner='{{ownerName}}' to '{{resourceGroup}}'.",
+      "Create standard storage account '{{storageAccount}}' inside '{{resourceGroup}}' and inherit/apply the tags.",
+      "Apply a '{{lockType}}' resource lock named '{{lockName}}' to '{{resourceGroup}}'.",
+      "Test deleting the resource group to verify the lock blocks deletion with an error, then remove the lock and clean up."
+    ],
+    "steps": [
+      {
+        "stepNumber": 1,
+        "title": "Create Resource Group and Apply Tags",
+        "portalGuide": "Search for **Resource groups** > **+ Create**. Name: `{{resourceGroup}}`, Region: `{{region}}`. Click **Next: Tags**. Add `Environment` = `{{environmentTag}}`, `CostCenter` = `{{costCenter}}`, `Owner` = `{{ownerName}}`. Click **Review + create** > **Create**.",
+        "cliCommand": "az group create \\\n  --name {{resourceGroup}} \\\n  --location {{region}} \\\n  --tags Environment={{environmentTag}} CostCenter={{costCenter}} Owner={{ownerName}}",
+        "powershellCommand": "$tags = @{ Environment = '{{environmentTag}}'; CostCenter = '{{costCenter}}'; Owner = '{{ownerName}}' }\nNew-AzResourceGroup -Name '{{resourceGroup}}' -Location '{{region}}' -Tag $tags",
+        "validation": "az group show --name {{resourceGroup}} --query 'tags' -o table"
+      },
+      {
+        "stepNumber": 2,
+        "title": "Deploy Storage Account with Matching Tags",
+        "portalGuide": "Open `{{resourceGroup}}` > **+ Create** > **Storage account**. Name: `{{storageAccount}}`, Standard LRS. Under **Tags**, apply matching `Environment` = `{{environmentTag}}` and `CostCenter` = `{{costCenter}}` tags. Click **Review + create** > **Create**.",
+        "cliCommand": "az storage account create \\\n  --name {{storageAccount}} \\\n  --resource-group {{resourceGroup}} \\\n  --location {{region}} \\\n  --sku Standard_LRS \\\n  --kind StorageV2 \\\n  --tags Environment={{environmentTag}} CostCenter={{costCenter}} Owner={{ownerName}}",
+        "powershellCommand": "$tags = @{ Environment = '{{environmentTag}}'; CostCenter = '{{costCenter}}'; Owner = '{{ownerName}}' }\nNew-AzStorageAccount -ResourceGroupName '{{resourceGroup}}' -Name '{{storageAccount}}' -Location '{{region}}' -SkuName 'Standard_LRS' -Kind 'StorageV2' -Tag $tags",
+        "validation": "az resource list --tag CostCenter={{costCenter}} --query \"[].{Name:name, Type:type, Tags:tags}\" -o table"
+      },
+      {
+        "stepNumber": 3,
+        "title": "Configure Resource Lock on Resource Group",
+        "portalGuide": "Navigate to resource group `{{resourceGroup}}` > select **Locks** in the left blade > **+ Add**. Lock name: `{{lockName}}`, Lock type: `{{lockType}}`, Notes: `Mandatory protection policy`. Click **OK**.",
+        "cliCommand": "az group lock create \\\n  --name {{lockName}} \\\n  --resource-group {{resourceGroup}} \\\n  --lock-type {{lockType}} \\\n  --notes \"Mandatory governance lock for {{companyName}}\"",
+        "powershellCommand": "New-AzResourceLock -LockName '{{lockName}}' -LockLevel '{{lockType}}' -ResourceGroupName '{{resourceGroup}}' -Notes 'Mandatory governance lock'",
+        "validation": "az group lock list --resource-group {{resourceGroup}} --query \"[].{Name:name, Level:level}\" -o table"
+      },
+      {
+        "stepNumber": 4,
+        "title": "Verify Lock Enforcement and Clean Up",
+        "portalGuide": "Try deleting the resource group: click **Delete resource group** > confirm name > click **Delete**. Notice the portal blocks the operation indicating a lock is active. Remove the lock from the **Locks** blade, then delete the resource group.",
+        "cliCommand": "# 1. Test deletion fails due to lock:\naz group delete --name {{resourceGroup}} --yes || echo \"Expected: Locked resource prevented deletion!\"\n\n# 2. Delete lock:\naz group lock delete --name {{lockName}} --resource-group {{resourceGroup}}\n\n# 3. Clean up:\naz group delete --name {{resourceGroup}} --yes --no-wait",
+        "powershellCommand": "# 1. Delete lock:\nRemove-AzResourceLock -LockName '{{lockName}}' -ResourceGroupName '{{resourceGroup}}' -Force\n\n# 2. Clean up:\nRemove-AzResourceGroup -Name '{{resourceGroup}}' -Force",
+        "validation": "az group exists --name {{resourceGroup}}"
+      }
+    ]
+  }
+]

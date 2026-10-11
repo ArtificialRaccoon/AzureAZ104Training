@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AZ-104 LabBuilder - Interactive Practical Lab Simulator</title>
+  <meta name="description" content="Master Microsoft AZ-104 Azure Administrator skills with realistic scenario-driven labs, randomized parameters, progressive step disclosure, and learner progress tracking.">
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Global Application Header -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand-group" id="btn-brand-home" title="Return to Catalog">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242M8 19h8M12 15v6" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="brand-title">AZ-104 LabBuilder</h1>
+          <p class="brand-subtitle">Hands-On Practical Cloud Simulation Deck</p>
+        </div>
+      </div>
+
+      <nav class="header-nav">
+        <button id="btn-nav-catalog" class="nav-btn active">
+          <span class="nav-icon">📚</span>
+          <span>Lab Catalog</span>
+        </button>
+        <button id="btn-nav-profile" class="nav-btn">
+          <span class="nav-icon">👤</span>
+          <span>Learner Profile</span>
+          <span id="header-flag-count" class="badge-flag-count" style="display: none;">0</span>
+        </button>
+        <div class="nav-divider"></div>
+        <a href="../quiz-app/index.html" class="nav-btn nav-link" title="Open AZ-104 Practice Quizzes">
+          <span class="nav-icon">🎯</span>
+          <span>QuizMaster</span>
+        </a>
+        <a href="../flash-app/index.html" class="nav-btn nav-link" title="Open AZ-104 Flashcards">
+          <span class="nav-icon">⚡</span>
+          <span>FlashMaster</span>
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Application Body -->
+  <main class="main-content">
+    
+    <!-- ================= CATALOG VIEW ================= -->
+    <section id="catalog-view" class="view-section">
+      <!-- Hero Banner -->
+      <div class="hero-banner">
+        <div class="hero-text">
+          <h2>Hands-On Practical Azure Labs</h2>
+          <p>Sharpen real-world administrative skills for the AZ-104 exam. Complete challenges independently in Azure, reroll fresh randomized parameters each run, and progressively unlock steps if you need hints.</p>
+        </div>
+        <div class="hero-stats-grid">
+          <div class="hero-stat-card">
+            <span class="stat-num" id="stat-total-labs">0</span>
+            <span class="stat-label">Lab Archetypes</span>
+          </div>
+          <div class="hero-stat-card">
+            <span class="stat-num stat-success" id="stat-completed-labs">0</span>
+            <span class="stat-label">Completed</span>
+          </div>
+          <div class="hero-stat-card">
+            <span class="stat-num stat-cyan" id="stat-independent-labs">0</span>
+            <span class="stat-label">Independent</span>
+          </div>
+          <div class="hero-stat-card">
+            <span class="stat-num stat-warning" id="stat-flagged-labs">0</span>
+            <span class="stat-label">Flagged / Trouble</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filters & Search Toolbar -->
+      <div class="filter-toolbar">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="search-input" placeholder="Search by topic, command, or keyword..." autocomplete="off">
+          <button id="btn-clear-search" class="btn-clear" title="Clear search" style="display: none;">✕</button>
+        </div>
+
+        <div class="filter-group">
+          <select id="filter-path" class="select-filter" aria-label="Filter by Learning Path">
+            <option value="all">All Learning Paths</option>
+          </select>
+
+          <select id="filter-difficulty" class="select-filter" aria-label="Filter by Difficulty">
+            <option value="all">All Difficulties</option>
+            <option value="Fundamental">Fundamental</option>
+            <option value="Intermediate">Intermediate</option>
+            <option value="Advanced">Advanced</option>
+          </select>
+
+          <button id="btn-filter-flagged" class="filter-toggle-btn" title="Filter to flagged labs only">
+            <span class="toggle-icon">🚩</span>
+            <span>Flagged Only</span>
+          </button>
+
+          <button id="btn-reset-filters" class="btn-secondary" title="Reset all filters">
+            <span>Reset</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Catalog Results Counter -->
+      <div class="catalog-status-bar">
+        <span id="catalog-count-text">Showing all labs</span>
+      </div>
+
+      <!-- Labs Catalog Grid -->
+      <div id="labs-grid" class="labs-grid">
+        <!-- Rendered dynamically by app.js -->
+      </div>
+    </section>
+
+    <!-- ================= ACTIVE LAB VIEW ================= -->
+    <section id="lab-view" class="view-section" style="display: none;">
+      <!-- Active Lab Top Toolbar -->
+      <div class="lab-topbar">
+        <button id="btn-back-to-catalog" class="btn-secondary">
+          <span>← Back to Catalog</span>
+        </button>
+
+        <div class="lab-topbar-actions">
+          <button id="btn-reroll-params" class="btn-secondary btn-reroll" title="Regenerate randomized parameters (resource names, roles, IPs)">
+            <span class="icon-spin">🎲</span>
+            <span>Reroll Parameters</span>
+          </button>
+          <button id="btn-flag-trouble" class="btn-secondary btn-flag" title="Flag this lab as having trouble">
+            <span id="flag-icon">🚩</span>
+            <span id="flag-text">Flag Trouble</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Lab Header Banner -->
+      <div class="active-lab-header">
+        <div class="lab-meta-row">
+          <span id="lab-path-badge" class="badge-path">Learning Path</span>
+          <span id="lab-topic-badge" class="badge-topic">Topic</span>
+          <span id="lab-difficulty-badge" class="badge-difficulty">Intermediate</span>
+          <span id="lab-time-badge" class="badge-time">⏱️ 20 mins</span>
+          <span id="lab-status-badge" class="badge-status">Not Started</span>
+        </div>
+        <h2 id="lab-title" class="active-lab-title">Lab Title Goes Here</h2>
+        <p id="lab-summary" class="active-lab-summary">Lab summary description goes here.</p>
+      </div>
+
+      <!-- Scenario & Business Mission Brief -->
+      <div class="scenario-card">
+        <div class="card-header-line">
+          <div class="card-header-title">
+            <span class="header-icon">📋</span>
+            <h3>Mission Brief & Scenario</h3>
+          </div>
+          <span class="tag-dynamic">✨ Partially Randomized</span>
+        </div>
+        <p id="lab-scenario-text" class="scenario-text">
+          Scenario text hydrated with dynamic randomized parameters...
+        </p>
+
+        <!-- Dynamic Parameters Cheat-Sheet Grid -->
+        <div class="parameters-block">
+          <div class="parameters-header">
+            <h4>🎯 Active Session Parameters</h4>
+            <span class="param-tip">Tip: Click any parameter to quickly copy its generated value</span>
+          </div>
+          <div id="lab-parameters-grid" class="parameters-grid">
+            <!-- Rendered dynamically by app.js -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Acceptance Criteria Checklist -->
+      <div class="acceptance-card">
+        <div class="card-header-line">
+          <div class="card-header-title">
+            <span class="header-icon">✅</span>
+            <h3>Acceptance Criteria Checklist</h3>
+          </div>
+          <div class="criteria-progress-group">
+            <span id="criteria-progress-text">0 / 0 Completed (0%)</span>
+            <div class="criteria-progress-bar">
+              <div id="criteria-progress-fill" class="progress-fill" style="width: 0%;"></div>
+            </div>
+          </div>
+        </div>
+        <p class="section-desc">Mark each objective complete as you configure and verify it in Azure:</p>
+        <ul id="acceptance-checklist" class="criteria-list">
+          <!-- Rendered dynamically by app.js -->
+        </ul>
+      </div>
+
+      <!-- Progressive Step-by-Step Implementation Guide -->
+      <div class="steps-section">
+        <div class="steps-section-header">
+          <div class="steps-header-left">
+            <div class="card-header-title">
+              <span class="header-icon">🧭</span>
+              <h3>Step-by-Step Implementation Guide</h3>
+            </div>
+            <p class="steps-subtext">Steps are hidden by default to encourage independent problem-solving. Reveal them sequentially if you need guidance.</p>
+          </div>
+          <div class="steps-controls">
+            <div class="hints-counter" id="hints-counter">
+              <span class="hints-label">Hints Revealed:</span>
+              <span id="hints-count" class="hints-value">0 / 0</span>
+              <span id="hints-rating-badge" class="badge-independent">Independent</span>
+            </div>
+            <div class="steps-btn-group">
+              <button id="btn-reveal-next" class="btn-primary btn-sm">
+                <span>🔓 Reveal Next Step</span>
+              </button>
+              <button id="btn-reveal-all" class="btn-secondary btn-sm" title="Reveal all steps at once">
+                <span>Reveal All</span>
+              </button>
+              <button id="btn-hide-all" class="btn-secondary btn-sm" title="Hide all revealed steps">
+                <span>Hide All</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Container for Step Accordion / Cards -->
+        <div id="steps-container" class="steps-container">
+          <!-- Rendered dynamically by app.js -->
+        </div>
+      </div>
+
+      <!-- Lab Completion & Learning Tracker -->
+      <div class="completion-card">
+        <div class="card-header-line">
+          <div class="card-header-title">
+            <span class="header-icon">🎓</span>
+            <h3>Learner Assessment & Progress Tracking</h3>
+          </div>
+        </div>
+        <p class="section-desc">Rate how comfortably you completed this lab to update your learning object and spacing schedule:</p>
+
+        <div class="rating-buttons-grid">
+          <button id="btn-rate-independent" class="rating-btn rate-independent" title="Completed without needing step hints">
+            <span class="rating-icon">🌟</span>
+            <span class="rating-title">Independent Master</span>
+            <span class="rating-sub">Completed with minimal or zero hints</span>
+          </button>
+          <button id="btn-rate-assisted" class="rating-btn rate-assisted" title="Completed with the help of step hints">
+            <span class="rating-icon">💡</span>
+            <span class="rating-title">Assisted Completion</span>
+            <span class="rating-sub">Needed portal/CLI steps to finish</span>
+          </button>
+          <button id="btn-rate-struggled" class="rating-btn rate-struggled" title="Encountered issues or gaps, flag for revision">
+            <span class="rating-icon">⚠️</span>
+            <span class="rating-title">Struggled / Need Review</span>
+            <span class="rating-sub">Had trouble; auto-flags for practice</span>
+          </button>
+        </div>
+
+        <!-- Personal Lab Notes -->
+        <div class="notes-block">
+          <div class="notes-header">
+            <label for="lab-notes-input">📝 Personal Notes & Azure Gotchas:</label>
+            <span class="notes-status" id="notes-status"></span>
+          </div>
+          <textarea id="lab-notes-input" placeholder="Jot down notes, error messages encountered, CLI parameter gotchas, or lessons learned during this lab..." rows="4"></textarea>
+          <div class="notes-actions">
+            <button id="btn-save-notes" class="btn-secondary btn-sm">
+              <span>💾 Save Notes</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ================= LEARNER PROFILE MODAL ================= -->
+  <div id="profile-modal" class="modal-backdrop" style="display: none;">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <span class="modal-icon">👤</span>
+          <h3>AZ-104 Learner Profile & Analytics</h3>
+        </div>
+        <button id="btn-close-modal" class="modal-close-btn" title="Close modal">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Analytics Dashboard Grid -->
+        <div class="profile-stats-grid">
+          <div class="profile-stat-box">
+            <span class="p-num" id="p-total-attempted">0</span>
+            <span class="p-label">Labs Attempted</span>
+          </div>
+          <div class="profile-stat-box">
+            <span class="p-num stat-success" id="p-total-completed">0</span>
+            <span class="p-label">Completed Labs</span>
+          </div>
+          <div class="profile-stat-box">
+            <span class="p-num stat-cyan" id="p-independent-count">0</span>
+            <span class="p-label">Independent Solves</span>
+          </div>
+          <div class="profile-stat-box">
+            <span class="p-num stat-warning" id="p-flagged-count">0</span>
+            <span class="p-label">Flagged / Trouble</span>
+          </div>
+        </div>
+
+        <!-- Flagged Labs Section -->
+        <div class="modal-section">
+          <h4>🚩 Labs Requiring Review</h4>
+          <div id="flagged-labs-list" class="flagged-list">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- Learning Path Progress Breakdown -->
+        <div class="modal-section">
+          <h4>📊 Progress by Learning Path</h4>
+          <div id="path-breakdown-list" class="path-breakdown-list">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- Learner Object Management -->
+        <div class="modal-section">
+          <h4>⚙️ Learner Data Management</h4>
+          <p class="data-desc">Your progress is automatically saved to browser <code>localStorage</code>. Export your learner object for safekeeping or transfer to another device.</p>
+          <div class="data-actions-row">
+            <button id="btn-export-profile" class="btn-secondary">
+              <span>📥 Export Progress (JSON)</span>
+            </button>
+            <label class="btn-secondary btn-file-label">
+              <span>📤 Import Progress (JSON)</span>
+              <input type="file" id="file-import-profile" accept=".json" style="display: none;">
+            </label>
+            <button id="btn-reset-profile" class="btn-danger">
+              <span>🗑️ Reset All Progress</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Non-intrusive Toast Notification -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Scripts -->
+  <script src="labs.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

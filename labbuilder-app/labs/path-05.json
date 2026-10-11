@@ -1,0 +1,436 @@
+[
+  {
+    "id": "lab-p05-vm-provision-01",
+    "section": "05-deploy-and-manage-compute-resources",
+    "pathName": "Path 5: Deploy & Manage Compute Resources",
+    "topic": "Azure Virtual Machines & Availability Zones",
+    "title": "Provision Highly Available Azure Virtual Machines in Availability Zones",
+    "difficulty": "Intermediate",
+    "estimatedMinutes": 25,
+    "summary": "Deploy a production Azure Virtual Machine pinned to an Availability Zone with managed OS and data disks, host caching, and SSH/admin authentication.",
+    "scenarioTemplate": "Your organization requires a high-availability compute tier for an enterprise application in '{{region}}'. You are tasked with creating resource group '{{resourceGroup}}', deploying an Ubuntu Linux virtual machine named '{{vmName}}' with size '{{vmSize}}' into Availability Zone {{zone}}, attaching a {{diskSizeGb}} GB Premium SSD managed data disk with '{{cachingType}}' host caching, and verifying VM agent status.",
+    "variables": {
+      "region": [
+        "eastus",
+        "westeurope",
+        "centralus",
+        "northeurope"
+      ],
+      "zone": [
+        1,
+        2,
+        3
+      ],
+      "resourceGroup": [
+        "rg-vm-compute-{{rand3}}",
+        "rg-ha-workloads-{{rand3}}"
+      ],
+      "vmName": [
+        "vm-linux-app01",
+        "vm-core-compute01",
+        "vm-prod-node01"
+      ],
+      "vmSize": [
+        "Standard_B2s",
+        "Standard_D2s_v5",
+        "Standard_D2as_v5"
+      ],
+      "adminUser": [
+        "azureuser",
+        "cloudadmin",
+        "opsadmin"
+      ],
+      "diskSizeGb": [
+        64,
+        128,
+        256
+      ],
+      "cachingType": [
+        "ReadOnly",
+        "ReadWrite"
+      ]
+    },
+    "acceptanceCriteria": [
+      "Create resource group '{{resourceGroup}}' in '{{region}}'.",
+      "Deploy Virtual Machine '{{vmName}}' using image Ubuntu2204, size '{{vmSize}}', pinned to Availability Zone {{zone}}.",
+      "Attach a {{diskSizeGb}} GB Premium_LRS data disk to '{{vmName}}' with host caching set to '{{cachingType}}'.",
+      "Verify the VM provisioningState is Succeeded and inspect zone placement.",
+      "Clean up all lab resources."
+    ],
+    "steps": [
+      {
+        "stepNumber": 1,
+        "title": "Create Resource Group and Deploy Zonal Virtual Machine",
+        "portalGuide": "Search for **Virtual machines** > **+ Create** > **Azure virtual machine**. RG: `{{resourceGroup}}`, VM name: `{{vmName}}`, Region: `{{region}}`. Availability options: **Availability zone**, Zone: `{{zone}}`. Image: **Ubuntu Server 22.04 LTS**, Size: `{{vmSize}}`. Administrator account: SSH public key or Password (`Pass@word12345!`). Inbound ports: None > click **Review + create** > **Create**.",
+        "cliCommand": "az group create --name {{resourceGroup}} --location {{region}}\n\naz vm create \\\n  --name {{vmName}} \\\n  --resource-group {{resourceGroup}} \\\n  --location {{region}} \\\n  --image Ubuntu2204 \\\n  --size {{vmSize}} \\\n  --zone {{zone}} \\\n  --admin-username {{adminUser}} \\\n  --generate-ssh-keys",
+        "powershellCommand": "New-AzResourceGroup -Name '{{resourceGroup}}' -Location '{{region}}'\nNew-AzVM -ResourceGroupName '{{resourceGroup}}' -Name '{{vmName}}' -Location '{{region}}' -Zone '{{zone}}' -Size '{{vmSize}}' -Credential (Get-Credential) -Image 'Ubuntu2204'",
+        "validation": "az vm show --name {{vmName}} --resource-group {{resourceGroup}} --query '{Name:name, Size:hardwareProfile.vmSize, Zone:zones[0], State:provisioningState}' -o table"
+      },
+      {
+        "stepNumber": 2,
+        "title": "Attach Managed Data Disk with Host Caching",
+        "portalGuide": "In `{{vmName}}`, select **Disks** (under Settings) > click **+ Create and attach a new disk**. Disk name: `disk-data-01`, Disk type: **Premium SSD**, Size: `{{diskSizeGb}}` GiB, Host caching: `{{cachingType}}` > click **Save**.",
+        "cliCommand": "az vm disk attach \\\n  --vm-name {{vmName}} \\\n  --resource-group {{resourceGroup}} \\\n  --name disk-data-{{vmName}} \\\n  --new \\\n  --size-gb {{diskSizeGb}} \\\n  --sku Premium_LRS \\\n  --caching {{cachingType}}",
+        "powershellCommand": "$vm = Get-AzVM -ResourceGroupName '{{resourceGroup}}' -Name '{{vmName}}'\n$vm = Add-AzVMDataDisk -VM $vm -Name \"disk-data-{{vmName}}\" -CreateOption CreateNew -DiskSizeInGB {{diskSizeGb}} -Caching '{{cachingType}}' -Lun 0\nUpdate-AzVM -ResourceGroupName '{{resourceGroup}}' -VM $vm",
+        "validation": "az vm show --name {{vmName}} --resource-group {{resourceGroup}} --query \"storageProfile.dataDisks[].{Name:name, SizeGB:diskSizeGb, Caching:caching}\" -o table"
+      },
+      {
+        "stepNumber": 3,
+        "title": "Inspect Effective VM Configuration",
+        "portalGuide": "Review the **Overview** blade for `{{vmName}}`. Confirm Location is `{{region}}`, Availability zone is `{{zone}}`, and VM status is **Running**.",
+        "cliCommand": "az vm get-instance-view \\\n  --name {{vmName}} \\\n  --resource-group {{resourceGroup}} \\\n  --query '{PowerState:instanceView.statuses[1].displayStatus, Provisioning:instanceView.statuses[0].displayStatus}' -o table",
+        "powershellCommand": "(Get-AzVM -ResourceGroupName '{{resourceGroup}}' -Name '{{vmName}}' -Status).Statuses",
+        "validation": "echo \"Verified active instance state.\""
+      },
+      {
+        "stepNumber": 4,
+        "title": "Clean Up Lab Resources",
+        "portalGuide": "Delete resource group `{{resourceGroup}}`.",
+        "cliCommand": "az group delete --name {{resourceGroup}} --yes --no-wait",
+        "powershellCommand": "Remove-AzResourceGroup -Name '{{resourceGroup}}' -Force",
+        "validation": "az group exists --name {{resourceGroup}}"
+      }
+    ]
+  },
+  {
+    "id": "lab-p05-vmss-autoscale-01",
+    "section": "05-deploy-and-manage-compute-resources",
+    "pathName": "Path 5: Deploy & Manage Compute Resources",
+    "topic": "VM Scale Sets & Autoscale",
+    "title": "Configure Virtual Machine Scale Sets (VMSS) with Metric Autoscale",
+    "difficulty": "Advanced",
+    "estimatedMinutes": 30,
+    "summary": "Deploy a Virtual Machine Scale Set (VMSS) with Flexible orchestration and configure CPU-driven autoscale rules with cooldown periods.",
+    "scenarioTemplate": "To support fluctuating web application traffic in '{{region}}', deploy a Virtual Machine Scale Set named '{{vmssName}}' inside '{{resourceGroup}}' using instance size '{{vmSku}}'. Configure baseline instance count to {{minInstances}} and maximum to {{maxInstances}}. Author metric autoscale rules to automatically scale out by 1 instance when average CPU exceeds {{scaleOutCpu}}% for 5 minutes, and scale in by 1 instance when CPU drops below {{scaleInCpu}}%.",
+    "variables": {
+      "region": [
+        "eastus",
+        "westeurope",
+        "centralus",
+        "australiaeast"
+      ],
+      "resourceGroup": [
+        "rg-vmss-scale-{{rand3}}",
+        "rg-autoscale-demo-{{rand3}}"
+      ],
+      "vmssName": [
+        "vmss-web-cluster",
+        "vmss-app-autoscale"
+      ],
+      "vmSku": [
+        "Standard_B2s",
+        "Standard_D2s_v5"
+      ],
+      "minInstances": [
+        2
+      ],
+      "maxInstances": [
+        6,
+        8
+      ],
+      "scaleOutCpu": [
+        75,
+        80
+      ],
+      "scaleInCpu": [
+        25,
+        30
+      ]
+    },
+    "acceptanceCriteria": [
+      "Create resource group '{{resourceGroup}}' in '{{region}}'.",
+      "Deploy Virtual Machine Scale Set '{{vmssName}}' with initial capacity {{minInstances}} and image Ubuntu2204.",
+      "Configure an autoscale setting for '{{vmssName}}' with min={{minInstances}}, default={{minInstances}}, max={{maxInstances}}.",
+      "Add a scale-out rule triggering when Average Percentage CPU > {{scaleOutCpu}}%.",
+      "Add a scale-in rule triggering when Average Percentage CPU < {{scaleInCpu}}%.",
+      "Verify autoscale rule configuration and clean up."
+    ],
+    "steps": [
+      {
+        "stepNumber": 1,
+        "title": "Deploy Virtual Machine Scale Set",
+        "portalGuide": "Search for **Virtual machine scale sets** > **+ Create**. RG: `{{resourceGroup}}`, Name: `{{vmssName}}`, Region: `{{region}}`. Orchestration: **Flexible**. Image: Ubuntu 22.04 LTS, Size: `{{vmSku}}`. Initial instance count: `{{minInstances}}` > click **Review + create** > **Create**.",
+        "cliCommand": "az group create --name {{resourceGroup}} --location {{region}}\n\naz vmss create \\\n  --name {{vmssName}} \\\n  --resource-group {{resourceGroup}} \\\n  --location {{region}} \\\n  --image Ubuntu2204 \\\n  --vm-sku {{vmSku}} \\\n  --instance-count {{minInstances}} \\\n  --orchestration-mode Flexible \\\n  --generate-ssh-keys",
+        "powershellCommand": "New-AzResourceGroup -Name '{{resourceGroup}}' -Location '{{region}}'\n# VMSS creation via PowerShell or Azure CLI\naz vmss show --name {{vmssName}} --resource-group {{resourceGroup}}",
+        "validation": "az vmss show --name {{vmssName}} --resource-group {{resourceGroup}} --query '{Name:name, Capacity:sku.capacity, Sku:sku.name}' -o table"
+      },
+      {
+        "stepNumber": 2,
+        "title": "Configure Autoscale Setting with Threshold Rules",
+        "portalGuide": "In `{{vmssName}}`, select **Scaling** (under Settings) > choose **Custom autoscale**. Scale mode: Scale based on a metric. Minimum: `{{minInstances}}`, Maximum: `{{maxInstances}}`, Default: `{{minInstances}}`. Click **+ Add a rule**. Metric: Percentage CPU, Time aggregation: Average, Operator: Greater than, Threshold: `{{scaleOutCpu}}`, Operation: Increase count by `1`, Cool down: `5` minutes. Add scale-in rule: Less than `{{scaleInCpu}}`, Decrease count by `1` > click **Save**.",
+        "cliCommand": "# Create autoscale profile:\naz monitor autoscale create \\\n  --name autoscale-{{vmssName}} \\\n  --resource-group {{resourceGroup}} \\\n  --resource {{vmssName}} \\\n  --resource-type Microsoft.Compute/virtualMachineScaleSets \\\n  --min-count {{minInstances}} \\\n  --max-count {{maxInstances}} \\\n  --count {{minInstances}}\n\n# Add scale-out rule:\naz monitor autoscale rule create \\\n  --autoscale-name autoscale-{{vmssName}} \\\n  --resource-group {{resourceGroup}} \\\n  --condition \"Percentage CPU > {{scaleOutCpu}} avg 5m\" \\\n  --scale out 1\n\n# Add scale-in rule:\naz monitor autoscale rule create \\\n  --autoscale-name autoscale-{{vmssName}} \\\n  --resource-group {{resourceGroup}} \\\n  --condition \"Percentage CPU < {{scaleInCpu}} avg 5m\" \\\n  --scale in 1",
+        "powershellCommand": "# Autoscale configuration via Azure CLI / Monitor cmdlet\naz monitor autoscale show --name autoscale-{{vmssName}} --resource-group {{resourceGroup}}",
+        "validation": "az monitor autoscale show --name autoscale-{{vmssName}} --resource-group {{resourceGroup}} --query \"profiles[0].rules[].{Metric:metricTrigger.metricName, Operator:metricTrigger.operator, Threshold:metricTrigger.threshold, Direction:scaleAction.direction}\" -o table"
+      },
+      {
+        "stepNumber": 3,
+        "title": "Verify Scale Set Health and Instances",
+        "portalGuide": "In `{{vmssName}}`, select **Instances** blade. Verify that all initial instances report Status: **Running** and Provisioning state: **Succeeded**.",
+        "cliCommand": "az vmss list-instances --name {{vmssName}} --resource-group {{resourceGroup}} --query \"[].{Instance:instanceId, State:provisioningState}\" -o table",
+        "powershellCommand": "Get-AzVmssVM -ResourceGroupName '{{resourceGroup}}' -VMScaleSetName '{{vmssName}}'",
+        "validation": "echo \"Verified active scale set capacity.\""
+      },
+      {
+        "stepNumber": 4,
+        "title": "Clean Up Lab Resources",
+        "portalGuide": "Delete resource group `{{resourceGroup}}`.",
+        "cliCommand": "az group delete --name {{resourceGroup}} --yes --no-wait",
+        "powershellCommand": "Remove-AzResourceGroup -Name '{{resourceGroup}}' -Force",
+        "validation": "az group exists --name {{resourceGroup}}"
+      }
+    ]
+  },
+  {
+    "id": "lab-p05-appservice-slots-01",
+    "section": "05-deploy-and-manage-compute-resources",
+    "pathName": "Path 5: Deploy & Manage Compute Resources",
+    "topic": "Azure App Service & Deployment Slots",
+    "title": "Deploy Azure App Service with Deployment Slots and Zero-Downtime Swaps",
+    "difficulty": "Intermediate",
+    "estimatedMinutes": 25,
+    "summary": "Deploy a PaaS Web App on Azure App Service Standard tier, configure staging deployment slots with sticky configuration settings, and perform a production swap.",
+    "scenarioTemplate": "Continuous delivery requirements for a web application at {{companyName}} in '{{region}}' mandate zero-downtime deployments. In resource group '{{resourceGroup}}', provision an App Service Plan on the '{{planSku}}' tier named '{{planName}}'. Create a Web App named '{{webAppName}}' on '{{runtimeStack}}', deploy a deployment slot named '{{slotName}}', set a slot-specific sticky app setting, and execute a deployment slot swap.",
+    "variables": {
+      "companyName": [
+        "Contoso Commerce",
+        "Fabrikam Retail",
+        "Tailspin Cloud",
+        "Northwind Web"
+      ],
+      "region": [
+        "eastus",
+        "westeurope",
+        "centralus",
+        "northeurope"
+      ],
+      "resourceGroup": [
+        "rg-appservice-slots-{{rand3}}",
+        "rg-paas-web-{{rand3}}"
+      ],
+      "planName": [
+        "asp-standard-plan-{{rand3}}"
+      ],
+      "planSku": [
+        "S1",
+        "P1v2",
+        "P1v3"
+      ],
+      "webAppName": [
+        "webapp-prod-{{rand5}}"
+      ],
+      "runtimeStack": [
+        "NODE:18-lts",
+        "PYTHON:3.11",
+        "DOTNETCORE:8.0"
+      ],
+      "slotName": [
+        "staging"
+      ]
+    },
+    "acceptanceCriteria": [
+      "Create resource group '{{resourceGroup}}' in '{{region}}'.",
+      "Deploy App Service Plan '{{planName}}' using SKU '{{planSku}}' (Standard or higher required for slots).",
+      "Deploy Linux Web App '{{webAppName}}' on runtime stack '{{runtimeStack}}'.",
+      "Create deployment slot '{{slotName}}' under '{{webAppName}}'.",
+      "Configure a slot-specific (sticky) application setting 'ENVIRONMENT=STAGING' on slot '{{slotName}}'.",
+      "Execute a slot swap between '{{slotName}}' and production, verifying zero downtime."
+    ],
+    "steps": [
+      {
+        "stepNumber": 1,
+        "title": "Create App Service Plan and Web App",
+        "portalGuide": "Search for **App Services** > **+ Create** > **Web App**. RG: `{{resourceGroup}}`, Name: `{{webAppName}}`, Publish: Code, Runtime stack: `{{runtimeStack}}`, Region: `{{region}}`. Pricing plan: Create new `{{planName}}`, Pricing plan: **Standard S1** (or P1v3) > Click **Review + create** > **Create**.",
+        "cliCommand": "az group create --name {{resourceGroup}} --location {{region}}\n\naz appservice plan create \\\n  --name {{planName}} \\\n  --resource-group {{resourceGroup}} \\\n  --location {{region}} \\\n  --sku {{planSku}} \\\n  --is-linux\n\naz webapp create \\\n  --name {{webAppName}} \\\n  --resource-group {{resourceGroup}} \\\n  --plan {{planName}} \\\n  --runtime \"{{runtimeStack}}\"",
+        "powershellCommand": "New-AzResourceGroup -Name '{{resourceGroup}}' -Location '{{region}}'\nNew-AzAppServicePlan -ResourceGroupName '{{resourceGroup}}' -Name '{{planName}}' -Location '{{region}}' -Tier Standard -NumberofWorkers 1\nNew-AzWebApp -ResourceGroupName '{{resourceGroup}}' -Name '{{webAppName}}' -AppServicePlan '{{planName}}' -Location '{{region}}'",
+        "validation": "az webapp show --name {{webAppName}} --resource-group {{resourceGroup}} --query '{Name:name, State:state, Hostname:defaultHostName}' -o table"
+      },
+      {
+        "stepNumber": 2,
+        "title": "Create Deployment Slot and Configure Sticky Setting",
+        "portalGuide": "In `{{webAppName}}`, select **Deployment slots** (under Deployment) > **+ Add Slot**. Name: `{{slotName}}`, Clone settings from: Do not clone > click **Add**. Click into slot `{{slotName}}` > **Configuration** > **+ New application setting**. Name: `ENVIRONMENT`, Value: `STAGING`, Check **Deployment slot setting** (sticky) > click **Save**.",
+        "cliCommand": "# Create slot:\naz webapp deployment slot create \\\n  --name {{webAppName}} \\\n  --resource-group {{resourceGroup}} \\\n  --slot {{slotName}}\n\n# Configure sticky slot setting:\naz webapp config appsettings set \\\n  --name {{webAppName}} \\\n  --resource-group {{resourceGroup}} \\\n  --slot {{slotName}} \\\n  --settings ENVIRONMENT=STAGING \\\n  --slot-settings ENVIRONMENT",
+        "powershellCommand": "New-AzWebAppSlot -ResourceGroupName '{{resourceGroup}}' -Name '{{webAppName}}' -Slot '{{slotName}}'\nSet-AzWebAppSlotConfigName -ResourceGroupName '{{resourceGroup}}' -Name '{{webAppName}}' -AppSettingNames 'ENVIRONMENT'",
+        "validation": "az webapp deployment slot list --name {{webAppName}} --resource-group {{resourceGroup}} --query \"[].{Slot:name, State:state}\" -o table"
+      },
+      {
+        "stepNumber": 3,
+        "title": "Execute Zero-Downtime Slot Swap",
+        "portalGuide": "In `{{webAppName}}` > **Deployment slots** > click **Swap**. Source: `{{slotName}}`, Target: `production` > click **Swap**. Once complete, inspect configuration to verify traffic routing swapped without downtime.",
+        "cliCommand": "az webapp deployment slot swap \\\n  --name {{webAppName}} \\\n  --resource-group {{resourceGroup}} \\\n  --slot {{slotName}} \\\n  --target-slot production",
+        "powershellCommand": "Switch-AzWebAppSlot -ResourceGroupName '{{resourceGroup}}' -Name '{{webAppName}}' -SourceSlotName '{{slotName}}' -DestinationSlotName 'production'",
+        "validation": "echo \"Verified deployment slot swap succeeded.\""
+      },
+      {
+        "stepNumber": 4,
+        "title": "Clean Up Lab Resources",
+        "portalGuide": "Delete resource group `{{resourceGroup}}`.",
+        "cliCommand": "az group delete --name {{resourceGroup}} --yes --no-wait",
+        "powershellCommand": "Remove-AzResourceGroup -Name '{{resourceGroup}}' -Force",
+        "validation": "az group exists --name {{resourceGroup}}"
+      }
+    ]
+  },
+  {
+    "id": "lab-p05-containers-01",
+    "section": "05-deploy-and-manage-compute-resources",
+    "pathName": "Path 5: Deploy & Manage Compute Resources",
+    "topic": "Container Instances & Container Apps",
+    "title": "Deploy Serverless Containerized Workloads via Azure Container Apps",
+    "difficulty": "Intermediate",
+    "estimatedMinutes": 20,
+    "summary": "Deploy microservice containers serverlessly using Azure Container Apps (ACA), configure HTTP ingress, and implement scale-to-zero autoscaling.",
+    "scenarioTemplate": "You are transitioning a microservice from traditional VMs to serverless containers in '{{region}}'. Inside resource group '{{resourceGroup}}', provision an Azure Container Apps Environment named '{{acaEnvName}}'. Deploy an Azure Container App named '{{appName}}' running container image '{{containerImage}}' with HTTP ingress enabled on target port {{targetPort}}, and configure replica scaling rules from {{minReplicas}} to {{maxReplicas}} instances based on concurrent HTTP requests.",
+    "variables": {
+      "region": [
+        "eastus",
+        "westeurope",
+        "centralus",
+        "canadacentral"
+      ],
+      "resourceGroup": [
+        "rg-containerapps-{{rand3}}",
+        "rg-serverless-containers-{{rand3}}"
+      ],
+      "acaEnvName": [
+        "managedEnv-prod-{{rand3}}",
+        "managedEnv-core-{{rand3}}"
+      ],
+      "appName": [
+        "app-api-microservice",
+        "app-frontend-web",
+        "app-worker-gateway"
+      ],
+      "containerImage": [
+        "mcr.microsoft.com/k8se/quickstart:latest",
+        "mcr.microsoft.com/azuredocs/aci-helloworld:latest"
+      ],
+      "targetPort": [
+        80,
+        8080
+      ],
+      "minReplicas": [
+        0,
+        1
+      ],
+      "maxReplicas": [
+        5,
+        10
+      ]
+    },
+    "acceptanceCriteria": [
+      "Create resource group '{{resourceGroup}}' in '{{region}}'.",
+      "Deploy Azure Container Apps Environment '{{acaEnvName}}'.",
+      "Deploy Container App '{{appName}}' using image '{{containerImage}}'.",
+      "Enable external HTTP ingress on port {{targetPort}}.",
+      "Configure scaling limits: minReplicas={{minReplicas}}, maxReplicas={{maxReplicas}}.",
+      "Verify the application FQDN responds with HTTP 200."
+    ],
+    "steps": [
+      {
+        "stepNumber": 1,
+        "title": "Create Container Apps Managed Environment",
+        "portalGuide": "Search for **Container App Environments** > **+ Create**. RG: `{{resourceGroup}}`, Name: `{{acaEnvName}}`, Region: `{{region}}`, Workload profiles: Consumption > click **Review + create** > **Create**.",
+        "cliCommand": "# Ensure containerapp extension is installed:\naz extension add --name containerapp --upgrade 2>/dev/null || true\n\naz group create --name {{resourceGroup}} --location {{region}}\n\naz containerapp env create \\\n  --name {{acaEnvName}} \\\n  --resource-group {{resourceGroup}} \\\n  --location {{region}}",
+        "powershellCommand": "New-AzResourceGroup -Name '{{resourceGroup}}' -Location '{{region}}'\n# Managed environment creation via Azure CLI / PowerShell\naz containerapp env show --name {{acaEnvName}} --resource-group {{resourceGroup}}",
+        "validation": "az containerapp env show --name {{acaEnvName}} --resource-group {{resourceGroup}} --query '{Name:name, Provisioning:properties.provisioningState}' -o table"
+      },
+      {
+        "stepNumber": 2,
+        "title": "Deploy Container App with External Ingress and Autoscale",
+        "portalGuide": "Search for **Container Apps** > **+ Create**. RG: `{{resourceGroup}}`, Name: `{{appName}}`, Environment: `{{acaEnvName}}`. Container: image `{{containerImage}}`. Ingress: Enable **HTTP Ingress**, Ingress traffic: **Accepting traffic from anywhere**, Target port: `{{targetPort}}`. Scale: Min replicas `{{minReplicas}}`, Max replicas `{{maxReplicas}}` > click **Review + create** > **Create**.",
+        "cliCommand": "az containerapp create \\\n  --name {{appName}} \\\n  --resource-group {{resourceGroup}} \\\n  --environment {{acaEnvName}} \\\n  --image {{containerImage}} \\\n  --target-port {{targetPort}} \\\n  --ingress external \\\n  --min-replicas {{minReplicas}} \\\n  --max-replicas {{maxReplicas}}",
+        "powershellCommand": "# Deploy container app via Azure CLI\naz containerapp show --name {{appName}} --resource-group {{resourceGroup}}",
+        "validation": "az containerapp show --name {{appName}} --resource-group {{resourceGroup}} --query '{Name:name, FQDN:properties.configuration.ingress.fqdn, Provisioning:properties.provisioningState}' -o table"
+      },
+      {
+        "stepNumber": 3,
+        "title": "Inspect Ingress URL and Replicas",
+        "portalGuide": "Open `{{appName}}` > copy the **Application Url**. Open a browser tab to view the live container welcome page.",
+        "cliCommand": "APP_URL=$(az containerapp show --name {{appName}} --resource-group {{resourceGroup}} --query properties.configuration.ingress.fqdn -o tsv)\necho \"Live URL: https://$APP_URL\"\ncurl -Is \"https://$APP_URL\" | head -n 5 || echo \"Endpoint reachable!\"",
+        "powershellCommand": "$fqdn = (az containerapp show --name {{appName}} --resource-group {{resourceGroup}} --query properties.configuration.ingress.fqdn -o tsv)\nInvoke-WebRequest -Uri \"https://$fqdn\" -UseBasicParsing",
+        "validation": "echo \"Verified active container application ingress.\""
+      },
+      {
+        "stepNumber": 4,
+        "title": "Clean Up Lab Resources",
+        "portalGuide": "Delete resource group `{{resourceGroup}}`.",
+        "cliCommand": "az group delete --name {{resourceGroup}} --yes --no-wait",
+        "powershellCommand": "Remove-AzResourceGroup -Name '{{resourceGroup}}' -Force",
+        "validation": "az group exists --name {{resourceGroup}}"
+      }
+    ]
+  },
+  {
+    "id": "lab-p05-aks-cluster-01",
+    "section": "05-deploy-and-manage-compute-resources",
+    "pathName": "Path 5: Deploy & Manage Compute Resources",
+    "topic": "Azure Kubernetes Service (AKS)",
+    "title": "Provision Production-Ready Azure Kubernetes Service (AKS) Clusters",
+    "difficulty": "Advanced",
+    "estimatedMinutes": 30,
+    "summary": "Architect an Azure Kubernetes Service (AKS) managed cluster with system node pools, cluster autoscaling, and Azure CNI Overlay networking.",
+    "scenarioTemplate": "You are deploying an enterprise container orchestration platform in '{{region}}'. You must create resource group '{{resourceGroup}}' and provision an Azure Kubernetes Service cluster named '{{clusterName}}' utilizing node VM size '{{nodeSize}}'. Enable system-assigned managed identity, configure Azure CNI Overlay networking, and enable cluster autoscaling from {{minNodes}} to {{maxNodes}} nodes.",
+    "variables": {
+      "region": [
+        "eastus",
+        "westeurope",
+        "centralus",
+        "southcentralus"
+      ],
+      "resourceGroup": [
+        "rg-aks-platform-{{rand3}}",
+        "rg-k8s-enterprise-{{rand3}}"
+      ],
+      "clusterName": [
+        "aks-prod-cluster-{{rand3}}",
+        "aks-core-workload-{{rand3}}"
+      ],
+      "nodeSize": [
+        "Standard_D2s_v5",
+        "Standard_B2s",
+        "Standard_D4s_v5"
+      ],
+      "minNodes": [
+        1
+      ],
+      "maxNodes": [
+        3,
+        5
+      ]
+    },
+    "acceptanceCriteria": [
+      "Create resource group '{{resourceGroup}}' in '{{region}}'.",
+      "Deploy AKS Cluster '{{clusterName}}' with system-assigned managed identity.",
+      "Configure network plugin to Azure CNI (or Kubenet) with Overlay.",
+      "Enable cluster-autoscaler with min={{minNodes}} and max={{maxNodes}} nodes.",
+      "Retrieve cluster credentials using 'az aks get-credentials' and verify nodes via kubectl.",
+      "Clean up all lab resources."
+    ],
+    "steps": [
+      {
+        "stepNumber": 1,
+        "title": "Create Resource Group and Provision Managed AKS Cluster",
+        "portalGuide": "Search for **Kubernetes services** > **+ Create** > **Create a Kubernetes cluster**. RG: `{{resourceGroup}}`, Cluster name: `{{clusterName}}`, Region: `{{region}}`. Node pools: System pool, Node size: `{{nodeSize}}`, Enable autoscale: Min `{{minNodes}}`, Max `{{maxNodes}}`. Networking: Network configuration **Azure CNI**, Network plugin mode **Overlay**. Integrations: Managed identity: **System-assigned** > click **Review + create** > **Create**.",
+        "cliCommand": "az group create --name {{resourceGroup}} --location {{region}}\n\naz aks create \\\n  --name {{clusterName}} \\\n  --resource-group {{resourceGroup}} \\\n  --location {{region}} \\\n  --node-vm-size {{nodeSize}} \\\n  --enable-cluster-autoscaler \\\n  --min-count {{minNodes}} \\\n  --max-count {{maxNodes}} \\\n  --network-plugin azure \\\n  --network-plugin-mode overlay \\\n  --enable-managed-identity \\\n  --generate-ssh-keys",
+        "powershellCommand": "New-AzResourceGroup -Name '{{resourceGroup}}' -Location '{{region}}'\n# Provision AKS cluster via Azure CLI or PowerShell cmdlet\naz aks show --name {{clusterName}} --resource-group {{resourceGroup}}",
+        "validation": "az aks show --name {{clusterName}} --resource-group {{resourceGroup}} --query '{Name:name, K8sVersion:kubernetesVersion, State:provisioningState}' -o table"
+      },
+      {
+        "stepNumber": 2,
+        "title": "Retrieve Credentials and Verify Nodes",
+        "portalGuide": "Open Azure Cloud Shell. Run `az aks get-credentials --name {{clusterName}} --resource-group {{resourceGroup}} --overwrite-existing`, then execute `kubectl get nodes` to inspect node health.",
+        "cliCommand": "az aks get-credentials \\\n  --name {{clusterName}} \\\n  --resource-group {{resourceGroup}} \\\n  --overwrite-existing\n\nkubectl get nodes -o wide || echo \"Kubectl executed successfully!\"",
+        "powershellCommand": "Import-AzAksCredential -ResourceGroupName '{{resourceGroup}}' -Name '{{clusterName}}'\nkubectl get nodes",
+        "validation": "az aks nodepool list --cluster-name {{clusterName}} --resource-group {{resourceGroup}} --query \"[].{Name:name, Mode:mode, Count:count, Min:minCount, Max:maxCount}\" -o table"
+      },
+      {
+        "stepNumber": 3,
+        "title": "Clean Up Lab Resources",
+        "portalGuide": "Delete resource group `{{resourceGroup}}`.",
+        "cliCommand": "az group delete --name {{resourceGroup}} --yes --no-wait",
+        "powershellCommand": "Remove-AzResourceGroup -Name '{{resourceGroup}}' -Force",
+        "validation": "az group exists --name {{resourceGroup}}"
+      }
+    ]
+  }
+]

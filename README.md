@@ -31,6 +31,13 @@ AzureTraining/
 │   ├── questions.js         # Compiled master question bank (338 verified questions)
 │   ├── compile_questions.py # Question validation and compiler tool
 │   └── banks/               # Modular JSON question banks per Learning Path
+├── labbuilder-app/          # Interactive Scenario-Based Practical Lab Simulator
+│   ├── index.html           # Main application entry point (double-click to open)
+│   ├── style.css            # Modern Azure Dark Glassmorphism design system
+│   ├── app.js               # Dynamic hydration, step disclosure & learner tracking
+│   ├── labs.js              # Master lab archetypes & randomized parameter schemas
+│   ├── labs.json            # Portable pure JSON export of the lab catalog
+│   └── README.md            # LabBuilder documentation
 └── README.md                # This file
 ```
 
@@ -38,7 +45,7 @@ AzureTraining/
 
 ## 🚀 Interactive Applications (Zero Server Required)
 
-Both applications run entirely in the web browser using Vanilla HTML5, CSS3, and modern JavaScript. They require **no web server, Node.js, build step, or network connection**.
+All three applications run entirely in the web browser using Vanilla HTML5, CSS3, and modern JavaScript. They require **no web server, Node.js, build step, or network connection**.
 
 ### 1. Flashcard Study Deck (`flash-app/`)
 - **Direct Launch**: Open [`flash-app/index.html`](flash-app/index.html) in any browser (Chrome, Edge, Firefox, Brave, Safari).
@@ -56,6 +63,14 @@ Both applications run entirely in the web browser using Vanilla HTML5, CSS3, and
   - **Anti-Gaming Choice Shuffling**: The Fisher-Yates algorithm randomizes choice order (A, B, C, D) on every single render to prevent position memorization.
   - **Dual Modes**: *Practice Mode* (instant green/red feedback, full rationale, and reference citations) and *Exam Simulation Mode* (timed test, question palette, full score breakdown).
   - **Automatic Mistake Remediation**: Tracks incorrect questions in your learner profile and generates targeted remediation quizzes to re-test only missed questions.
+
+### 3. Practical Lab Simulator (`labbuilder-app/`)
+- **Direct Launch**: Open [`labbuilder-app/index.html`](labbuilder-app/index.html) in any browser.
+- **Features**:
+  - **Dynamic Parameter Randomization**: Injects fresh resource group names, roles, regions, and CIDR subnets every run to provide realistic, replayable practice.
+  - **Progressive Step Disclosure**: Detailed Portal guides, Azure CLI commands, PowerShell scripts, and verification commands are locked by default; reveal them one-by-one as hints when needed.
+  - **Acceptance Criteria Checklist**: Interactive progress checklist as tasks are completed in Azure.
+  - **Trouble Flagging & Spaced Revision**: Mark difficult labs for review and monitor completion rates across Learning Paths in your Learner Profile.
 
 ---
 
@@ -75,7 +90,7 @@ Detailed, verified technical reference documentation covering 6 Learning Paths a
 
 ## 🛠️ Recompiling Datasets
 
-If you add new questions or flashcards to the modular files in `decks/` or `banks/`, run the respective compiler scripts from the project root:
+If you add new questions, flashcards, or lab archetypes to the modular files in `decks/`, `banks/`, or `labs/`, run the respective compiler scripts from the project root:
 
 ```bash
 # Recompile flashcard decks (cards.json, cards.js, cards.tsv)
@@ -83,6 +98,9 @@ python flash-app/compile_decks.py
 
 # Recompile quiz question banks (questions.json, questions.js)
 python quiz-app/compile_questions.py
+
+# Recompile practical lab simulations (labs.json, labs.js)
+python labbuilder-app/compile_labs.py
 ```
 
-Both compilers validate JSON syntax, ensure unique identifiers, check required fields, and report total coverage metrics.
+All three compilers validate JSON syntax, ensure unique identifiers, check required fields, and report total coverage metrics.

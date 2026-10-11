@@ -1,0 +1,607 @@
+[
+  {
+    "id": "lab-p03-net-01",
+    "section": "03-configure-and-manage-virtual-networks",
+    "pathName": "Path 3: Configure & Manage Virtual Networks",
+    "topic": "Virtual Networks, Subnets & NSGs",
+    "title": "Secure Multi-Tier Virtual Network with Subnets and NSGs",
+    "difficulty": "Intermediate",
+    "estimatedMinutes": 25,
+    "summary": "Architect a segmented virtual network with web and database subnets, then enforce traffic isolation using Network Security Groups (NSGs) and Application Security Groups (ASGs).",
+    "scenarioTemplate": "You are designing network infrastructure for an application in '{{region}}'. You must deploy a Virtual Network named '{{vnetName}}' with address space '{{vnetPrefix}}'. Inside, create two subnets: a web tier subnet ('{{webSubnetName}}', {{webSubnetPrefix}}) and a database tier subnet ('{{dbSubnetName}}', {{dbSubnetPrefix}}). Configure an NSG named '{{nsgName}}' to allow inbound port {{webPort}} to the web tier, while completely blocking the database tier from direct public Internet exposure.",
+    "variables": {
+      "region": [
+        "eastus",
+        "westeurope",
+        "southcentralus",
+        "australiaeast"
+      ],
+      "resourceGroup": [
+        "rg-network-lab-{{rand3}}",
+        "rg-vnet-security-{{rand3}}"
+      ],
+      "vnetName": [
+        "vnet-app-prod",
+        "vnet-core-workload",
+        "vnet-hybrid-tier1"
+      ],
+      "vnetPrefix": [
+        "10.20.0.0/16",
+        "10.50.0.0/16",
+        "172.16.0.0/16"
+      ],
+      "webSubnetName": [
+        "snet-web",
+        "snet-frontend"
+      ],
+      "webSubnetPrefix": [
+        "10.20.1.0/24",
+        "10.50.1.0/24",
+        "172.16.1.0/24"
+      ],
+      "dbSubnetName": [
+        "snet-db",
+        "snet-backend"
+      ],
+      "dbSubnetPrefix": [
+        "10.20.2.0/24",
+        "10.50.2.0/24",
+        "172.16.2.0/24"
+      ],
+      "webPort": [
+        80,
+        443,
+        8080
+      ],
+      "nsgName": [
+        "nsg-web-tier-{{rand3}}",
+        "nsg-frontend-sec-{{rand3}}"
+      ]
+    },
+    "acceptanceCriteria": [
+      "Create resource group '{{resourceGroup}}' in '{{region}}'.",
+      "Create Virtual Network '{{vnetName}}' with CIDR '{{vnetPrefix}}'.",
+      "Add frontend subnet '{{webSubnetName}}' ({{webSubnetPrefix}}) and backend subnet '{{dbSubnetName}}' ({{dbSubnetPrefix}}).",
+      "Create Network Security Group '{{nsgName}}' with an Inbound rule allowing TCP port {{webPort}} with priority 200.",
+      "Associate '{{nsgName}}' to subnet '{{webSubnetName}}'.",
+      "Verify effective NSG associations on the subnet."
+    ],
+    "steps": [
+      {
+        "stepNumber": 1,
+        "title": "Create Resource Group and Segmented Virtual Network",
+        "portalGuide": "Search for **Virtual networks** > **+ Create**. Resource group: `{{resourceGroup}}`, Name: `{{vnetName}}`, Region: `{{region}}`. Under **IP addresses**, set address space to `{{vnetPrefix}}`. Add subnet `{{webSubnetName}}` with range `{{webSubnetPrefix}}`, then add subnet `{{dbSubnetName}}` with range `{{dbSubnetPrefix}}`.",
+        "cliCommand": "az group create --name {{resourceGroup}} --location {{region}}\n\naz network vnet create \\\n  --name {{vnetName}} \\\n  --resource-group {{resourceGroup}} \\\n  --location {{region}} \\\n  --address-prefixes {{vnetPrefix}} \\\n  --subnet-name {{webSubnetName}} \\\n  --subnet-prefixes {{webSubnetPrefix}}\n\naz network vnet subnet create \\\n  --name {{dbSubnetName}} \\\n  --vnet-name {{vnetName}} \\\n  --resource-group {{resourceGroup}} \\\n  --address-prefixes {{dbSubnetPrefix}}",
+        "powershellCommand": "New-AzResourceGroup -Name '{{resourceGroup}}' -Location '{{region}}'\n\n$webSubnet = New-AzVirtualNetworkSubnetConfig -Name '{{webSubnetName}}' -AddressPrefix '{{webSubnetPrefix}}'\n$dbSubnet = New-AzVirtualNetworkSubnetConfig -Name '{{dbSubnetName}}' -AddressPrefix '{{dbSubnetPrefix}}'\n\nNew-AzVirtualNetwork -ResourceGroupName '{{resourceGroup}}' -Location '{{region}}' -Name '{{vnetName}}' -AddressPrefix '{{vnetPrefix}}' -Subnet $webSubnet, $dbSubnet",
+        "validation": "az network vnet subnet list --resource-group {{resourceGroup}} --vnet-name {{vnetName}} -o table"
+      },
+      {
+        "stepNumber": 2,
+        "title": "Create Network Security Group and Inbound Port Rule",
+        "portalGuide": "Search for **Network security groups** > **+ Create**. Select RG `{{resourceGroup}}`, Name: `{{nsgName}}`, Region: `{{region}}`. Once deployed, open the NSG > **Inbound security rules** > **+ Add**. Source: Any, Destination: Any, Destination port: `{{webPort}}`, Protocol: TCP, Action: Allow, Priority: 200, Name: `Allow_Web_{{webPort}}`.",
+        "cliCommand": "az network nsg create \\\n  --name {{nsgName}} \\\n  --resource-group {{resourceGroup}} \\\n  --location {{region}}\n\naz network nsg rule create \\\n  --name Allow_Web_{{webPort}} \\\n  --nsg-name {{nsgName}} \\\n  --resource-group {{resourceGroup}} \\\n  --priority 200 \\\n  --access Allow \\\n  --direction Inbound \\\n  --protocol Tcp \\\n  --destination-port-ranges {{webPort}}",
+        "powershellCommand": "$nsg = New-AzNetworkSecurityGroup -ResourceGroupName '{{resourceGroup}}' -Location '{{region}}' -Name '{{nsgName}}'\n\n$nsg | Add-AzNetworkSecurityRuleConfig -Name 'Allow_Web_{{webPort}}' -Access Allow -Protocol Tcp -Direction Inbound -Priority 200 -SourceAddressPrefix '*' -SourcePortRange '*' -DestinationAddressPrefix '*' -DestinationPortRange {{webPort}}\n$nsg | Set-AzNetworkSecurityGroup",
+        "validation": "az network nsg rule show --nsg-name {{nsgName}} --resource-group {{resourceGroup}} --name Allow_Web_{{webPort}} --query '{Access:access, Port:destinationPortRange, Priority:priority}' -o table"
+      },
+      {
+        "stepNumber": 3,
+        "title": "Associate Network Security Group to Web Subnet",
+        "portalGuide": "In the NSG blade, select **Subnets** > **+ Associate**. Choose Virtual network: `{{vnetName}}`, Subnet: `{{webSubnetName}}` > click **OK**.",
+        "cliCommand": "az network vnet subnet update \\\n  --name {{webSubnetName}} \\\n  --vnet-name {{vnetName}} \\\n  --resource-group {{resourceGroup}} \\\n  --network-security-group {{nsgName}}",
+        "powershellCommand": "$vnet = Get-AzVirtualNetwork -ResourceGroupName '{{resourceGroup}}' -Name '{{vnetName}}'\n$nsg = Get-AzNetworkSecurityGroup -ResourceGroupName '{{resourceGroup}}' -Name '{{nsgName}}'\nSet-AzVirtualNetworkSubnetConfig -VirtualNetwork $vnet -Name '{{webSubnetName}}' -AddressPrefix '{{webSubnetPrefix}}' -NetworkSecurityGroup $nsg | Set-AzVirtualNetwork",
+        "validation": "az network vnet subnet show --name {{webSubnetName}} --vnet-name {{vnetName}} --resource-group {{resourceGroup}} --query 'networkSecurityGroup.id' -o tsv"
+      },
+      {
+        "stepNumber": 4,
+        "title": "Clean Up Lab Resources",
+        "portalGuide": "Navigate to **Resource groups** > `{{resourceGroup}}` > click **Delete resource group**.",
+        "cliCommand": "az group delete --name {{resourceGroup}} --yes --no-wait",
+        "powershellCommand": "Remove-AzResourceGroup -Name '{{resourceGroup}}' -Force",
+        "validation": "az group exists --name {{resourceGroup}}"
+      }
+    ]
+  },
+  {
+    "id": "lab-p03-peering-01",
+    "section": "03-configure-and-manage-virtual-networks",
+    "pathName": "Path 3: Configure & Manage Virtual Networks",
+    "topic": "Virtual Network Peering & Routing",
+    "title": "Configure Global and Regional Virtual Network Peering",
+    "difficulty": "Intermediate",
+    "estimatedMinutes": 25,
+    "summary": "Connect two Virtual Networks with non-overlapping IP address spaces via bidirectional VNet Peering to enable low-latency private connectivity.",
+    "scenarioTemplate": "You are interconnecting workloads across environments. The Hub network is located in '{{hubRegion}}' with address space '{{hubPrefix}}', while the Spoke network resides in '{{spokeRegion}}' with address space '{{spokePrefix}}'. You must deploy both networks inside '{{resourceGroup}}' and establish full bidirectional VNet peering ('{{hubToSpokePeering}}' and '{{spokeToHubPeering}}') enabling virtual network access and forwarded traffic.",
+    "variables": {
+      "hubRegion": [
+        "eastus",
+        "westeurope"
+      ],
+      "spokeRegion": [
+        "eastus2",
+        "northeurope"
+      ],
+      "resourceGroup": [
+        "rg-vnet-peering-{{rand3}}",
+        "rg-hybrid-interconnect-{{rand3}}"
+      ],
+      "hubVnetName": [
+        "vnet-hub-core",
+        "vnet-central-hub"
+      ],
+      "hubPrefix": [
+        "10.100.0.0/16",
+        "172.20.0.0/16"
+      ],
+      "spokeVnetName": [
+        "vnet-spoke-app",
+        "vnet-workload-spoke"
+      ],
+      "spokePrefix": [
+        "10.200.0.0/16",
+        "172.30.0.0/16"
+      ],
+      "hubToSpokePeering": [
+        "peer-hub-to-spoke"
+      ],
+      "spokeToHubPeering": [
+        "peer-spoke-to-hub"
+      ]
+    },
+    "acceptanceCriteria": [
+      "Create resource group '{{resourceGroup}}' in '{{hubRegion}}'.",
+      "Deploy Hub VNet '{{hubVnetName}}' in '{{hubRegion}}' with prefix '{{hubPrefix}}'.",
+      "Deploy Spoke VNet '{{spokeVnetName}}' in '{{spokeRegion}}' with prefix '{{spokePrefix}}'.",
+      "Configure peering from '{{hubVnetName}}' to '{{spokeVnetName}}'.",
+      "Configure return peering from '{{spokeVnetName}}' to '{{hubVnetName}}'.",
+      "Verify both peering links transition to the 'Connected' status."
+    ],
+    "steps": [
+      {
+        "stepNumber": 1,
+        "title": "Create Hub and Spoke Virtual Networks",
+        "portalGuide": "Search for **Virtual networks** > **+ Create**. RG: `{{resourceGroup}}`, Name: `{{hubVnetName}}`, Region: `{{hubRegion}}`, IP Space: `{{hubPrefix}}`. Repeat for Spoke: Name: `{{spokeVnetName}}`, Region: `{{spokeRegion}}`, IP Space: `{{spokePrefix}}`.",
+        "cliCommand": "az group create --name {{resourceGroup}} --location {{hubRegion}}\n\naz network vnet create \\\n  --name {{hubVnetName}} \\\n  --resource-group {{resourceGroup}} \\\n  --location {{hubRegion}} \\\n  --address-prefixes {{hubPrefix}} \\\n  --subnet-name snet-default \\\n  --subnet-prefixes 10.100.1.0/24\n\naz network vnet create \\\n  --name {{spokeVnetName}} \\\n  --resource-group {{resourceGroup}} \\\n  --location {{spokeRegion}} \\\n  --address-prefixes {{spokePrefix}} \\\n  --subnet-name snet-default \\\n  --subnet-prefixes 10.200.1.0/24",
+        "powershellCommand": "New-AzResourceGroup -Name '{{resourceGroup}}' -Location '{{hubRegion}}'\nNew-AzVirtualNetwork -ResourceGroupName '{{resourceGroup}}' -Location '{{hubRegion}}' -Name '{{hubVnetName}}' -AddressPrefix '{{hubPrefix}}'\nNew-AzVirtualNetwork -ResourceGroupName '{{resourceGroup}}' -Location '{{spokeRegion}}' -Name '{{spokeVnetName}}' -AddressPrefix '{{spokePrefix}}'",
+        "validation": "az network vnet list --resource-group {{resourceGroup}} --query \"[].{Name:name, Location:location, CIDR:addressSpace.addressPrefixes[0]}\" -o table"
+      },
+      {
+        "stepNumber": 2,
+        "title": "Configure Bidirectional VNet Peering Links",
+        "portalGuide": "Open `{{hubVnetName}}` > **Peerings** (under Settings) > **+ Add**. Peering link name: `{{hubToSpokePeering}}`. Remote virtual network: choose `{{spokeVnetName}}`. Name of remote peering link: `{{spokeToHubPeering}}`. Ensure 'Allow virtual network access' is checked on both > click **Add**.",
+        "cliCommand": "HUB_ID=$(az network vnet show --name {{hubVnetName}} --resource-group {{resourceGroup}} --query id -o tsv)\nSPOKE_ID=$(az network vnet show --name {{spokeVnetName}} --resource-group {{resourceGroup}} --query id -o tsv)\n\naz network vnet peering create \\\n  --name {{hubToSpokePeering}} \\\n  --resource-group {{resourceGroup}} \\\n  --vnet-name {{hubVnetName}} \\\n  --remote-vnet \"$SPOKE_ID\" \\\n  --allow-vnet-access\n\naz network vnet peering create \\\n  --name {{spokeToHubPeering}} \\\n  --resource-group {{resourceGroup}} \\\n  --vnet-name {{spokeVnetName}} \\\n  --remote-vnet \"$HUB_ID\" \\\n  --allow-vnet-access",
+        "powershellCommand": "$hub = Get-AzVirtualNetwork -ResourceGroupName '{{resourceGroup}}' -Name '{{hubVnetName}}'\n$spoke = Get-AzVirtualNetwork -ResourceGroupName '{{resourceGroup}}' -Name '{{spokeVnetName}}'\nAdd-AzVirtualNetworkPeering -Name '{{hubToSpokePeering}}' -VirtualNetwork $hub -RemoteVirtualNetworkId $spoke.Id\nAdd-AzVirtualNetworkPeering -Name '{{spokeToHubPeering}}' -VirtualNetwork $spoke -RemoteVirtualNetworkId $hub.Id",
+        "validation": "az network vnet peering list --resource-group {{resourceGroup}} --vnet-name {{hubVnetName}} --query \"[].{Name:name, Status:peeringState}\" -o table"
+      },
+      {
+        "stepNumber": 3,
+        "title": "Verify Effective Peering State",
+        "portalGuide": "Review the **Peerings** tab on both VNets. Ensure Peering status states **Connected** on both sides (not Initiated).",
+        "cliCommand": "az network vnet peering show --name {{hubToSpokePeering}} --vnet-name {{hubVnetName}} --resource-group {{resourceGroup}} --query '{HubSide:peeringState}' -o table\naz network vnet peering show --name {{spokeToHubPeering}} --vnet-name {{spokeVnetName}} --resource-group {{resourceGroup}} --query '{SpokeSide:peeringState}' -o table",
+        "powershellCommand": "(Get-AzVirtualNetworkPeering -VirtualNetworkName '{{hubVnetName}}' -ResourceGroupName '{{resourceGroup}}').PeeringState",
+        "validation": "echo \"Verified bidirectional Connected state.\""
+      },
+      {
+        "stepNumber": 4,
+        "title": "Clean Up Lab Resources",
+        "portalGuide": "Delete resource group `{{resourceGroup}}`.",
+        "cliCommand": "az group delete --name {{resourceGroup}} --yes --no-wait",
+        "powershellCommand": "Remove-AzResourceGroup -Name '{{resourceGroup}}' -Force",
+        "validation": "az group exists --name {{resourceGroup}}"
+      }
+    ]
+  },
+  {
+    "id": "lab-p03-dns-01",
+    "section": "03-configure-and-manage-virtual-networks",
+    "pathName": "Path 3: Configure & Manage Virtual Networks",
+    "topic": "Azure Private DNS",
+    "title": "Implement Azure Private DNS Zones with Virtual Network Links",
+    "difficulty": "Intermediate",
+    "estimatedMinutes": 20,
+    "summary": "Configure authoritative internal name resolution using Azure Private DNS Zones, Virtual Network links, and automatic VM registration.",
+    "scenarioTemplate": "Your cloud migration team requires private internal DNS resolution without deploying custom IaaS DNS servers. In resource group '{{resourceGroup}}', provision a Virtual Network '{{vnetName}}' in '{{region}}'. Create a Private DNS Zone named '{{privateZoneName}}', establish a Virtual Network Link named '{{vnetLinkName}}' with auto-registration enabled, and add static DNS records for a database host ('{{recordHost}}' -> {{recordIp}}).",
+    "variables": {
+      "region": [
+        "eastus",
+        "westeurope",
+        "centralus"
+      ],
+      "resourceGroup": [
+        "rg-privatedns-{{rand3}}",
+        "rg-dns-resolution-{{rand3}}"
+      ],
+      "vnetName": [
+        "vnet-app-dns",
+        "vnet-corp-workload"
+      ],
+      "privateZoneName": [
+        "corp.internal",
+        "contoso.azure",
+        "workload.local"
+      ],
+      "vnetLinkName": [
+        "link-vnet-autoreg",
+        "link-core-network"
+      ],
+      "recordHost": [
+        "db-primary",
+        "sql-cluster",
+        "app-backend"
+      ],
+      "recordIp": [
+        "10.20.2.15",
+        "10.50.2.20",
+        "172.16.2.50"
+      ]
+    },
+    "acceptanceCriteria": [
+      "Create resource group '{{resourceGroup}}' in '{{region}}'.",
+      "Deploy Virtual Network '{{vnetName}}' (10.20.0.0/16).",
+      "Deploy Private DNS Zone '{{privateZoneName}}'.",
+      "Create a Virtual Network Link '{{vnetLinkName}}' attaching '{{vnetName}}' to '{{privateZoneName}}' with registrationEnabled set to true.",
+      "Add an A Record for '{{recordHost}}' pointing to '{{recordIp}}'.",
+      "Verify the DNS record set exists and inspect zone configuration."
+    ],
+    "steps": [
+      {
+        "stepNumber": 1,
+        "title": "Create Resource Group and Virtual Network",
+        "portalGuide": "Search for **Virtual networks** > **+ Create**. RG: `{{resourceGroup}}`, Name: `{{vnetName}}`, Region: `{{region}}`, CIDR: `10.20.0.0/16` > **Review + create** > **Create**.",
+        "cliCommand": "az group create --name {{resourceGroup}} --location {{region}}\naz network vnet create \\\n  --name {{vnetName}} \\\n  --resource-group {{resourceGroup}} \\\n  --location {{region}} \\\n  --address-prefixes 10.20.0.0/16 \\\n  --subnet-name snet-workload \\\n  --subnet-prefixes 10.20.1.0/24",
+        "powershellCommand": "New-AzResourceGroup -Name '{{resourceGroup}}' -Location '{{region}}'\nNew-AzVirtualNetwork -ResourceGroupName '{{resourceGroup}}' -Location '{{region}}' -Name '{{vnetName}}' -AddressPrefix '10.20.0.0/16'",
+        "validation": "az network vnet show --name {{vnetName}} --resource-group {{resourceGroup}} --query 'provisioningState' -o tsv"
+      },
+      {
+        "stepNumber": 2,
+        "title": "Deploy Azure Private DNS Zone",
+        "portalGuide": "Search for **Private DNS zones** > **+ Create**. RG: `{{resourceGroup}}`, Name: `{{privateZoneName}}` > click **Review + create** > **Create**.",
+        "cliCommand": "az network private-dns zone create \\\n  --name {{privateZoneName}} \\\n  --resource-group {{resourceGroup}}",
+        "powershellCommand": "New-AzPrivateDnsZone -ResourceGroupName '{{resourceGroup}}' -Name '{{privateZoneName}}'",
+        "validation": "az network private-dns zone show --name {{privateZoneName}} --resource-group {{resourceGroup}} --query '{Zone:name, Records:numberOfRecordSets}' -o table"
+      },
+      {
+        "stepNumber": 3,
+        "title": "Link Virtual Network and Create DNS A Record",
+        "portalGuide": "In the Private DNS Zone `{{privateZoneName}}`, select **Virtual network links** > **+ Add**. Link name: `{{vnetLinkName}}`, Virtual network: `{{vnetName}}`, Check **Enable auto registration** > click **OK**. Then go to **Record sets** > **+ Add**. Name: `{{recordHost}}`, Type: **A**, IP address: `{{recordIp}}` > click **OK**.",
+        "cliCommand": "VNET_ID=$(az network vnet show --name {{vnetName}} --resource-group {{resourceGroup}} --query id -o tsv)\n\n# Create VNet Link with Auto-Registration:\naz network private-dns link vnet create \\\n  --name {{vnetLinkName}} \\\n  --resource-group {{resourceGroup}} \\\n  --zone-name {{privateZoneName}} \\\n  --virtual-network \"$VNET_ID\" \\\n  --registration-enabled true\n\n# Create DNS A Record:\naz network private-dns record-set a add-record \\\n  --resource-group {{resourceGroup}} \\\n  --zone-name {{privateZoneName}} \\\n  --record-set-name {{recordHost}} \\\n  --ipv4-address {{recordIp}}",
+        "powershellCommand": "$vnet = Get-AzVirtualNetwork -ResourceGroupName '{{resourceGroup}}' -Name '{{vnetName}}'\nNew-AzPrivateDnsVirtualNetworkLink -ResourceGroupName '{{resourceGroup}}' -ZoneName '{{privateZoneName}}' -Name '{{vnetLinkName}}' -VirtualNetworkId $vnet.Id -EnableRegistration\nNew-AzPrivateDnsRecordSet -ResourceGroupName '{{resourceGroup}}' -ZoneName '{{privateZoneName}}' -Name '{{recordHost}}' -RecordType A -Ttl 3600 -PrivateDnsRecord (New-AzPrivateDnsRecordConfig -Ipv4Address '{{recordIp}}')",
+        "validation": "az network private-dns record-set a show --name {{recordHost}} --zone-name {{privateZoneName}} --resource-group {{resourceGroup}} --query '{Name:name, IP:aRecords[0].ipv4Address}' -o table"
+      },
+      {
+        "stepNumber": 4,
+        "title": "Clean Up Lab Resources",
+        "portalGuide": "Delete resource group `{{resourceGroup}}`.",
+        "cliCommand": "az group delete --name {{resourceGroup}} --yes --no-wait",
+        "powershellCommand": "Remove-AzResourceGroup -Name '{{resourceGroup}}' -Force",
+        "validation": "az group exists --name {{resourceGroup}}"
+      }
+    ]
+  },
+  {
+    "id": "lab-p03-bastion-01",
+    "section": "03-configure-and-manage-virtual-networks",
+    "pathName": "Path 3: Configure & Manage Virtual Networks",
+    "topic": "Azure Bastion & Remote Management",
+    "title": "Deploy Azure Bastion for Secure Browser-Based VM Administration",
+    "difficulty": "Intermediate",
+    "estimatedMinutes": 25,
+    "summary": "Provision the dedicated AzureBastionSubnet and deploy Azure Bastion Host to allow secure RDP and SSH connectivity over TLS without exposing public IPs.",
+    "scenarioTemplate": "In compliance with zero-exposure security policies in '{{region}}', administrators must not assign public IP addresses directly to virtual machine network interfaces. You must prepare Virtual Network '{{vnetName}}' in '{{resourceGroup}}' by creating the required 'AzureBastionSubnet' subnet with CIDR '{{bastionPrefix}}', provision a Standard Public IP named '{{publicIpName}}', and deploy an Azure Bastion Host named '{{bastionName}}'.",
+    "variables": {
+      "region": [
+        "eastus",
+        "westeurope",
+        "centralus",
+        "australiaeast"
+      ],
+      "resourceGroup": [
+        "rg-bastion-sec-{{rand3}}",
+        "rg-secure-mgmt-{{rand3}}"
+      ],
+      "vnetName": [
+        "vnet-prod-network",
+        "vnet-jumpbox-tier"
+      ],
+      "bastionPrefix": [
+        "10.0.1.0/26",
+        "10.10.1.0/26",
+        "172.16.1.0/26"
+      ],
+      "publicIpName": [
+        "pip-bastion-standard-{{rand3}}"
+      ],
+      "bastionName": [
+        "bastion-core-host-{{rand3}}"
+      ]
+    },
+    "acceptanceCriteria": [
+      "Create resource group '{{resourceGroup}}' in '{{region}}'.",
+      "Deploy Virtual Network '{{vnetName}}' with a workload subnet.",
+      "Add a subnet named strictly 'AzureBastionSubnet' with prefix '{{bastionPrefix}}' (/26 minimum).",
+      "Deploy a Public IP '{{publicIpName}}' with SKU Standard and Allocation method Static.",
+      "Provision Azure Bastion Host '{{bastionName}}' attached to 'AzureBastionSubnet' and '{{publicIpName}}'.",
+      "Verify the Bastion Host provisioningState is Succeeded."
+    ],
+    "steps": [
+      {
+        "stepNumber": 1,
+        "title": "Create Virtual Network and Dedicated AzureBastionSubnet",
+        "portalGuide": "Search for **Virtual networks** > **+ Create**. RG: `{{resourceGroup}}`, Name: `{{vnetName}}`, Region: `{{region}}`. Add default subnet `snet-workload` (10.0.0.0/24). Add a second subnet named **AzureBastionSubnet** with prefix `{{bastionPrefix}}` > Click **Review + create** > **Create**.",
+        "cliCommand": "az group create --name {{resourceGroup}} --location {{region}}\n\naz network vnet create \\\n  --name {{vnetName}} \\\n  --resource-group {{resourceGroup}} \\\n  --location {{region}} \\\n  --address-prefixes 10.0.0.0/16 \\\n  --subnet-name snet-workload \\\n  --subnet-prefixes 10.0.0.0/24\n\naz network vnet subnet create \\\n  --name AzureBastionSubnet \\\n  --vnet-name {{vnetName}} \\\n  --resource-group {{resourceGroup}} \\\n  --address-prefixes {{bastionPrefix}}",
+        "powershellCommand": "New-AzResourceGroup -Name '{{resourceGroup}}' -Location '{{region}}'\n$workloadSubnet = New-AzVirtualNetworkSubnetConfig -Name 'snet-workload' -AddressPrefix '10.0.0.0/24'\n$bastionSubnet = New-AzVirtualNetworkSubnetConfig -Name 'AzureBastionSubnet' -AddressPrefix '{{bastionPrefix}}'\nNew-AzVirtualNetwork -ResourceGroupName '{{resourceGroup}}' -Location '{{region}}' -Name '{{vnetName}}' -AddressPrefix '10.0.0.0/16' -Subnet $workloadSubnet, $bastionSubnet",
+        "validation": "az network vnet subnet show --name AzureBastionSubnet --vnet-name {{vnetName}} --resource-group {{resourceGroup}} --query 'addressPrefix' -o tsv"
+      },
+      {
+        "stepNumber": 2,
+        "title": "Create Standard Public IP for Bastion",
+        "portalGuide": "Search for **Public IP addresses** > **+ Create**. RG: `{{resourceGroup}}`, Name: `{{publicIpName}}`, Region: `{{region}}`, SKU: **Standard**, Tier: Regional, Assignment: **Static** > click **Create**.",
+        "cliCommand": "az network public-ip create \\\n  --name {{publicIpName}} \\\n  --resource-group {{resourceGroup}} \\\n  --location {{region}} \\\n  --sku Standard \\\n  --allocation-method Static",
+        "powershellCommand": "New-AzPublicIpAddress -ResourceGroupName '{{resourceGroup}}' -Location '{{region}}' -Name '{{publicIpName}}' -AllocationMethod Static -Sku Standard",
+        "validation": "az network public-ip show --name {{publicIpName}} --resource-group {{resourceGroup}} --query '{IP:ipAddress, Sku:sku.name}' -o table"
+      },
+      {
+        "stepNumber": 3,
+        "title": "Deploy Azure Bastion Host",
+        "portalGuide": "Search for **Bastions** > **+ Create**. RG: `{{resourceGroup}}`, Name: `{{bastionName}}`, Region: `{{region}}`, Tier: **Basic** (or Standard). Virtual network: `{{vnetName}}` (it will auto-detect AzureBastionSubnet). Public IP address: select existing `{{publicIpName}}` > click **Review + create** > **Create**.",
+        "cliCommand": "az network bastion create \\\n  --name {{bastionName}} \\\n  --public-ip-address {{publicIpName}} \\\n  --resource-group {{resourceGroup}} \\\n  --vnet-name {{vnetName}} \\\n  --location {{region}} \\\n  --sku Basic",
+        "powershellCommand": "New-AzBastion -ResourceGroupName '{{resourceGroup}}' -Name '{{bastionName}}' -PublicIpAddress (Get-AzPublicIpAddress -ResourceGroupName '{{resourceGroup}}' -Name '{{publicIpName}}') -VirtualNetwork (Get-AzVirtualNetwork -ResourceGroupName '{{resourceGroup}}' -Name '{{vnetName}}')",
+        "validation": "az network bastion show --name {{bastionName}} --resource-group {{resourceGroup}} --query '{Name:name, Provisioning:provisioningState, Sku:sku.name}' -o table"
+      },
+      {
+        "stepNumber": 4,
+        "title": "Clean Up Lab Resources",
+        "portalGuide": "Delete resource group `{{resourceGroup}}`.",
+        "cliCommand": "az group delete --name {{resourceGroup}} --yes --no-wait",
+        "powershellCommand": "Remove-AzResourceGroup -Name '{{resourceGroup}}' -Force",
+        "validation": "az group exists --name {{resourceGroup}}"
+      }
+    ]
+  },
+  {
+    "id": "lab-p03-loadbalancer-01",
+    "section": "03-configure-and-manage-virtual-networks",
+    "pathName": "Path 3: Configure & Manage Virtual Networks",
+    "topic": "Azure Load Balancer",
+    "title": "Configure Azure Public Standard Load Balancer and Health Probes",
+    "difficulty": "Intermediate",
+    "estimatedMinutes": 25,
+    "summary": "Implement layer-4 load balancing using Azure Standard Load Balancer, frontend IP configuration, backend address pools, and health probes.",
+    "scenarioTemplate": "You are deploying a scalable web service in '{{region}}'. To distribute incoming web traffic across virtual machines, create resource group '{{resourceGroup}}', provision a Public Standard Load Balancer named '{{lbName}}' with public IP '{{publicIpName}}', configure a backend address pool named '{{backendPoolName}}', set up an HTTP health probe monitoring port {{probePort}}, and configure a load-balancing rule for port {{lbPort}}.",
+    "variables": {
+      "region": [
+        "eastus",
+        "westeurope",
+        "centralus",
+        "southcentralus"
+      ],
+      "resourceGroup": [
+        "rg-loadbalancer-{{rand3}}",
+        "rg-web-ha-{{rand3}}"
+      ],
+      "lbName": [
+        "lb-public-frontend",
+        "lb-web-ingress"
+      ],
+      "publicIpName": [
+        "pip-lb-frontend-{{rand3}}"
+      ],
+      "backendPoolName": [
+        "be-web-cluster",
+        "be-frontend-nodes"
+      ],
+      "probePort": [
+        80,
+        8080
+      ],
+      "lbPort": [
+        80,
+        443
+      ]
+    },
+    "acceptanceCriteria": [
+      "Create resource group '{{resourceGroup}}' in '{{region}}'.",
+      "Deploy a Standard Public IP named '{{publicIpName}}'.",
+      "Deploy Standard Load Balancer '{{lbName}}' with frontend IP bound to '{{publicIpName}}'.",
+      "Create backend address pool '{{backendPoolName}}'.",
+      "Create an HTTP Health Probe named 'hp-web' monitoring port {{probePort}} every 5 seconds.",
+      "Configure a load balancing rule 'lbrule-http' forwarding port {{lbPort}} to backend pool {{backendPoolName}} with probe 'hp-web'."
+    ],
+    "steps": [
+      {
+        "stepNumber": 1,
+        "title": "Create Resource Group and Public IP",
+        "portalGuide": "Search for **Resource groups** > **+ Create**. RG: `{{resourceGroup}}`, Region: `{{region}}`. Search for **Public IP addresses** > **+ Create**. Name: `{{publicIpName}}`, SKU: Standard, Assignment: Static.",
+        "cliCommand": "az group create --name {{resourceGroup}} --location {{region}}\n\naz network public-ip create \\\n  --name {{publicIpName}} \\\n  --resource-group {{resourceGroup}} \\\n  --location {{region}} \\\n  --sku Standard \\\n  --allocation-method Static",
+        "powershellCommand": "New-AzResourceGroup -Name '{{resourceGroup}}' -Location '{{region}}'\nNew-AzPublicIpAddress -ResourceGroupName '{{resourceGroup}}' -Location '{{region}}' -Name '{{publicIpName}}' -Sku Standard -AllocationMethod Static",
+        "validation": "az network public-ip show --name {{publicIpName}} --resource-group {{resourceGroup}} --query 'ipAddress' -o tsv"
+      },
+      {
+        "stepNumber": 2,
+        "title": "Create Standard Load Balancer and Backend Pool",
+        "portalGuide": "Search for **Load balancers** > **+ Create**. RG: `{{resourceGroup}}`, Name: `{{lbName}}`, Region: `{{region}}`, SKU: Standard, Type: **Public**. Frontend IP configuration: Add `{{publicIpName}}`. In **Backend pools**, add pool named `{{backendPoolName}}` > click **Review + create** > **Create**.",
+        "cliCommand": "az network lb create \\\n  --name {{lbName}} \\\n  --resource-group {{resourceGroup}} \\\n  --location {{region}} \\\n  --sku Standard \\\n  --public-ip-address {{publicIpName}} \\\n  --frontend-ip-name LoadBalancerFrontend \\\n  --backend-pool-name {{backendPoolName}}",
+        "powershellCommand": "$pip = Get-AzPublicIpAddress -ResourceGroupName '{{resourceGroup}}' -Name '{{publicIpName}}'\n$fe = New-AzLoadBalancerFrontendIpConfig -Name 'LoadBalancerFrontend' -PublicIpAddress $pip\n$be = New-AzLoadBalancerBackendAddressPoolConfig -Name '{{backendPoolName}}'\nNew-AzLoadBalancer -ResourceGroupName '{{resourceGroup}}' -Location '{{region}}' -Name '{{lbName}}' -Sku Standard -FrontendIpConfiguration $fe -BackendAddressPool $be",
+        "validation": "az network lb show --name {{lbName}} --resource-group {{resourceGroup}} --query '{Name:name, Sku:sku.name}' -o table"
+      },
+      {
+        "stepNumber": 3,
+        "title": "Create Health Probe and Load Balancing Rule",
+        "portalGuide": "Open `{{lbName}}` > **Health probes** > **+ Add**. Name: `hp-web`, Protocol: **HTTP**, Port: `{{probePort}}`, Path: `/`, Interval: `5`. Then open **Load balancing rules** > **+ Add**. Name: `lbrule-http`, Frontend IP: `LoadBalancerFrontend`, Protocol: TCP, Port: `{{lbPort}}`, Backend port: `{{lbPort}}`, Backend pool: `{{backendPoolName}}`, Health probe: `hp-web` > click **Save**.",
+        "cliCommand": "# Create Health Probe:\naz network lb probe create \\\n  --lb-name {{lbName}} \\\n  --resource-group {{resourceGroup}} \\\n  --name hp-web \\\n  --protocol Http \\\n  --port {{probePort}} \\\n  --path / \\\n  --interval 5\n\n# Create Load Balancing Rule:\naz network lb rule create \\\n  --lb-name {{lbName}} \\\n  --resource-group {{resourceGroup}} \\\n  --name lbrule-http \\\n  --frontend-ip-name LoadBalancerFrontend \\\n  --backend-pool-name {{backendPoolName}} \\\n  --probe-name hp-web \\\n  --protocol Tcp \\\n  --frontend-port {{lbPort}} \\\n  --backend-port {{lbPort}}",
+        "powershellCommand": "$lb = Get-AzLoadBalancer -ResourceGroupName '{{resourceGroup}}' -Name '{{lbName}}'\n$probe = Add-AzLoadBalancerProbeConfig -LoadBalancer $lb -Name 'hp-web' -Protocol Http -Port {{probePort}} -RequestPath '/' -IntervalInSeconds 5 -ProbeCount 2\n$rule = Add-AzLoadBalancerRuleConfig -LoadBalancer $lb -Name 'lbrule-http' -FrontendIpConfiguration ($lb.FrontendIpConfigurations[0]) -BackendAddressPool ($lb.BackendAddressPools[0]) -Probe ($lb.Probes[0]) -Protocol Tcp -FrontendPort {{lbPort}} -BackendPort {{lbPort}}\n$lb | Set-AzLoadBalancer",
+        "validation": "az network lb rule show --lb-name {{lbName}} --name lbrule-http --resource-group {{resourceGroup}} --query '{Rule:name, FrontendPort:frontendPort, BackendPort:backendPort}' -o table"
+      },
+      {
+        "stepNumber": 4,
+        "title": "Clean Up Lab Resources",
+        "portalGuide": "Delete resource group `{{resourceGroup}}`.",
+        "cliCommand": "az group delete --name {{resourceGroup}} --yes --no-wait",
+        "powershellCommand": "Remove-AzResourceGroup -Name '{{resourceGroup}}' -Force",
+        "validation": "az group exists --name {{resourceGroup}}"
+      }
+    ]
+  },
+  {
+    "id": "lab-p03-appgateway-01",
+    "section": "03-configure-and-manage-virtual-networks",
+    "pathName": "Path 3: Configure & Manage Virtual Networks",
+    "topic": "Azure Application Gateway & WAF",
+    "title": "Deploy Azure Application Gateway with Path-Based Routing",
+    "difficulty": "Advanced",
+    "estimatedMinutes": 30,
+    "summary": "Configure Layer 7 routing and SSL/TLS delivery controller using Azure Application Gateway with URL path map rules and health probes.",
+    "scenarioTemplate": "You are hosting a microservice architecture in '{{region}}'. To direct user requests based on URL path, you must create a Virtual Network '{{vnetName}}' with dedicated subnet 'AppGatewaySubnet' ({{appGwSubnetPrefix}}), provision an Application Gateway Standard_v2 named '{{gatewayName}}', configure backend pools for image services and API services, and create path-based routing rules directing '/images/*' to pool 1 and '/api/*' to pool 2.",
+    "variables": {
+      "region": [
+        "eastus",
+        "westeurope",
+        "centralus"
+      ],
+      "resourceGroup": [
+        "rg-appgateway-{{rand3}}",
+        "rg-layer7-routing-{{rand3}}"
+      ],
+      "vnetName": [
+        "vnet-appgw-network"
+      ],
+      "appGwSubnetPrefix": [
+        "10.0.1.0/24",
+        "172.16.1.0/24"
+      ],
+      "gatewayName": [
+        "appgw-prod-ingress-{{rand3}}"
+      ],
+      "publicIpName": [
+        "pip-appgw-frontend-{{rand3}}"
+      ]
+    },
+    "acceptanceCriteria": [
+      "Create resource group '{{resourceGroup}}' in '{{region}}'.",
+      "Deploy Virtual Network '{{vnetName}}' containing subnet 'AppGatewaySubnet' ({{appGwSubnetPrefix}}).",
+      "Create a Standard SKU Public IP named '{{publicIpName}}'.",
+      "Deploy Application Gateway Standard_v2 named '{{gatewayName}}'.",
+      "Configure multiple backend pools and verify URL Path Map configuration.",
+      "Inspect Application Gateway routing rules and clean up resources."
+    ],
+    "steps": [
+      {
+        "stepNumber": 1,
+        "title": "Create Virtual Network and AppGatewaySubnet",
+        "portalGuide": "Search for **Virtual networks** > **+ Create**. RG: `{{resourceGroup}}`, Name: `{{vnetName}}`, Region: `{{region}}`. Add subnet `AppGatewaySubnet` with prefix `{{appGwSubnetPrefix}}`. Add backend subnet `snet-backend` with prefix `10.0.2.0/24`.",
+        "cliCommand": "az group create --name {{resourceGroup}} --location {{region}}\n\naz network vnet create \\\n  --name {{vnetName}} \\\n  --resource-group {{resourceGroup}} \\\n  --location {{region}} \\\n  --address-prefixes 10.0.0.0/16 \\\n  --subnet-name AppGatewaySubnet \\\n  --subnet-prefixes {{appGwSubnetPrefix}}\n\naz network vnet subnet create \\\n  --name snet-backend \\\n  --vnet-name {{vnetName}} \\\n  --resource-group {{resourceGroup}} \\\n  --address-prefixes 10.0.2.0/24",
+        "powershellCommand": "New-AzResourceGroup -Name '{{resourceGroup}}' -Location '{{region}}'\n$appGwSubnet = New-AzVirtualNetworkSubnetConfig -Name 'AppGatewaySubnet' -AddressPrefix '{{appGwSubnetPrefix}}'\n$backendSubnet = New-AzVirtualNetworkSubnetConfig -Name 'snet-backend' -AddressPrefix '10.0.2.0/24'\nNew-AzVirtualNetwork -ResourceGroupName '{{resourceGroup}}' -Location '{{region}}' -Name '{{vnetName}}' -AddressPrefix '10.0.0.0/16' -Subnet $appGwSubnet, $backendSubnet",
+        "validation": "az network vnet subnet show --name AppGatewaySubnet --vnet-name {{vnetName}} --resource-group {{resourceGroup}} --query 'addressPrefix' -o tsv"
+      },
+      {
+        "stepNumber": 2,
+        "title": "Deploy Standard Public IP and Application Gateway",
+        "portalGuide": "Search for **Application gateways** > **+ Create**. RG: `{{resourceGroup}}`, Name: `{{gatewayName}}`, Region: `{{region}}`, Tier: **Standard V2**. Virtual network: `{{vnetName}}`, Subnet: `AppGatewaySubnet`. Frontend: Public IP (create new `{{publicIpName}}`). Backend: Add `bepool-images` and `bepool-api` > Click **Review + create** > **Create**.",
+        "cliCommand": "az network public-ip create \\\n  --name {{publicIpName}} \\\n  --resource-group {{resourceGroup}} \\\n  --location {{region}} \\\n  --sku Standard \\\n  --allocation-method Static\n\naz network application-gateway create \\\n  --name {{gatewayName}} \\\n  --resource-group {{resourceGroup}} \\\n  --location {{region}} \\\n  --sku Standard_v2 \\\n  --capacity 1 \\\n  --vnet-name {{vnetName}} \\\n  --subnet AppGatewaySubnet \\\n  --public-ip-address {{publicIpName}} \\\n  --frontend-port 80 \\\n  --http-settings-port 80 \\\n  --http-settings-protocol Http",
+        "powershellCommand": "# Deploy Application Gateway via Azure CLI or PowerShell cmdlet\naz network application-gateway show --name {{gatewayName}} --resource-group {{resourceGroup}}",
+        "validation": "az network application-gateway show --name {{gatewayName}} --resource-group {{resourceGroup}} --query '{Name:name, Tier:sku.name, State:provisioningState}' -o table"
+      },
+      {
+        "stepNumber": 3,
+        "title": "Configure URL Path-Based Routing Rule",
+        "portalGuide": "In `{{gatewayName}}`, select **Backend pools** > **+ Add** `bepool-images`. Add `bepool-api`. Select **Routing rules** > select rule > Path-based routing > Add path `/images/*` target `bepool-images` and `/api/*` target `bepool-api` > click **Save**.",
+        "cliCommand": "# Add backend pools:\naz network application-gateway address-pool create \\\n  --gateway-name {{gatewayName}} \\\n  --resource-group {{resourceGroup}} \\\n  --name bepool-images\n\naz network application-gateway address-pool create \\\n  --gateway-name {{gatewayName}} \\\n  --resource-group {{resourceGroup}} \\\n  --name bepool-api",
+        "powershellCommand": "$gw = Get-AzApplicationGateway -ResourceGroupName '{{resourceGroup}}' -Name '{{gatewayName}}'\nAdd-AzApplicationGatewayBackendAddressPool -ApplicationGateway $gw -Name 'bepool-images'\nAdd-AzApplicationGatewayBackendAddressPool -ApplicationGateway $gw -Name 'bepool-api'\n$gw | Set-AzApplicationGateway",
+        "validation": "az network application-gateway address-pool list --gateway-name {{gatewayName}} --resource-group {{resourceGroup}} --query \"[].name\" -o table"
+      },
+      {
+        "stepNumber": 4,
+        "title": "Clean Up Lab Resources",
+        "portalGuide": "Delete resource group `{{resourceGroup}}`.",
+        "cliCommand": "az group delete --name {{resourceGroup}} --yes --no-wait",
+        "powershellCommand": "Remove-AzResourceGroup -Name '{{resourceGroup}}' -Force",
+        "validation": "az group exists --name {{resourceGroup}}"
+      }
+    ]
+  },
+  {
+    "id": "lab-p03-udr-01",
+    "section": "03-configure-and-manage-virtual-networks",
+    "pathName": "Path 3: Configure & Manage Virtual Networks",
+    "topic": "Custom Routing & Network Virtual Appliances",
+    "title": "Implement User-Defined Routes (UDRs) and Virtual Routing Tables",
+    "difficulty": "Intermediate",
+    "estimatedMinutes": 20,
+    "summary": "Override default system routing by authoring custom Azure Route Tables with User-Defined Routes (UDRs) directing traffic to a firewall or NVA.",
+    "scenarioTemplate": "Security policy requires forcing all outbound internet traffic from a workload subnet in '{{region}}' through an inspection firewall / Network Virtual Appliance (NVA) at private IP '{{nvaIp}}'. You must create a Route Table named '{{routeTableName}}' in '{{resourceGroup}}', configure a User-Defined Route named '{{routeName}}' routing '{{targetRoutePrefix}}' to next hop type VirtualAppliance, and associate the route table with subnet '{{subnetName}}'.",
+    "variables": {
+      "region": [
+        "eastus",
+        "westeurope",
+        "centralus"
+      ],
+      "resourceGroup": [
+        "rg-routing-udr-{{rand3}}",
+        "rg-nva-firewall-{{rand3}}"
+      ],
+      "vnetName": [
+        "vnet-spoke-workload"
+      ],
+      "subnetName": [
+        "snet-workload-apps"
+      ],
+      "routeTableName": [
+        "rt-force-tunnel-nva-{{rand3}}",
+        "rt-spoke-inspection-{{rand3}}"
+      ],
+      "routeName": [
+        "RouteToFirewallDefault",
+        "ForceInternetThroughNVA"
+      ],
+      "targetRoutePrefix": [
+        "0.0.0.0/0"
+      ],
+      "nvaIp": [
+        "10.10.1.4",
+        "10.100.1.4",
+        "172.16.1.4"
+      ]
+    },
+    "acceptanceCriteria": [
+      "Create resource group '{{resourceGroup}}' in '{{region}}'.",
+      "Deploy Virtual Network '{{vnetName}}' with subnet '{{subnetName}}' (10.0.2.0/24).",
+      "Create Route Table '{{routeTableName}}'.",
+      "Add User-Defined Route '{{routeName}}' for address prefix '{{targetRoutePrefix}}' with nextHopType 'VirtualAppliance' and nextHopIpAddress '{{nvaIp}}'.",
+      "Associate '{{routeTableName}}' with subnet '{{subnetName}}'.",
+      "Verify effective route table association on the subnet."
+    ],
+    "steps": [
+      {
+        "stepNumber": 1,
+        "title": "Create Virtual Network and Subnet",
+        "portalGuide": "Search for **Virtual networks** > **+ Create**. RG: `{{resourceGroup}}`, Name: `{{vnetName}}`, Region: `{{region}}`. Add subnet `{{subnetName}}` with prefix `10.0.2.0/24`.",
+        "cliCommand": "az group create --name {{resourceGroup}} --location {{region}}\n\naz network vnet create \\\n  --name {{vnetName}} \\\n  --resource-group {{resourceGroup}} \\\n  --location {{region}} \\\n  --address-prefixes 10.0.0.0/16 \\\n  --subnet-name {{subnetName}} \\\n  --subnet-prefixes 10.0.2.0/24",
+        "powershellCommand": "New-AzResourceGroup -Name '{{resourceGroup}}' -Location '{{region}}'\nNew-AzVirtualNetwork -ResourceGroupName '{{resourceGroup}}' -Location '{{region}}' -Name '{{vnetName}}' -AddressPrefix '10.0.0.0/16' -Subnet (New-AzVirtualNetworkSubnetConfig -Name '{{subnetName}}' -AddressPrefix '10.0.2.0/24')",
+        "validation": "az network vnet subnet show --name {{subnetName}} --vnet-name {{vnetName}} --resource-group {{resourceGroup}} --query 'provisioningState' -o tsv"
+      },
+      {
+        "stepNumber": 2,
+        "title": "Create Route Table and Add User-Defined Route",
+        "portalGuide": "Search for **Route tables** > **+ Create**. RG: `{{resourceGroup}}`, Name: `{{routeTableName}}`, Region: `{{region}}`. Once deployed, open the Route Table > **Routes** > **+ Add**. Route name: `{{routeName}}`, Destination type: **IP Addresses**, Destination IP addresses/CIDR ranges: `{{targetRoutePrefix}}`, Next hop type: **Virtual appliance**, Next hop address: `{{nvaIp}}` > click **Add**.",
+        "cliCommand": "az network route-table create \\\n  --name {{routeTableName}} \\\n  --resource-group {{resourceGroup}} \\\n  --location {{region}}\n\naz network route-table route create \\\n  --name {{routeName}} \\\n  --resource-group {{resourceGroup}} \\\n  --route-table-name {{routeTableName}} \\\n  --address-prefix {{targetRoutePrefix}} \\\n  --next-hop-type VirtualAppliance \\\n  --next-hop-ip-address {{nvaIp}}",
+        "powershellCommand": "$routeTable = New-AzRouteTable -ResourceGroupName '{{resourceGroup}}' -Location '{{region}}' -Name '{{routeTableName}}'\n$routeTable | Add-AzRouteConfig -Name '{{routeName}}' -AddressPrefix '{{targetRoutePrefix}}' -NextHopType VirtualAppliance -NextHopIpAddress '{{nvaIp}}' | Set-AzRouteTable",
+        "validation": "az network route-table route list --route-table-name {{routeTableName}} --resource-group {{resourceGroup}} --query \"[].{Name:name, Prefix:addressPrefix, NextHop:nextHopType, NextHopIP:nextHopIpAddress}\" -o table"
+      },
+      {
+        "stepNumber": 3,
+        "title": "Associate Route Table to Subnet",
+        "portalGuide": "In `{{routeTableName}}`, select **Subnets** > **+ Associate**. Virtual network: `{{vnetName}}`, Subnet: `{{subnetName}}` > click **OK**.",
+        "cliCommand": "az network vnet subnet update \\\n  --name {{subnetName}} \\\n  --vnet-name {{vnetName}} \\\n  --resource-group {{resourceGroup}} \\\n  --route-table {{routeTableName}}",
+        "powershellCommand": "$vnet = Get-AzVirtualNetwork -ResourceGroupName '{{resourceGroup}}' -Name '{{vnetName}}'\n$rt = Get-AzRouteTable -ResourceGroupName '{{resourceGroup}}' -Name '{{routeTableName}}'\nSet-AzVirtualNetworkSubnetConfig -VirtualNetwork $vnet -Name '{{subnetName}}' -AddressPrefix '10.0.2.0/24' -RouteTable $rt | Set-AzVirtualNetwork",
+        "validation": "az network vnet subnet show --name {{subnetName}} --vnet-name {{vnetName}} --resource-group {{resourceGroup}} --query 'routeTable.id' -o tsv"
+      },
+      {
+        "stepNumber": 4,
+        "title": "Clean Up Lab Resources",
+        "portalGuide": "Delete resource group `{{resourceGroup}}`.",
+        "cliCommand": "az group delete --name {{resourceGroup}} --yes --no-wait",
+        "powershellCommand": "Remove-AzResourceGroup -Name '{{resourceGroup}}' -Force",
+        "validation": "az group exists --name {{resourceGroup}}"
+      }
+    ]
+  }
+]

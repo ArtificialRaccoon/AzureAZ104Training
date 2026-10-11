@@ -1,0 +1,343 @@
+[
+  {
+    "id": "lab-p04-storage-01",
+    "section": "04-implement-and-manage-storage",
+    "pathName": "Path 4: Implement & Manage Storage",
+    "topic": "Storage Security & Lifecycle Management",
+    "title": "Configure Storage Firewall and Automated Blob Lifecycle Policy",
+    "difficulty": "Advanced",
+    "estimatedMinutes": 25,
+    "summary": "Secure an Azure Storage account with IP network access restrictions and automate cost optimization using JSON-based Lifecycle Management rules.",
+    "scenarioTemplate": "Your security compliance policy requires locking down an Azure Storage account named '{{storageAccount}}' in '{{region}}'. Public internet traffic must be denied, allowing only a specific office CIDR '{{allowedIpRange}}' and Trusted Microsoft Services. Furthermore, to optimize storage costs, block blobs in container '{{containerName}}' must transition from the Hot tier to the Cool tier after {{coolDays}} days, and automatically move to the Archive tier after {{archiveDays}} days.",
+    "variables": {
+      "region": [
+        "eastus",
+        "westeurope",
+        "centralus",
+        "uksouth"
+      ],
+      "resourceGroup": [
+        "rg-storage-sec-{{rand3}}",
+        "rg-datalake-gov-{{rand3}}"
+      ],
+      "storageAccount": [
+        "stsecure{{rand5}}",
+        "stcompliance{{rand5}}",
+        "starchive{{rand5}}"
+      ],
+      "containerName": [
+        "telemetry-logs",
+        "financial-audits",
+        "medical-records"
+      ],
+      "allowedIpRange": [
+        "198.51.100.0/24",
+        "203.0.113.50",
+        "192.0.2.0/28"
+      ],
+      "coolDays": [
+        30,
+        60
+      ],
+      "archiveDays": [
+        90,
+        180
+      ]
+    },
+    "acceptanceCriteria": [
+      "Create resource group '{{resourceGroup}}' in '{{region}}'.",
+      "Deploy storage account '{{storageAccount}}' with standard GPv2 and GRS redundancy.",
+      "Create blob container '{{containerName}}' with Private (no anonymous access) access level.",
+      "Configure storage network firewall: set default action to Deny, allow IP range '{{allowedIpRange}}', and enable trusted Microsoft services bypass.",
+      "Create a Lifecycle Management rule named 'CostOptimizationRule' moving blobs in '{{containerName}}/' to Cool after {{coolDays}} days, and Archive after {{archiveDays}} days.",
+      "Verify lifecycle rules and firewall settings."
+    ],
+    "steps": [
+      {
+        "stepNumber": 1,
+        "title": "Provision Storage Account and Private Container",
+        "portalGuide": "Create resource group `{{resourceGroup}}` in `{{region}}`. Create Storage account `{{storageAccount}}` (Standard GPv2, GRS). Navigate to **Containers** > **+ Container**. Name: `{{containerName}}`, Public access level: **Private (no anonymous access)** > **Create**.",
+        "cliCommand": "az group create --name {{resourceGroup}} --location {{region}}\n\naz storage account create \\\n  --name {{storageAccount}} \\\n  --resource-group {{resourceGroup}} \\\n  --location {{region}} \\\n  --sku Standard_GRS \\\n  --kind StorageV2 \\\n  --allow-blob-public-access false\n\naz storage container create \\\n  --name {{containerName}} \\\n  --account-name {{storageAccount}} \\\n  --auth-mode login",
+        "powershellCommand": "New-AzResourceGroup -Name '{{resourceGroup}}' -Location '{{region}}'\n$st = New-AzStorageAccount -ResourceGroupName '{{resourceGroup}}' -Name '{{storageAccount}}' -Location '{{region}}' -SkuName 'Standard_GRS' -Kind 'StorageV2' -AllowBlobPublicAccess $false\n$ctx = $st.Context\nNew-AzStorageContainer -Name '{{containerName}}' -Context $ctx -Permission Off",
+        "validation": "az storage container show --account-name {{storageAccount}} --name {{containerName}} --auth-mode login --query 'publicAccess' -o tsv"
+      },
+      {
+        "stepNumber": 2,
+        "title": "Configure Storage Firewall and Trusted Services Bypass",
+        "portalGuide": "In the storage account, select **Networking** (under Security + networking). Under **Public network access**, choose **Enabled from selected virtual networks and IP addresses**. Under **Firewall**, add address `{{allowedIpRange}}`. Under **Exceptions**, verify 'Allow Azure services on the trusted services list...' is checked. Click **Save**.",
+        "cliCommand": "az storage account update \\\n  --name {{storageAccount}} \\\n  --resource-group {{resourceGroup}} \\\n  --default-action Deny \\\n  --bypass AzureServices\n\naz storage account network-rule add \\\n  --account-name {{storageAccount}} \\\n  --resource-group {{resourceGroup}} \\\n  --ip-address {{allowedIpRange}}",
+        "powershellCommand": "Update-AzStorageAccountNetworkRuleSet -ResourceGroupName '{{resourceGroup}}' -Name '{{storageAccount}}' -DefaultAction Deny -Bypass AzureServices -IPRule @{IPAddressOrRange='{{allowedIpRange}}';Action='Allow'}",
+        "validation": "az storage account show --name {{storageAccount}} --resource-group {{resourceGroup}} --query 'networkRuleSet.{DefaultAction:defaultAction, Bypass:bypass}' -o table"
+      },
+      {
+        "stepNumber": 3,
+        "title": "Configure Blob Lifecycle Management Rule",
+        "portalGuide": "Under **Data management**, select **Lifecycle management** > **+ Add a rule**. Rule name: `CostOptimizationRule`. Rule scope: Limit blobs with filters. Blob type: Block blobs, Blob subtype: Base blobs. Conditions: Days after modification greater than `{{coolDays}}` -> Move to Cool; Days after modification greater than `{{archiveDays}}` -> Move to Archive. Filter tab: Prefix match `{{containerName}}/` > click **Add**.",
+        "cliCommand": "cat << 'EOF' > lifecycle.json\n{\n  \"rules\": [\n    {\n      \"enabled\": true,\n      \"name\": \"CostOptimizationRule\",\n      \"type\": \"Lifecycle\",\n      \"definition\": {\n        \"actions\": {\n          \"baseBlob\": {\n            \"tierToCool\": { \"daysAfterModificationGreaterThan\": {{coolDays}} },\n            \"tierToArchive\": { \"daysAfterModificationGreaterThan\": {{archiveDays}} }\n          }\n        },\n        \"filters\": {\n          \"blobTypes\": [ \"blockBlob\" ],\n          \"prefixMatch\": [ \"{{containerName}}/\" ]\n        }\n      }\n    }\n  ]\n}\nEOF\n\naz storage account management-policy create \\\n  --account-name {{storageAccount}} \\\n  --resource-group {{resourceGroup}} \\\n  --policy @lifecycle.json",
+        "powershellCommand": "$rule = New-AzStorageAccountManagementPolicyFilter -PrefixMatch @('{{containerName}}/') -BlobType @('blockBlob')\n$action = New-AzStorageAccountManagementPolicyAction -BaseBlobActionTierToCool {{coolDays}} -BaseBlobActionTierToArchive {{archiveDays}}\n$ruleConfig = New-AzStorageAccountManagementPolicyRule -Name 'CostOptimizationRule' -Filter $rule -Action $action -Enabled\nSet-AzStorageAccountManagementPolicy -ResourceGroupName '{{resourceGroup}}' -StorageAccountName '{{storageAccount}}' -Rule $ruleConfig",
+        "validation": "az storage account management-policy show --account-name {{storageAccount}} --resource-group {{resourceGroup}} --query 'policy.rules[0].name' -o tsv"
+      },
+      {
+        "stepNumber": 4,
+        "title": "Clean Up Lab Resources",
+        "portalGuide": "Delete resource group `{{resourceGroup}}`.",
+        "cliCommand": "az group delete --name {{resourceGroup}} --yes --no-wait",
+        "powershellCommand": "Remove-AzResourceGroup -Name '{{resourceGroup}}' -Force",
+        "validation": "az group exists --name {{resourceGroup}}"
+      }
+    ]
+  },
+  {
+    "id": "lab-p04-sas-01",
+    "section": "04-implement-and-manage-storage",
+    "pathName": "Path 4: Implement & Manage Storage",
+    "topic": "Storage SAS & Access Policies",
+    "title": "Delegate Storage Access via SAS and Stored Access Policies",
+    "difficulty": "Intermediate",
+    "estimatedMinutes": 20,
+    "summary": "Delegate granular, time-bound access to blob containers using Shared Access Signatures (SAS) backed by Stored Access Policies for instant revocation.",
+    "scenarioTemplate": "An external partner requires temporary read and write access to files in container '{{containerName}}' on storage account '{{storageAccount}}' in '{{region}}'. To maintain control and enable instantaneous revocation without regenerating primary storage keys, you must establish a Stored Access Policy named '{{policyName}}' valid for {{validHours}} hours, and mint a Service SAS token enforcing HTTPS-only transport.",
+    "variables": {
+      "region": [
+        "eastus",
+        "westeurope",
+        "centralus",
+        "eastus2"
+      ],
+      "resourceGroup": [
+        "rg-sas-delegation-{{rand3}}",
+        "rg-secure-tokens-{{rand3}}"
+      ],
+      "storageAccount": [
+        "stsastoken{{rand5}}",
+        "stpartnerdata{{rand5}}"
+      ],
+      "containerName": [
+        "partner-uploads",
+        "data-exchange",
+        "dropzone-files"
+      ],
+      "policyName": [
+        "PartnerUploadPolicy",
+        "VendorAccessWindow",
+        "AuditReviewWindow"
+      ],
+      "validHours": [
+        2,
+        4,
+        8,
+        24
+      ]
+    },
+    "acceptanceCriteria": [
+      "Create resource group '{{resourceGroup}}' in '{{region}}'.",
+      "Deploy standard general-purpose v2 storage account '{{storageAccount}}'.",
+      "Create blob container '{{containerName}}'.",
+      "Create a Stored Access Policy named '{{policyName}}' on container '{{containerName}}' with Read and Write permissions.",
+      "Generate a Service SAS token referencing '{{policyName}}' with https-only protocol constraint.",
+      "Verify SAS token validity by uploading or downloading a test blob."
+    ],
+    "steps": [
+      {
+        "stepNumber": 1,
+        "title": "Create Storage Account and Container",
+        "portalGuide": "Create RG `{{resourceGroup}}` in `{{region}}`. Create Storage Account `{{storageAccount}}` (Standard LRS). Under **Containers**, add `{{containerName}}` with access level Private.",
+        "cliCommand": "az group create --name {{resourceGroup}} --location {{region}}\n\naz storage account create \\\n  --name {{storageAccount}} \\\n  --resource-group {{resourceGroup}} \\\n  --location {{region}} \\\n  --sku Standard_LRS \\\n  --kind StorageV2\n\naz storage container create \\\n  --name {{containerName}} \\\n  --account-name {{storageAccount}} \\\n  --auth-mode login",
+        "powershellCommand": "New-AzResourceGroup -Name '{{resourceGroup}}' -Location '{{region}}'\n$st = New-AzStorageAccount -ResourceGroupName '{{resourceGroup}}' -Name '{{storageAccount}}' -Location '{{region}}' -SkuName 'Standard_LRS' -Kind 'StorageV2'\nNew-AzStorageContainer -Name '{{containerName}}' -Context $st.Context -Permission Off",
+        "validation": "az storage container exists --name {{containerName}} --account-name {{storageAccount}} --auth-mode login"
+      },
+      {
+        "stepNumber": 2,
+        "title": "Create Stored Access Policy on Container",
+        "portalGuide": "In the storage account, open container `{{containerName}}` > select **Access policy** (under Settings) > under **Stored access policies**, click **+ Add policy**. Identifier: `{{policyName}}`, Permissions: **Read**, **Write**. Set Expiry to {{validHours}} hours from now > click **Save**.",
+        "cliCommand": "EXPIRY_TIME=$(date -u -d \"+{{validHours}} hours\" '+%Y-%m-%dT%H:%M:%SZ' 2>/dev/null || date -u -v+{{validHours}}H '+%Y-%m-%dT%H:%M:%SZ')\n\naz storage container policy create \\\n  --account-name {{storageAccount}} \\\n  --container-name {{containerName}} \\\n  --name {{policyName}} \\\n  --permissions rw \\\n  --expiry $EXPIRY_TIME",
+        "powershellCommand": "$expiry = (Get-Date).AddHours({{validHours}}).ToUniversalTime()\n$st = Get-AzStorageAccount -ResourceGroupName '{{resourceGroup}}' -Name '{{storageAccount}}'\nNew-AzStorageContainerStoredAccessPolicy -Container '{{containerName}}' -Policy '{{policyName}}' -Context $st.Context -Permission 'rw' -ExpiryTime $expiry",
+        "validation": "az storage container policy list --account-name {{storageAccount}} --container-name {{containerName}} -o table"
+      },
+      {
+        "stepNumber": 3,
+        "title": "Mint Service SAS Token Bound to Policy",
+        "portalGuide": "In container `{{containerName}}`, select **Shared access tokens**. Choose Stored access policy: `{{policyName}}`. Allowed protocols: **HTTPS only** > click **Generate SAS token and URL**. Copy the generated SAS token.",
+        "cliCommand": "SAS_TOKEN=$(az storage container generate-sas \\\n  --account-name {{storageAccount}} \\\n  --name {{containerName}} \\\n  --policy-name {{policyName}} \\\n  --https-only \\\n  -o tsv)\n\necho \"Generated SAS Token: ?$SAS_TOKEN\"",
+        "powershellCommand": "$st = Get-AzStorageAccount -ResourceGroupName '{{resourceGroup}}' -Name '{{storageAccount}}'\n$sas = New-AzStorageContainerSASToken -Name '{{containerName}}' -Policy '{{policyName}}' -Context $st.Context -Protocol HttpsOnly\nWrite-Host \"Generated SAS: $sas\"",
+        "validation": "echo \"Verified SAS token creation linked to stored policy {{policyName}}.\""
+      },
+      {
+        "stepNumber": 4,
+        "title": "Clean Up Lab Resources",
+        "portalGuide": "Delete resource group `{{resourceGroup}}`.",
+        "cliCommand": "az group delete --name {{resourceGroup}} --yes --no-wait",
+        "powershellCommand": "Remove-AzResourceGroup -Name '{{resourceGroup}}' -Force",
+        "validation": "az group exists --name {{resourceGroup}}"
+      }
+    ]
+  },
+  {
+    "id": "lab-p04-files-sync-01",
+    "section": "04-implement-and-manage-storage",
+    "pathName": "Path 4: Implement & Manage Storage",
+    "topic": "Azure Files & Storage Sync Service",
+    "title": "Configure Azure Files SMB Shares and Azure File Sync",
+    "difficulty": "Advanced",
+    "estimatedMinutes": 25,
+    "summary": "Deploy an Azure SMB file share with quota limits and establish an Azure File Sync topology with Cloud Endpoints and Cloud Tiering.",
+    "scenarioTemplate": "Your enterprise hybrid migration requires centralized cloud file storage in '{{region}}' while caching hot files locally on edge file servers. In resource group '{{resourceGroup}}', provision storage account '{{storageAccount}}', create an SMB File Share named '{{shareName}}' with a quota of {{quotaGb}} GiB, provision a Storage Sync Service named '{{syncServiceName}}', and establish a Sync Group named '{{syncGroupName}}' containing a Cloud Endpoint referencing your file share.",
+    "variables": {
+      "region": [
+        "eastus",
+        "westeurope",
+        "centralus",
+        "southeastasia"
+      ],
+      "resourceGroup": [
+        "rg-filesync-hybrid-{{rand3}}",
+        "rg-smb-shares-{{rand3}}"
+      ],
+      "storageAccount": [
+        "stfileshare{{rand5}}",
+        "sthybridnas{{rand5}}"
+      ],
+      "shareName": [
+        "finance-docs",
+        "engineering-cad",
+        "shared-corporate"
+      ],
+      "quotaGb": [
+        100,
+        250,
+        500,
+        1024
+      ],
+      "syncServiceName": [
+        "sync-core-service-{{rand3}}"
+      ],
+      "syncGroupName": [
+        "syncgrp-corporate-files"
+      ]
+    },
+    "acceptanceCriteria": [
+      "Create resource group '{{resourceGroup}}' in '{{region}}'.",
+      "Deploy standard general-purpose v2 storage account '{{storageAccount}}'.",
+      "Create an Azure SMB File Share named '{{shareName}}' with quota set to {{quotaGb}} GiB.",
+      "Provision Azure Storage Sync Service named '{{syncServiceName}}'.",
+      "Create a Sync Group '{{syncGroupName}}' and register a Cloud Endpoint bound to '{{shareName}}'.",
+      "Verify the Cloud Endpoint health and quota configuration."
+    ],
+    "steps": [
+      {
+        "stepNumber": 1,
+        "title": "Create Storage Account and SMB File Share",
+        "portalGuide": "Create RG `{{resourceGroup}}` in `{{region}}`. Deploy Storage account `{{storageAccount}}` (Standard GPv2, LRS). Under **File shares**, click **+ File share**. Name: `{{shareName}}`, Access tier: **Hot**, Quota: `{{quotaGb}}` GiB > click **Create**.",
+        "cliCommand": "az group create --name {{resourceGroup}} --location {{region}}\n\naz storage account create \\\n  --name {{storageAccount}} \\\n  --resource-group {{resourceGroup}} \\\n  --location {{region}} \\\n  --sku Standard_LRS \\\n  --kind StorageV2\n\naz storage share-rm create \\\n  --resource-group {{resourceGroup}} \\\n  --storage-account {{storageAccount}} \\\n  --name {{shareName}} \\\n  --quota {{quotaGb}} \\\n  --access-tier Hot",
+        "powershellCommand": "New-AzResourceGroup -Name '{{resourceGroup}}' -Location '{{region}}'\n$st = New-AzStorageAccount -ResourceGroupName '{{resourceGroup}}' -Name '{{storageAccount}}' -Location '{{region}}' -SkuName 'Standard_LRS' -Kind 'StorageV2'\nNew-AzRmStorageShare -ResourceGroupName '{{resourceGroup}}' -StorageAccountName '{{storageAccount}}' -Name '{{shareName}}' -QuotaGiB {{quotaGb}} -AccessTier Hot",
+        "validation": "az storage share-rm show --resource-group {{resourceGroup}} --storage-account {{storageAccount}} --name {{shareName}} --query '{Share:name, Quota:quota, Tier:accessTier}' -o table"
+      },
+      {
+        "stepNumber": 2,
+        "title": "Deploy Azure Storage Sync Service",
+        "portalGuide": "Search for **Azure File Sync** > **+ Create**. RG: `{{resourceGroup}}`, Name: `{{syncServiceName}}`, Region: `{{region}}` > click **Review + create** > **Create**.",
+        "cliCommand": "# Register Microsoft.StorageSync provider if not already registered:\naz provider register --namespace Microsoft.StorageSync\n\naz storagesync create \\\n  --name {{syncServiceName}} \\\n  --resource-group {{resourceGroup}} \\\n  --location {{region}}",
+        "powershellCommand": "Register-AzResourceProvider -ProviderNamespace Microsoft.StorageSync\nNew-AzStorageSyncService -ResourceGroupName '{{resourceGroup}}' -StorageSyncServiceName '{{syncServiceName}}' -Location '{{region}}'",
+        "validation": "az storagesync show --name {{syncServiceName}} --resource-group {{resourceGroup}} --query '{Name:name, Provisioning:provisioningState}' -o table"
+      },
+      {
+        "stepNumber": 3,
+        "title": "Create Sync Group and Register Cloud Endpoint",
+        "portalGuide": "Open `{{syncServiceName}}` > **Sync groups** > **+ Sync group**. Sync group name: `{{syncGroupName}}`. Storage account: select `{{storageAccount}}`. Azure file share: select `{{shareName}}` > click **Create**.",
+        "cliCommand": "# Create Sync Group:\naz storagesync sync-group create \\\n  --name {{syncGroupName}} \\\n  --resource-group {{resourceGroup}} \\\n  --storage-sync-service {{syncServiceName}}\n\n# Add Cloud Endpoint:\nST_ID=$(az storage account show --name {{storageAccount}} --resource-group {{resourceGroup}} --query id -o tsv)\n\naz storagesync sync-group cloud-endpoint create \\\n  --name ce-{{shareName}} \\\n  --resource-group {{resourceGroup}} \\\n  --storage-sync-service {{syncServiceName}} \\\n  --sync-group-name {{syncGroupName}} \\\n  --storage-account $ST_ID \\\n  --azure-file-share-name {{shareName}}",
+        "powershellCommand": "$syncSvc = Get-AzStorageSyncService -ResourceGroupName '{{resourceGroup}}' -StorageSyncServiceName '{{syncServiceName}}'\n$syncGroup = New-AzStorageSyncGroup -ResourceGroupName '{{resourceGroup}}' -StorageSyncServiceName '{{syncServiceName}}' -SyncGroupName '{{syncGroupName}}'\n$st = Get-AzStorageAccount -ResourceGroupName '{{resourceGroup}}' -Name '{{storageAccount}}'\nNew-AzStorageSyncCloudEndpoint -ResourceGroupName '{{resourceGroup}}' -StorageSyncServiceName '{{syncServiceName}}' -SyncGroupName '{{syncGroupName}}' -Name 'ce-{{shareName}}' -StorageAccountResourceId $st.Id -AzureFileShareName '{{shareName}}'",
+        "validation": "az storagesync sync-group cloud-endpoint show --name ce-{{shareName}} --resource-group {{resourceGroup}} --storage-sync-service {{syncServiceName}} --sync-group-name {{syncGroupName}} --query '{Endpoint:name, Provisioning:provisioningState}' -o table"
+      },
+      {
+        "stepNumber": 4,
+        "title": "Clean Up Lab Resources",
+        "portalGuide": "Delete resource group `{{resourceGroup}}`.",
+        "cliCommand": "az group delete --name {{resourceGroup}} --yes --no-wait",
+        "powershellCommand": "Remove-AzResourceGroup -Name '{{resourceGroup}}' -Force",
+        "validation": "az group exists --name {{resourceGroup}}"
+      }
+    ]
+  },
+  {
+    "id": "lab-p04-replication-01",
+    "section": "04-implement-and-manage-storage",
+    "pathName": "Path 4: Implement & Manage Storage",
+    "topic": "Blob Data Protection & Replication",
+    "title": "Configure Blob Object Replication and Soft Delete Protection",
+    "difficulty": "Intermediate",
+    "estimatedMinutes": 20,
+    "summary": "Configure automated asynchronous cross-account Blob Object Replication and safeguard data using Blob Soft Delete and Versioning.",
+    "scenarioTemplate": "To satisfy disaster recovery and accidental deletion requirements, you must deploy two storage accounts in '{{resourceGroup}}': a source account ('{{sourceStorage}}' in '{{sourceRegion}}') and a destination account ('{{destStorage}}' in '{{destRegion}}'). Enable Blob Versioning and Change Feed on both accounts, configure Blob Soft Delete with a retention period of {{retentionDays}} days, and establish an Object Replication policy synchronizing container '{{containerName}}'.",
+    "variables": {
+      "sourceRegion": [
+        "eastus",
+        "westeurope"
+      ],
+      "destRegion": [
+        "westus",
+        "northeurope"
+      ],
+      "resourceGroup": [
+        "rg-blob-replication-{{rand3}}",
+        "rg-dr-storage-{{rand3}}"
+      ],
+      "sourceStorage": [
+        "strepsrc{{rand5}}"
+      ],
+      "destStorage": [
+        "strepdst{{rand5}}"
+      ],
+      "containerName": [
+        "mission-critical-blobs",
+        "master-records"
+      ],
+      "retentionDays": [
+        7,
+        14,
+        30
+      ]
+    },
+    "acceptanceCriteria": [
+      "Create resource group '{{resourceGroup}}'.",
+      "Deploy source storage account '{{sourceStorage}}' in '{{sourceRegion}}' and destination '{{destStorage}}' in '{{destRegion}}'.",
+      "Enable Blob Versioning and Change Feed on both storage accounts.",
+      "Enable Blob Soft Delete with retention period of {{retentionDays}} days on both accounts.",
+      "Create container '{{containerName}}' on both source and destination accounts.",
+      "Configure an Object Replication policy from '{{sourceStorage}}' to '{{destStorage}}'."
+    ],
+    "steps": [
+      {
+        "stepNumber": 1,
+        "title": "Create Source and Destination Storage Accounts",
+        "portalGuide": "Search for **Resource groups** > **+ Create** `{{resourceGroup}}`. Create Storage Account `{{sourceStorage}}` in `{{sourceRegion}}` (Standard LRS). Create second Storage Account `{{destStorage}}` in `{{destRegion}}` (Standard LRS).",
+        "cliCommand": "az group create --name {{resourceGroup}} --location {{sourceRegion}}\n\naz storage account create \\\n  --name {{sourceStorage}} \\\n  --resource-group {{resourceGroup}} \\\n  --location {{sourceRegion}} \\\n  --sku Standard_LRS\n\naz storage account create \\\n  --name {{destStorage}} \\\n  --resource-group {{resourceGroup}} \\\n  --location {{destRegion}} \\\n  --sku Standard_LRS",
+        "powershellCommand": "New-AzResourceGroup -Name '{{resourceGroup}}' -Location '{{sourceRegion}}'\nNew-AzStorageAccount -ResourceGroupName '{{resourceGroup}}' -Name '{{sourceStorage}}' -Location '{{sourceRegion}}' -SkuName 'Standard_LRS' -Kind 'StorageV2'\nNew-AzStorageAccount -ResourceGroupName '{{resourceGroup}}' -Name '{{destStorage}}' -Location '{{destRegion}}' -SkuName 'Standard_LRS' -Kind 'StorageV2'",
+        "validation": "az storage account list --resource-group {{resourceGroup}} --query \"[].{Name:name, Location:location}\" -o table"
+      },
+      {
+        "stepNumber": 2,
+        "title": "Enable Versioning, Change Feed, and Soft Delete",
+        "portalGuide": "In both storage accounts, navigate to **Data protection** (under Data management). Check **Enable versioning for blobs**, check **Enable blob change feed**, and check **Enable soft delete for blobs** with retention set to `{{retentionDays}}` days > click **Save**.",
+        "cliCommand": "# Enable features on source:\naz storage account blob-service-properties update \\\n  --account-name {{sourceStorage}} \\\n  --resource-group {{resourceGroup}} \\\n  --enable-versioning true \\\n  --enable-change-feed true \\\n  --enable-delete-retention true \\\n  --delete-retention-days {{retentionDays}}\n\n# Enable features on destination:\naz storage account blob-service-properties update \\\n  --account-name {{destStorage}} \\\n  --resource-group {{resourceGroup}} \\\n  --enable-versioning true \\\n  --enable-change-feed true \\\n  --enable-delete-retention true \\\n  --delete-retention-days {{retentionDays}}",
+        "powershellCommand": "$stSrc = Get-AzStorageAccount -ResourceGroupName '{{resourceGroup}}' -Name '{{sourceStorage}}'\nEnable-AzStorageBlobDeleteRetentionPolicy -Context $stSrc.Context -RetentionDays {{retentionDays}}\nUpdate-AzStorageBlobServiceProperty -ResourceGroupName '{{resourceGroup}}' -StorageAccountName '{{sourceStorage}}' -IsVersioningEnabled $true -ChangeFeed",
+        "validation": "az storage account blob-service-properties show --account-name {{sourceStorage}} --resource-group {{resourceGroup}} --query '{Versioning:isVersioningEnabled, ChangeFeed:changeFeed.enabled, SoftDelete:deleteRetentionPolicy.enabled}' -o table"
+      },
+      {
+        "stepNumber": 3,
+        "title": "Create Containers and Object Replication Policy",
+        "portalGuide": "Create container `{{containerName}}` in `{{sourceStorage}}` and in `{{destStorage}}`. In `{{sourceStorage}}`, navigate to **Object replication** > **+ Create replication rules**. Destination storage account: select `{{destStorage}}`. Source container: `{{containerName}}`, Destination container: `{{containerName}}` > click **Create**.",
+        "cliCommand": "# Create containers:\naz storage container create --name {{containerName}} --account-name {{sourceStorage}} --auth-mode login\naz storage container create --name {{containerName}} --account-name {{destStorage}} --auth-mode login\n\n# Create Object Replication policy:\naz storage account or-policy create \\\n  --account-name {{sourceStorage}} \\\n  --resource-group {{resourceGroup}} \\\n  --destination-account {{destStorage}} \\\n  --source-container {{containerName}} \\\n  --destination-container {{containerName}}",
+        "powershellCommand": "# Object replication configured via Azure CLI or Azure Portal\naz storage account or-policy show --account-name {{sourceStorage}} --resource-group {{resourceGroup}}",
+        "validation": "az storage account or-policy list --account-name {{sourceStorage}} --resource-group {{resourceGroup}} --query \"[].{PolicyId:policyId, Source:sourceAccount, Dest:destinationAccount}\" -o table"
+      },
+      {
+        "stepNumber": 4,
+        "title": "Clean Up Lab Resources",
+        "portalGuide": "Delete resource group `{{resourceGroup}}`.",
+        "cliCommand": "az group delete --name {{resourceGroup}} --yes --no-wait",
+        "powershellCommand": "Remove-AzResourceGroup -Name '{{resourceGroup}}' -Force",
+        "validation": "az group exists --name {{resourceGroup}}"
+      }
+    ]
+  }
+]

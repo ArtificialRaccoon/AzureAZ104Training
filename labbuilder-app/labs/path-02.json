@@ -1,0 +1,449 @@
+[
+  {
+    "id": "lab-p02-users-groups-01",
+    "section": "02-manage-identities-and-governance",
+    "pathName": "Path 2: Manage Identities & Governance",
+    "topic": "Microsoft Entra ID Users & Groups",
+    "title": "Manage Microsoft Entra ID Users, Security Groups, and SSPR",
+    "difficulty": "Fundamental",
+    "estimatedMinutes": 20,
+    "summary": "Create cloud user identities, configure organizational properties, organize into security groups, and enable Self-Service Password Reset (SSPR).",
+    "scenarioTemplate": "You are the Lead Identity Administrator for {{companyName}}. As part of onboarding a new department ('{{department}}'), you must provision a member user account ('{{userName}}'), assign their usage location to '{{usageLocation}}', create a security group named '{{groupName}}', add the user to the group, and configure Self-Service Password Reset (SSPR) authentication methods.",
+    "variables": {
+      "companyName": [
+        "Contoso Pharmaceuticals",
+        "Fabrikam Aerospace",
+        "Tailspin Global",
+        "Northwind Health",
+        "Woodgrove Financial"
+      ],
+      "department": [
+        "Cloud Engineering",
+        "Finance Operations",
+        "Cybersecurity Incident Response",
+        "Data Analytics"
+      ],
+      "userName": [
+        "alex.wilber",
+        "megan.bowen",
+        "diego.siciliani",
+        "adele.vance"
+      ],
+      "displayName": [
+        "Alex Wilber",
+        "Megan Bowen",
+        "Diego Siciliani",
+        "Adele Vance"
+      ],
+      "jobTitle": [
+        "Systems Administrator",
+        "Security Analyst",
+        "Cloud Architect",
+        "Operations Lead"
+      ],
+      "usageLocation": [
+        "US",
+        "GB",
+        "DE",
+        "AU",
+        "CA"
+      ],
+      "groupName": [
+        "SecOps-Engineers-Tier2",
+        "DataOps-Auditors",
+        "CloudAdmins-Pilot",
+        "Finance-Reviewers"
+      ]
+    },
+    "acceptanceCriteria": [
+      "Create a Microsoft Entra ID user account with User Principal Name '{{userName}}@<your-tenant>.onmicrosoft.com'.",
+      "Set Job Title to '{{jobTitle}}', Department to '{{department}}', and Usage Location to '{{usageLocation}}'.",
+      "Create a Microsoft Entra Security Group named '{{groupName}}' with Assigned membership.",
+      "Add user '{{userName}}' as a member of '{{groupName}}'.",
+      "Verify group membership and inspect Self-Service Password Reset (SSPR) configuration."
+    ],
+    "steps": [
+      {
+        "stepNumber": 1,
+        "title": "Create User Account with Organizational Attributes",
+        "portalGuide": "In the Azure Portal, open **Microsoft Entra ID** > select **Users** in the left blade > click **+ New user** > **Create new user**. Set User principal name to `{{userName}}`, Display name to `{{displayName}}`. Under **Properties**, set Job Title to `{{jobTitle}}`, Department to `{{department}}`, and Usage Location to `{{usageLocation}}`. Set an initial password > click **Create**.",
+        "cliCommand": "# Retrieve default tenant domain:\nDOMAIN=$(az rest --method get --url \"https://graph.microsoft.com/v1.0/domains\" --query 'value[?isDefault].id' -o tsv)\n\n# Create user:\naz ad user create \\\n  --display-name \"{{displayName}}\" \\\n  --user-principal-name \"{{userName}}@$DOMAIN\" \\\n  --password \"Pass@word12345!\" \\\n  --force-change-password-next-sign-in false",
+        "powershellCommand": "$domain = (Get-AzADDomain | Where-Object { $_.IsDefault }).Id\n$upn = \"{{userName}}@$domain\"\n\n$securePass = ConvertTo-SecureString 'Pass@word12345!' -AsPlainText -Force\nNew-AzADUser -DisplayName '{{displayName}}' -UserPrincipalName $upn -Password $securePass -MailNickname '{{userName}}'",
+        "validation": "az ad user show --id \"{{userName}}@$(az rest --method get --url 'https://graph.microsoft.com/v1.0/domains' --query 'value[?isDefault].id' -o tsv)\" --query '{Name:displayName, Dept:department, Title:jobTitle}' -o table"
+      },
+      {
+        "stepNumber": 2,
+        "title": "Create Security Group and Add User Member",
+        "portalGuide": "In **Microsoft Entra ID**, select **Groups** > click **+ New group**. Group type: **Security**, Group name: `{{groupName}}`, Group description: `Pilot group for {{department}}`, Membership type: **Assigned**. Click **No members selected** > search for `{{displayName}}` > select user > click **Create**.",
+        "cliCommand": "# Create group:\naz ad group create \\\n  --display-name \"{{groupName}}\" \\\n  --mail-nickname \"{{groupName}}\"\n\n# Add user to group:\nUSER_ID=$(az ad user show --id \"{{userName}}@$(az rest --method get --url 'https://graph.microsoft.com/v1.0/domains' --query 'value[?isDefault].id' -o tsv)\" --query id -o tsv)\naz ad group member add --group \"{{groupName}}\" --member-id \"$USER_ID\"",
+        "powershellCommand": "$group = New-AzADGroup -DisplayName '{{groupName}}' -MailNickname '{{groupName}}'\n$user = Get-AzADUser -Filter \"mailNickname eq '{{userName}}'\"\nAdd-AzADGroupMember -TargetGroupObjectId $group.Id -MemberObjectId $user.Id",
+        "validation": "az ad group member list --group \"{{groupName}}\" --query \"[].{Name:displayName, Type:principalType}\" -o table"
+      },
+      {
+        "stepNumber": 3,
+        "title": "Inspect Self-Service Password Reset (SSPR) Settings",
+        "portalGuide": "In **Microsoft Entra ID**, scroll down to **Password reset** in the manage menu. Under **Manage** > **Properties**, review Self service password reset enabled: select **Selected** > pick `{{groupName}}` to scope SSPR to this group. Under **Authentication methods**, note that 1 or 2 methods can be required (Mobile app, Email, Phone) > click **Save**.",
+        "cliCommand": "# Check tenant-wide authentication methods policy via Graph:\naz rest --method get --url \"https://graph.microsoft.com/v1.0/policies/authenticationMethodsPolicy\" --query 'id' -o tsv",
+        "powershellCommand": "# Check Microsoft Graph policies\nGet-AzContext",
+        "validation": "az ad group show --group \"{{groupName}}\" --query 'displayName' -o tsv"
+      },
+      {
+        "stepNumber": 4,
+        "title": "Clean Up Identity Resources",
+        "portalGuide": "In **Microsoft Entra ID** > **Groups** > delete `{{groupName}}`. Go to **Users** > select `{{displayName}}` > click **Delete user**.",
+        "cliCommand": "DOMAIN=$(az rest --method get --url \"https://graph.microsoft.com/v1.0/domains\" --query 'value[?isDefault].id' -o tsv)\naz ad group delete --group \"{{groupName}}\"\naz ad user delete --id \"{{userName}}@$DOMAIN\"",
+        "powershellCommand": "Remove-AzADGroup -DisplayName '{{groupName}}'\n$user = Get-AzADUser -Filter \"mailNickname eq '{{userName}}'\"\nRemove-AzADUser -ObjectId $user.Id -Force",
+        "validation": "echo \"Identity cleanup complete.\""
+      }
+    ]
+  },
+  {
+    "id": "lab-p02-rbac-01",
+    "section": "02-manage-identities-and-governance",
+    "pathName": "Path 2: Manage Identities & Governance",
+    "topic": "Azure RBAC & Identity Delegation",
+    "title": "Configure Scoped Azure RBAC Role Assignments",
+    "difficulty": "Intermediate",
+    "estimatedMinutes": 20,
+    "summary": "Create a resource group, provision target infrastructure, and delegate least-privilege role-based access control to a security group without exposing account access keys.",
+    "scenarioTemplate": "You are an Azure Administrator for {{companyName}}. An engineering team (represented by security group '{{groupName}}') requires access to manage resources in the '{{region}}' region. In accordance with enterprise Zero Trust and least-privilege compliance, you must assign the '{{targetRole.name}}' role scoped strictly to the '{{resourceGroup}}' resource group (or specific resource). Account shared keys must not be shared.",
+    "variables": {
+      "companyName": [
+        "Contoso Pharmaceuticals",
+        "Fabrikam Aerospace",
+        "Tailspin Global",
+        "Northwind Health",
+        "Woodgrove Financial"
+      ],
+      "groupName": [
+        "SecOps-Auditors",
+        "DataOps-Engineers",
+        "Cloud-Operations-Tier2",
+        "Compliance-Reviewers"
+      ],
+      "region": [
+        "eastus",
+        "westeurope",
+        "centralus",
+        "eastus2",
+        "northeurope"
+      ],
+      "resourceGroup": [
+        "rg-governance-lab-{{rand3}}",
+        "rg-audit-tier2-{{rand3}}",
+        "rg-secops-workload-{{rand3}}"
+      ],
+      "storageAccount": [
+        "stlab{{rand5}}",
+        "stvault{{rand5}}",
+        "staudit{{rand5}}"
+      ],
+      "targetRole": [
+        {
+          "name": "Storage Blob Data Contributor",
+          "description": "Grants read, write, and delete permissions to Azure Storage blob containers and data."
+        },
+        {
+          "name": "Storage Blob Data Reader",
+          "description": "Grants read and list permissions to Azure Storage containers and blobs."
+        },
+        {
+          "name": "Storage Account Contributor",
+          "description": "Grants management permissions over the storage account resource, but cannot read data plane blobs directly without listKeys."
+        },
+        {
+          "name": "Reader",
+          "description": "View all resources, but does not allow making any changes."
+        }
+      ]
+    },
+    "acceptanceCriteria": [
+      "Create resource group '{{resourceGroup}}' in location '{{region}}'.",
+      "Deploy a standard general-purpose v2 storage account named '{{storageAccount}}' with LRS redundancy.",
+      "Identify or create a Microsoft Entra security group named '{{groupName}}'.",
+      "Assign the built-in role '{{targetRole.name}}' to group '{{groupName}}' scoped to '{{resourceGroup}}'.",
+      "Verify that the role assignment exists and inspect its assignment ID."
+    ],
+    "steps": [
+      {
+        "stepNumber": 1,
+        "title": "Create the Resource Group and Storage Account",
+        "portalGuide": "In the Azure Portal search bar, type **Resource groups** and select **+ Create**. Set Name to `{{resourceGroup}}` and Region to `{{region}}`. Once created, search for **Storage accounts** > **+ Create**. Place it in `{{resourceGroup}}`, name it `{{storageAccount}}`, set Performance to Standard, and Redundancy to Locally-redundant storage (LRS).",
+        "cliCommand": "az group create \\\n  --name {{resourceGroup}} \\\n  --location {{region}}\n\naz storage account create \\\n  --name {{storageAccount}} \\\n  --resource-group {{resourceGroup}} \\\n  --location {{region}} \\\n  --sku Standard_LRS \\\n  --kind StorageV2",
+        "powershellCommand": "New-AzResourceGroup -Name '{{resourceGroup}}' -Location '{{region}}'\n\nNew-AzStorageAccount -ResourceGroupName '{{resourceGroup}}' -Name '{{storageAccount}}' -Location '{{region}}' -SkuName 'Standard_LRS' -Kind 'StorageV2'",
+        "validation": "az storage account show --name {{storageAccount}} --resource-group {{resourceGroup}} --query 'provisioningState' -o tsv"
+      },
+      {
+        "stepNumber": 2,
+        "title": "Create or Retrieve the Microsoft Entra Security Group",
+        "portalGuide": "In the Azure Portal, open **Microsoft Entra ID** > **Groups** > **New group**. Select Group type: **Security**, Group name: `{{groupName}}`, and click **Create**. Click into the group and copy the **Object ID**.",
+        "cliCommand": "az ad group create \\\n  --display-name \"{{groupName}}\" \\\n  --mail-nickname \"{{groupName}}\"\n\n# Retrieve Group Object ID:\nGROUP_ID=$(az ad group show --group \"{{groupName}}\" --query id -o tsv)\necho \"Group Object ID: $GROUP_ID\"",
+        "powershellCommand": "$Group = New-AzADGroup -DisplayName '{{groupName}}' -MailNickname '{{groupName}}'\n$Group.Id",
+        "validation": "az ad group show --group \"{{groupName}}\" --query 'displayName' -o tsv"
+      },
+      {
+        "stepNumber": 3,
+        "title": "Assign the Role Scoped to the Resource Group",
+        "portalGuide": "Open resource group `{{resourceGroup}}` > click **Access control (IAM)** > **+ Add** > **Add role assignment**. Select Role: `{{targetRole.name}}` > Next. Assign access to: **User, group, or service principal** > click **+ Select members** > search for `{{groupName}}` > select it > Review + assign.",
+        "cliCommand": "GROUP_ID=$(az ad group show --group \"{{groupName}}\" --query id -o tsv)\nRG_ID=$(az group show --name {{resourceGroup}} --query id -o tsv)\n\naz role assignment create \\\n  --role \"{{targetRole.name}}\" \\\n  --assignee-object-id \"$GROUP_ID\" \\\n  --assignee-principal-type Group \\\n  --scope \"$RG_ID\"",
+        "powershellCommand": "$GroupId = (Get-AzADGroup -DisplayName '{{groupName}}').Id\n$RgScope = (Get-AzResourceGroup -Name '{{resourceGroup}}').ResourceId\n\nNew-AzRoleAssignment -ObjectId $GroupId -RoleDefinitionName '{{targetRole.name}}' -Scope $RgScope",
+        "validation": "az role assignment list --scope /subscriptions/$(az account show --query id -o tsv)/resourceGroups/{{resourceGroup}} --query \"[?roleDefinitionName=='{{targetRole.name}}'].{Principal:principalName, Role:roleDefinitionName}\" -o table"
+      },
+      {
+        "stepNumber": 4,
+        "title": "Clean Up Lab Resources",
+        "portalGuide": "To avoid recurring charges, navigate to **Resource groups** > find `{{resourceGroup}}` > click **Delete resource group** > type the name to confirm > click **Delete**.",
+        "cliCommand": "az group delete --name {{resourceGroup}} --yes --no-wait\naz ad group delete --group \"{{groupName}}\"",
+        "powershellCommand": "Remove-AzResourceGroup -Name '{{resourceGroup}}' -Force\nRemove-AzADGroup -DisplayName '{{groupName}}'",
+        "validation": "az group exists --name {{resourceGroup}}"
+      }
+    ]
+  },
+  {
+    "id": "lab-p02-custom-role-01",
+    "section": "02-manage-identities-and-governance",
+    "pathName": "Path 2: Manage Identities & Governance",
+    "topic": "Custom RBAC Roles",
+    "title": "Author and Deploy Granular Custom Azure RBAC Roles",
+    "difficulty": "Advanced",
+    "estimatedMinutes": 25,
+    "summary": "Author a custom RBAC JSON definition with explicit Actions, NotActions, and AssignableScopes to enforce least-privilege VM management.",
+    "scenarioTemplate": "Security operations at {{companyName}} requires a specialized role named '{{customRoleName}}' for operations staff in resource group '{{resourceGroup}}'. Members must be permitted to start, restart, and inspect virtual machines and read network interfaces, but must explicitly NOT be allowed to delete virtual machines or modify disks. You must author a custom role JSON definition and register it at your subscription scope.",
+    "variables": {
+      "companyName": [
+        "Contoso CloudOps",
+        "Fabrikam Security",
+        "Northwind Infrastructure",
+        "Tailspin IT"
+      ],
+      "region": [
+        "eastus",
+        "westeurope",
+        "centralus",
+        "uksouth"
+      ],
+      "resourceGroup": [
+        "rg-ops-roles-{{rand3}}",
+        "rg-custom-rbac-{{rand3}}",
+        "rg-tier2-secops-{{rand3}}"
+      ],
+      "customRoleName": [
+        "Virtual Machine Operator Special",
+        "Tier-2 VM Restarter Role",
+        "Compute Remediation Specialist"
+      ]
+    },
+    "acceptanceCriteria": [
+      "Create resource group '{{resourceGroup}}' in '{{region}}'.",
+      "Retrieve current Azure subscription ID to use in AssignableScopes.",
+      "Author a custom role JSON file (custom-role.json) granting VM start, restart, read, and NIC read, with explicit delete NotActions.",
+      "Register the custom role definition using Azure CLI or PowerShell.",
+      "Verify the custom role is available in the tenant, and clean up afterwards."
+    ],
+    "steps": [
+      {
+        "stepNumber": 1,
+        "title": "Retrieve Subscription ID and Create Resource Group",
+        "portalGuide": "Open the Azure Portal > search for **Subscriptions** and copy your **Subscription ID**. Search for **Resource groups** > **+ Create** > Name: `{{resourceGroup}}`, Region: `{{region}}`.",
+        "cliCommand": "SUB_ID=$(az account show --query id -o tsv)\necho \"Current Subscription ID: $SUB_ID\"\n\naz group create --name {{resourceGroup}} --location {{region}}",
+        "powershellCommand": "$subId = (Get-AzContext).Subscription.Id\nWrite-Host \"Subscription ID: $subId\"\nNew-AzResourceGroup -Name '{{resourceGroup}}' -Location '{{region}}'",
+        "validation": "az account show --query '{Subscription:id, Tenant:tenantId}' -o table"
+      },
+      {
+        "stepNumber": 2,
+        "title": "Author Custom Role JSON Definition",
+        "portalGuide": "In Azure Cloud Shell, create a file named `custom-role.json` specifying the required `Actions`, `NotActions`, and `AssignableScopes` targeting your subscription.",
+        "cliCommand": "SUB_ID=$(az account show --query id -o tsv)\ncat << EOF > custom-role.json\n{\n  \"Name\": \"{{customRoleName}}\",\n  \"IsDataAction\": false,\n  \"Description\": \"Allows starting, restarting, and reading VMs, but strictly denies deletion.\",\n  \"Actions\": [\n    \"Microsoft.Compute/virtualMachines/read\",\n    \"Microsoft.Compute/virtualMachines/start/action\",\n    \"Microsoft.Compute/virtualMachines/restart/action\",\n    \"Microsoft.Network/networkInterfaces/read\"\n  ],\n  \"NotActions\": [\n    \"Microsoft.Compute/virtualMachines/delete\"\n  ],\n  \"DataActions\": [],\n  \"NotDataActions\": [],\n  \"AssignableScopes\": [\n    \"/subscriptions/$SUB_ID\"\n  ]\n}\nEOF",
+        "powershellCommand": "$subId = (Get-AzContext).Subscription.Id\n@\"\n{\n  `\"Name`\": `\"{{customRoleName}}`\",\n  `\"IsDataAction`\": false,\n  `\"Description`\": `\"Allows starting, restarting, and reading VMs, but strictly denies deletion.`\",\n  `\"Actions`\": [\n    `\"Microsoft.Compute/virtualMachines/read`\",\n    `\"Microsoft.Compute/virtualMachines/start/action`\",\n    `\"Microsoft.Compute/virtualMachines/restart/action`\",\n    `\"Microsoft.Network/networkInterfaces/read`\"\n  ],\n  `\"NotActions`\": [\n    `\"Microsoft.Compute/virtualMachines/delete`\"\n  ],\n  `\"AssignableScopes`\": [\n    `\"/subscriptions/$subId`\"\n  ]\n}\n\"@ | Out-File -FilePath custom-role.json -Encoding utf8",
+        "validation": "head -n 15 custom-role.json"
+      },
+      {
+        "stepNumber": 3,
+        "title": "Create and Register the Custom Role",
+        "portalGuide": "In the Azure Portal, open **Subscriptions** > your subscription > **Access control (IAM)** > **+ Add** > **Add custom role**. Choose **Start from JSON** > upload `custom-role.json` > review actions > click **Create**.",
+        "cliCommand": "az role definition create --role-definition custom-role.json",
+        "powershellCommand": "New-AzRoleDefinition -InputFile custom-role.json",
+        "validation": "az role definition list --name \"{{customRoleName}}\" --query \"[].{Name:roleName, Type:roleType, Description:description}\" -o table"
+      },
+      {
+        "stepNumber": 4,
+        "title": "Clean Up Custom Role and Resource Group",
+        "portalGuide": "In Subscriptions > Access control (IAM) > **Roles** > search for `{{customRoleName}}` > click `...` > **Delete**. Delete resource group `{{resourceGroup}}`.",
+        "cliCommand": "az role definition delete --name \"{{customRoleName}}\"\naz group delete --name {{resourceGroup}} --yes --no-wait\nrm -f custom-role.json",
+        "powershellCommand": "Remove-AzRoleDefinition -Name '{{customRoleName}}' -Force\nRemove-AzResourceGroup -Name '{{resourceGroup}}' -Force\nRemove-Item -Path custom-role.json -Force -ErrorAction SilentlyContinue",
+        "validation": "az role definition list --name \"{{customRoleName}}\" --query \"length(@)\""
+      }
+    ]
+  },
+  {
+    "id": "lab-p02-policy-01",
+    "section": "02-manage-identities-and-governance",
+    "pathName": "Path 2: Manage Identities & Governance",
+    "topic": "Azure Policy & Compliance",
+    "title": "Enforce Compliance with Azure Policy Definitions and Initiatives",
+    "difficulty": "Intermediate",
+    "estimatedMinutes": 20,
+    "summary": "Implement organizational guardrails by assigning Azure Policy definitions to prevent unauthorized regions and missing tags.",
+    "scenarioTemplate": "Corporate data residency requirements at {{companyName}} dictate that workloads in resource group '{{resourceGroup}}' may only be provisioned in approved regions ('{{allowedRegion}}'). To prevent compliance violations, assign the built-in 'Allowed locations' policy scoped to '{{resourceGroup}}'. Test the policy by attempting to deploy a storage account in a non-compliant region ('{{deniedRegion}}') to verify that Azure Resource Manager blocks the deployment.",
+    "variables": {
+      "companyName": [
+        "Woodgrove Financial",
+        "Contoso Health",
+        "Fabrikam Global",
+        "Adatum Government Solutions"
+      ],
+      "allowedRegion": [
+        "eastus",
+        "westeurope",
+        "centralus",
+        "australiaeast"
+      ],
+      "deniedRegion": [
+        "brazilsouth",
+        "japaneast",
+        "southafricanorth",
+        "koreacentral"
+      ],
+      "resourceGroup": [
+        "rg-policy-guard-{{rand3}}",
+        "rg-compliance-demo-{{rand3}}",
+        "rg-residency-enforce-{{rand3}}"
+      ],
+      "policyAssignmentName": [
+        "EnforceAllowedLocationsPolicy",
+        "StrictLocationResidencyRule",
+        "DataGovernanceLocationLock"
+      ],
+      "testStorageAccount": [
+        "stpoltest{{rand5}}",
+        "stdenycheck{{rand5}}"
+      ]
+    },
+    "acceptanceCriteria": [
+      "Create resource group '{{resourceGroup}}' in allowed location '{{allowedRegion}}'.",
+      "Assign the built-in Azure Policy 'Allowed locations' scoped to '{{resourceGroup}}' with allowedValues set to ['{{allowedRegion}}'].",
+      "Attempt to deploy a storage account in denied region '{{deniedRegion}}' and verify RequestDisallowedByPolicy error.",
+      "Successfully deploy a storage account in allowed region '{{allowedRegion}}' to verify compliance.",
+      "Remove the policy assignment and clean up lab resources."
+    ],
+    "steps": [
+      {
+        "stepNumber": 1,
+        "title": "Create Target Resource Group",
+        "portalGuide": "Search for **Resource groups** > **+ Create**. Name: `{{resourceGroup}}`, Region: `{{allowedRegion}}`. Click **Review + create** > **Create**.",
+        "cliCommand": "az group create \\\n  --name {{resourceGroup}} \\\n  --location {{allowedRegion}}",
+        "powershellCommand": "New-AzResourceGroup -Name '{{resourceGroup}}' -Location '{{allowedRegion}}'",
+        "validation": "az group show --name {{resourceGroup}} --query 'location' -o tsv"
+      },
+      {
+        "stepNumber": 2,
+        "title": "Assign Allowed Locations Policy Definition",
+        "portalGuide": "In the Azure Portal search bar, type **Policy**. In the left menu, select **Assignments** > **Assign policy**. Scope: `{{resourceGroup}}`. Policy definition: search for **Allowed locations** (Built-in) > select it. Under **Parameters**, select `{{allowedRegion}}`. Assignment name: `{{policyAssignmentName}}`. Click **Review + create** > **Create**.",
+        "cliCommand": "RG_ID=$(az group show --name {{resourceGroup}} --query id -o tsv)\n\naz policy assignment create \\\n  --name {{policyAssignmentName}} \\\n  --scope \"$RG_ID\" \\\n  --policy \"e56962a6-4747-49cd-b67b-bf7b01975c4c\" \\\n  --params \"{\\\"listOfAllowedLocations\\\": {\\\"value\\\": [\\\"{{allowedRegion}}\\\"]}}\"",
+        "powershellCommand": "$rg = Get-AzResourceGroup -Name '{{resourceGroup}}'\n$policyDef = Get-AzPolicyDefinition | Where-Object { $_.Properties.DisplayName -eq 'Allowed locations' }\nNew-AzPolicyAssignment -Name '{{policyAssignmentName}}' -Scope $rg.ResourceId -PolicyDefinition $policyDef -listOfAllowedLocations @('{{allowedRegion}}')",
+        "validation": "az policy assignment show --name {{policyAssignmentName}} --scope $(az group show --name {{resourceGroup}} --query id -o tsv) --query '{Name:name, Scope:scope}' -o table"
+      },
+      {
+        "stepNumber": 3,
+        "title": "Test Policy Block and Compliance",
+        "portalGuide": "Try creating a storage account in `{{resourceGroup}}` with location set to `{{deniedRegion}}`. The portal validation step will report an error: `Validation failed. Required by policy {{policyAssignmentName}}`. Then change location to `{{allowedRegion}}` and observe validation passes.",
+        "cliCommand": "# 1. Test DENIED deployment (Expected to FAIL with RequestDisallowedByPolicy):\naz storage account create \\\n  --name {{testStorageAccount}} \\\n  --resource-group {{resourceGroup}} \\\n  --location {{deniedRegion}} \\\n  --sku Standard_LRS || echo \"[Expected] Blocked by Azure Policy!\"\n\n# 2. Test ALLOWED deployment:\naz storage account create \\\n  --name {{testStorageAccount}} \\\n  --resource-group {{resourceGroup}} \\\n  --location {{allowedRegion}} \\\n  --sku Standard_LRS",
+        "powershellCommand": "# Test creation in allowed region:\nNew-AzStorageAccount -ResourceGroupName '{{resourceGroup}}' -Name '{{testStorageAccount}}' -Location '{{allowedRegion}}' -SkuName 'Standard_LRS' -Kind 'StorageV2'",
+        "validation": "az storage account show --name {{testStorageAccount}} --resource-group {{resourceGroup}} --query 'location' -o tsv"
+      },
+      {
+        "stepNumber": 4,
+        "title": "Delete Policy Assignment and Clean Up",
+        "portalGuide": "In **Policy** > **Assignments** > find `{{policyAssignmentName}}` > click `...` > **Delete assignment**. Delete resource group `{{resourceGroup}}`.",
+        "cliCommand": "RG_ID=$(az group show --name {{resourceGroup}} --query id -o tsv)\naz policy assignment delete --name {{policyAssignmentName}} --scope \"$RG_ID\"\naz group delete --name {{resourceGroup}} --yes --no-wait",
+        "powershellCommand": "$rg = Get-AzResourceGroup -Name '{{resourceGroup}}'\nRemove-AzPolicyAssignment -Name '{{policyAssignmentName}}' -Scope $rg.ResourceId\nRemove-AzResourceGroup -Name '{{resourceGroup}}' -Force",
+        "validation": "az group exists --name {{resourceGroup}}"
+      }
+    ]
+  },
+  {
+    "id": "lab-p02-cost-budget-01",
+    "section": "02-manage-identities-and-governance",
+    "pathName": "Path 2: Manage Identities & Governance",
+    "topic": "Management Groups & Cost Management",
+    "title": "Configure Management Groups and Azure Cost Management Budgets",
+    "difficulty": "Intermediate",
+    "estimatedMinutes": 20,
+    "summary": "Organize cloud subscriptions into hierarchical Management Groups and configure automated cost alerts and budgets.",
+    "scenarioTemplate": "As FinOps Administrator at {{companyName}}, you are tasked with structuring organizational governance. You must create a new Management Group named '{{mgmtGroupName}}', organize resource groups under financial monitoring, and establish a monthly budget of ${{budgetAmount}} in Azure Cost Management with automated email threshold alerts (50%, 80%, and 100%) to '{{contactEmail}}'.",
+    "variables": {
+      "companyName": [
+        "Contoso Financial",
+        "Fabrikam Retail",
+        "Tailspin Airlines",
+        "Northwind Logistics"
+      ],
+      "mgmtGroupName": [
+        "mg-core-enterprise-{{rand3}}",
+        "mg-workloads-prod-{{rand3}}",
+        "mg-finops-tier1-{{rand3}}"
+      ],
+      "budgetAmount": [
+        150,
+        250,
+        500,
+        1000
+      ],
+      "contactEmail": [
+        "admin@contoso.com",
+        "finops@fabrikam.com",
+        "cloudlead@tailspin.org"
+      ],
+      "resourceGroup": [
+        "rg-finops-monitoring-{{rand3}}",
+        "rg-budget-control-{{rand3}}"
+      ],
+      "budgetName": [
+        "MonthlyWorkloadBudget",
+        "CoreCostGuardBudget",
+        "QuarterlyOpsBudget"
+      ]
+    },
+    "acceptanceCriteria": [
+      "Create a Microsoft Entra-linked Management Group named '{{mgmtGroupName}}'.",
+      "Inspect management group hierarchy and root group associations.",
+      "Create resource group '{{resourceGroup}}' for workload cost tracking.",
+      "Configure an Azure Cost Management budget named '{{budgetName}}' with amount ${{budgetAmount}}.",
+      "Set up notification alert rules at 50%, 80%, and 100% threshold percentages directed to '{{contactEmail}}'."
+    ],
+    "steps": [
+      {
+        "stepNumber": 1,
+        "title": "Create Management Group Hierarchy",
+        "portalGuide": "In the Azure Portal search bar, type **Management groups**. Click **+ Create**. Set Management group ID and display name to `{{mgmtGroupName}}` > click **Submit**.",
+        "cliCommand": "az account management-group create \\\n  --name \"{{mgmtGroupName}}\" \\\n  --display-name \"{{mgmtGroupName}}\"",
+        "powershellCommand": "New-AzManagementGroup -GroupName '{{mgmtGroupName}}' -DisplayName '{{mgmtGroupName}}'",
+        "validation": "az account management-group show --name \"{{mgmtGroupName}}\" --query '{ID:name, Display:displayName}' -o table"
+      },
+      {
+        "stepNumber": 2,
+        "title": "Create Workload Resource Group for Scoped Budgeting",
+        "portalGuide": "Search for **Resource groups** > **+ Create**. Name: `{{resourceGroup}}`, Region: `eastus` > click **Review + create** > **Create**.",
+        "cliCommand": "az group create --name {{resourceGroup}} --location eastus",
+        "powershellCommand": "New-AzResourceGroup -Name '{{resourceGroup}}' -Location 'eastus'",
+        "validation": "az group show --name {{resourceGroup}} --query 'id' -o tsv"
+      },
+      {
+        "stepNumber": 3,
+        "title": "Configure Cost Management Budget and Threshold Alerts",
+        "portalGuide": "Navigate to `{{resourceGroup}}` > in the left menu, select **Budgets** (under Cost Management) > **+ Add**. Name: `{{budgetName}}`, Reset period: **Monthly**, Creation date: Today, Expiration date: 2 years out, Amount: `{{budgetAmount}}`. Click **Next**. Alert condition 1: Type **Actual**, % of budget: `50`, Email recipients: `{{contactEmail}}`. Add condition 2: `80`%, condition 3: `100`%. Click **Create**.",
+        "cliCommand": "START_DATE=$(date +%Y-%m-01)\nEND_DATE=$(date -d \"+2 years\" +%Y-%m-01 2>/dev/null || date -v+2y +%Y-%m-01)\n\naz consumption budget create \\\n  --budget-name {{budgetName}} \\\n  --resource-group {{resourceGroup}} \\\n  --amount {{budgetAmount}} \\\n  --time-grain monthly \\\n  --start-date $START_DATE \\\n  --end-date $END_DATE",
+        "powershellCommand": "$startDate = Get-Date -Day 1\n$endDate = $startDate.AddYears(2)\nNew-AzConsumptionBudget -ResourceGroupName '{{resourceGroup}}' -Name '{{budgetName}}' -Amount {{budgetAmount}} -TimeGrain Monthly -StartDate $startDate -EndDate $endDate",
+        "validation": "az consumption budget show --budget-name {{budgetName}} --resource-group {{resourceGroup}} --query '{Budget:name, Amount:amount, TimeGrain:timeGrain}' -o table"
+      },
+      {
+        "stepNumber": 4,
+        "title": "Clean Up Management Group and Budget",
+        "portalGuide": "In `{{resourceGroup}}` > **Budgets** > select `{{budgetName}}` > click **Delete**. Delete resource group `{{resourceGroup}}`. In **Management groups**, select `{{mgmtGroupName}}` > click **Delete**.",
+        "cliCommand": "az consumption budget delete --budget-name {{budgetName}} --resource-group {{resourceGroup}} --yes\naz group delete --name {{resourceGroup}} --yes --no-wait\naz account management-group delete --name \"{{mgmtGroupName}}\"",
+        "powershellCommand": "Remove-AzConsumptionBudget -ResourceGroupName '{{resourceGroup}}' -Name '{{budgetName}}'\nRemove-AzResourceGroup -Name '{{resourceGroup}}' -Force\nRemove-AzManagementGroup -GroupName '{{mgmtGroupName}}'",
+        "validation": "echo \"Budget and management group cleanup complete.\""
+      }
+    ]
+  }
+]

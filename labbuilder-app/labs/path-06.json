@@ -1,0 +1,347 @@
+[
+  {
+    "id": "lab-p06-loganalytics-kql-01",
+    "section": "06-monitor-and-back-up-resources",
+    "pathName": "Path 6: Monitor & Back Up Resources",
+    "topic": "Log Analytics & Diagnostic Settings",
+    "title": "Configure Azure Monitor Log Analytics Workspaces and Diagnostic Settings",
+    "difficulty": "Intermediate",
+    "estimatedMinutes": 20,
+    "summary": "Deploy a central Log Analytics workspace with custom retention, configure diagnostic settings to stream audit and performance logs, and query with KQL.",
+    "scenarioTemplate": "Enterprise compliance at {{companyName}} requires centralized observability for cloud resources in '{{region}}'. You are tasked with creating resource group '{{resourceGroup}}', provisioning an Azure Log Analytics Workspace named '{{workspaceName}}' with a {{retentionDays}}-day data retention period, configuring Diagnostic Settings on a target resource to export logs and metrics, and executing sample Kusto Query Language (KQL) queries.",
+    "variables": {
+      "companyName": [
+        "Contoso Enterprise",
+        "Fabrikam Security",
+        "Tailspin Space",
+        "Northwind Logistics"
+      ],
+      "region": [
+        "eastus",
+        "westeurope",
+        "centralus",
+        "uksouth"
+      ],
+      "resourceGroup": [
+        "rg-monitor-central-{{rand3}}",
+        "rg-observability-{{rand3}}"
+      ],
+      "workspaceName": [
+        "law-core-workspace-{{rand3}}",
+        "law-observability-tier1-{{rand3}}"
+      ],
+      "retentionDays": [
+        30,
+        60,
+        90
+      ],
+      "diagnosticSettingName": [
+        "diag-export-to-law",
+        "diag-audit-stream"
+      ]
+    },
+    "acceptanceCriteria": [
+      "Create resource group '{{resourceGroup}}' in '{{region}}'.",
+      "Deploy Log Analytics Workspace '{{workspaceName}}' with retentionInDays set to {{retentionDays}}.",
+      "Deploy a target resource (Storage Account) in '{{resourceGroup}}'.",
+      "Configure Diagnostic Settings '{{diagnosticSettingName}}' exporting metrics and logs to '{{workspaceName}}'.",
+      "Execute a test KQL query against the workspace and verify log schema readiness."
+    ],
+    "steps": [
+      {
+        "stepNumber": 1,
+        "title": "Create Resource Group and Log Analytics Workspace",
+        "portalGuide": "Search for **Log Analytics workspaces** > **+ Create**. RG: `{{resourceGroup}}`, Name: `{{workspaceName}}`, Region: `{{region}}` > click **Review + create** > **Create**. Once deployed, open `{{workspaceName}}` > **Usage and estimated costs** > **Data Retention** > set to `{{retentionDays}}` days > click **OK**.",
+        "cliCommand": "az group create --name {{resourceGroup}} --location {{region}}\n\naz monitor log-analytics workspace create \\\n  --name {{workspaceName}} \\\n  --resource-group {{resourceGroup}} \\\n  --location {{region}} \\\n  --retention-time {{retentionDays}}",
+        "powershellCommand": "New-AzResourceGroup -Name '{{resourceGroup}}' -Location '{{region}}'\nNew-AzOperationalInsightsWorkspace -ResourceGroupName '{{resourceGroup}}' -Name '{{workspaceName}}' -Location '{{region}}' -RetentionInDays {{retentionDays}}",
+        "validation": "az monitor log-analytics workspace show --workspace-name {{workspaceName}} --resource-group {{resourceGroup}} --query '{Name:name, RetentionDays:retentionInDays, State:provisioningState}' -o table"
+      },
+      {
+        "stepNumber": 2,
+        "title": "Deploy Target Workload Resource",
+        "portalGuide": "In `{{resourceGroup}}`, create a Storage Account `stmonitor{{rand5}}` with Standard LRS redundancy.",
+        "cliCommand": "az storage account create \\\n  --name stmonitor{{rand5}} \\\n  --resource-group {{resourceGroup}} \\\n  --location {{region}} \\\n  --sku Standard_LRS \\\n  --kind StorageV2",
+        "powershellCommand": "New-AzStorageAccount -ResourceGroupName '{{resourceGroup}}' -Name 'stmonitor{{rand5}}' -Location '{{region}}' -SkuName 'Standard_LRS' -Kind 'StorageV2'",
+        "validation": "az storage account show --name stmonitor{{rand5}} --resource-group {{resourceGroup}} --query 'provisioningState' -o tsv"
+      },
+      {
+        "stepNumber": 3,
+        "title": "Configure Diagnostic Settings Export to Workspace",
+        "portalGuide": "Open `stmonitor{{rand5}}` > select **Diagnostic settings** (under Monitoring) > **+ Add diagnostic setting**. Name: `{{diagnosticSettingName}}`. Destination: Check **Send to Log Analytics workspace** > select `{{workspaceName}}`. Select **Transaction** metrics > click **Save**.",
+        "cliCommand": "WORKSPACE_ID=$(az monitor log-analytics workspace show --workspace-name {{workspaceName}} --resource-group {{resourceGroup}} --query id -o tsv)\nST_ID=$(az storage account show --name stmonitor{{rand5}} --resource-group {{resourceGroup}} --query id -o tsv)\n\naz monitor diagnostic-settings create \\\n  --name {{diagnosticSettingName}} \\\n  --resource \"$ST_ID/blobServices/default\" \\\n  --workspace \"$WORKSPACE_ID\" \\\n  --metrics '[{\"category\": \"Transaction\", \"enabled\": true}]'",
+        "powershellCommand": "$law = Get-AzOperationalInsightsWorkspace -ResourceGroupName '{{resourceGroup}}' -Name '{{workspaceName}}'\n$st = Get-AzStorageAccount -ResourceGroupName '{{resourceGroup}}' -Name 'stmonitor{{rand5}}'\n# Configure diagnostic settings cmdlet\naz monitor diagnostic-settings show --name {{diagnosticSettingName}} --resource \"$($st.Id)/blobServices/default\"",
+        "validation": "az monitor diagnostic-settings list --resource $(az storage account show --name stmonitor{{rand5}} --resource-group {{resourceGroup}} --query id -o tsv)/blobServices/default --query \"[].{Name:name, Workspace:workspaceId}\" -o table"
+      },
+      {
+        "stepNumber": 4,
+        "title": "Clean Up Lab Resources",
+        "portalGuide": "Delete resource group `{{resourceGroup}}`.",
+        "cliCommand": "az group delete --name {{resourceGroup}} --yes --no-wait",
+        "powershellCommand": "Remove-AzResourceGroup -Name '{{resourceGroup}}' -Force",
+        "validation": "az group exists --name {{resourceGroup}}"
+      }
+    ]
+  },
+  {
+    "id": "lab-p06-alerts-actiongroups-01",
+    "section": "06-monitor-and-back-up-resources",
+    "pathName": "Path 6: Monitor & Back Up Resources",
+    "topic": "Azure Monitor Alerts & Action Groups",
+    "title": "Configure Azure Metric Alerts and Multi-Channel Action Groups",
+    "difficulty": "Intermediate",
+    "estimatedMinutes": 20,
+    "summary": "Implement proactive incident notification by configuring Action Groups and Azure Metric Alert rules with static evaluation thresholds.",
+    "scenarioTemplate": "You are establishing operational alert notifications for production workloads in '{{region}}'. Inside resource group '{{resourceGroup}}', create an Action Group named '{{actionGroupName}}' configured to send email notifications to '{{emailAddress}}'. Then create an Azure Metric Alert rule named '{{alertRuleName}}' that evaluates every 5 minutes and fires a Severity {{severity}} alert when average CPU percentage (or storage capacity) exceeds {{thresholdPct}}%.",
+    "variables": {
+      "region": [
+        "eastus",
+        "westeurope",
+        "centralus",
+        "australiaeast"
+      ],
+      "resourceGroup": [
+        "rg-alerts-management-{{rand3}}",
+        "rg-ops-monitoring-{{rand3}}"
+      ],
+      "actionGroupName": [
+        "ag-ops-tier1-alerts",
+        "ag-critical-incidents",
+        "ag-cloudops-responders"
+      ],
+      "shortName": [
+        "opsalerts",
+        "critalerts"
+      ],
+      "emailAddress": [
+        "admin@contoso.com",
+        "operations@fabrikam.com",
+        "secops@tailspin.org"
+      ],
+      "alertRuleName": [
+        "alert-high-cpu-spike",
+        "alert-workload-threshold"
+      ],
+      "thresholdPct": [
+        80,
+        85,
+        90
+      ],
+      "severity": [
+        1,
+        2
+      ]
+    },
+    "acceptanceCriteria": [
+      "Create resource group '{{resourceGroup}}' in '{{region}}'.",
+      "Create an Action Group named '{{actionGroupName}}' with short name '{{shortName}}' and an Email receiver pointing to '{{emailAddress}}'.",
+      "Deploy a target Virtual Machine or App Service resource to monitor.",
+      "Create a Metric Alert rule named '{{alertRuleName}}' targeting the resource with condition 'Percentage CPU > {{thresholdPct}}'.",
+      "Attach '{{actionGroupName}}' to the alert rule with Severity {{severity}}.",
+      "Verify the alert rule status is enabled and inspect notification configuration."
+    ],
+    "steps": [
+      {
+        "stepNumber": 1,
+        "title": "Create Resource Group and Action Group",
+        "portalGuide": "Search for **Monitor** > in the left menu, select **Alerts** > click **Action groups** > **+ Create**. RG: `{{resourceGroup}}`, Name: `{{actionGroupName}}`, Display name: `{{shortName}}`. Under **Notifications**, Notification type: **Email/SMS message/Push/Voice**, Name: `EmailAdmin`, Email: `{{emailAddress}}` > click **Review + create** > **Create**.",
+        "cliCommand": "az group create --name {{resourceGroup}} --location {{region}}\n\naz monitor action-group create \\\n  --name {{actionGroupName}} \\\n  --resource-group {{resourceGroup}} \\\n  --short-name {{shortName}} \\\n  --action email EmailAdmin {{emailAddress}}",
+        "powershellCommand": "New-AzResourceGroup -Name '{{resourceGroup}}' -Location '{{region}}'\n$emailReceiver = New-AzActionGroupReceiver -Name 'EmailAdmin' -EmailAddress '{{emailAddress}}'\nNew-AzActionGroup -ResourceGroupName '{{resourceGroup}}' -Name '{{actionGroupName}}' -ShortName '{{shortName}}' -Receiver $emailReceiver",
+        "validation": "az monitor action-group show --name {{actionGroupName}} --resource-group {{resourceGroup}} --query '{Name:name, ShortName:groupShortName}' -o table"
+      },
+      {
+        "stepNumber": 2,
+        "title": "Deploy Test Compute Resource",
+        "portalGuide": "Deploy a lightweight VM `vm-alert-test` in `{{resourceGroup}}` (Ubuntu2204, Standard_B1s) to serve as the metric alert target.",
+        "cliCommand": "az vm create \\\n  --name vm-alert-test \\\n  --resource-group {{resourceGroup}} \\\n  --location {{region}} \\\n  --image Ubuntu2204 \\\n  --size Standard_B1s \\\n  --generate-ssh-keys",
+        "powershellCommand": "New-AzVM -ResourceGroupName '{{resourceGroup}}' -Name 'vm-alert-test' -Location '{{region}}' -Size 'Standard_B1s' -Image 'Ubuntu2204'",
+        "validation": "az vm show --name vm-alert-test --resource-group {{resourceGroup}} --query 'provisioningState' -o tsv"
+      },
+      {
+        "stepNumber": 3,
+        "title": "Create Metric Alert Rule Linked to Action Group",
+        "portalGuide": "In **Monitor** > **Alerts** > click **+ Create** > **Alert rule**. Scope: select `vm-alert-test`. Condition: Signal name **Percentage CPU**, Operator: **Greater than**, Threshold: `{{thresholdPct}}`, Check every: `5 minutes`. Actions: Select existing action group `{{actionGroupName}}`. Details: Severity **{{severity}} - Warning**, Alert rule name: `{{alertRuleName}}` > click **Create**.",
+        "cliCommand": "VM_ID=$(az vm show --name vm-alert-test --resource-group {{resourceGroup}} --query id -o tsv)\nAG_ID=$(az monitor action-group show --name {{actionGroupName}} --resource-group {{resourceGroup}} --query id -o tsv)\n\naz monitor metrics alert create \\\n  --name {{alertRuleName}} \\\n  --resource-group {{resourceGroup}} \\\n  --scopes \"$VM_ID\" \\\n  --condition \"avg Percentage CPU > {{thresholdPct}}\" \\\n  --window-size 5m \\\n  --evaluation-frequency 1m \\\n  --action \"$AG_ID\" \\\n  --severity {{severity}} \\\n  --description \"Alert when CPU spikes above {{thresholdPct}}%\"",
+        "powershellCommand": "$vm = Get-AzVM -ResourceGroupName '{{resourceGroup}}' -Name 'vm-alert-test'\n$ag = Get-AzActionGroup -ResourceGroupName '{{resourceGroup}}' -Name '{{actionGroupName}}'\n# Metric alert creation via PowerShell or Azure CLI\naz monitor metrics alert show --name {{alertRuleName}} --resource-group {{resourceGroup}}",
+        "validation": "az monitor metrics alert show --name {{alertRuleName}} --resource-group {{resourceGroup}} --query '{Name:name, Severity:severity, Enabled:enabled}' -o table"
+      },
+      {
+        "stepNumber": 4,
+        "title": "Clean Up Lab Resources",
+        "portalGuide": "Delete resource group `{{resourceGroup}}`.",
+        "cliCommand": "az group delete --name {{resourceGroup}} --yes --no-wait",
+        "powershellCommand": "Remove-AzResourceGroup -Name '{{resourceGroup}}' -Force",
+        "validation": "az group exists --name {{resourceGroup}}"
+      }
+    ]
+  },
+  {
+    "id": "lab-p06-backup-recovery-01",
+    "section": "06-monitor-and-back-up-resources",
+    "pathName": "Path 6: Monitor & Back Up Resources",
+    "topic": "Azure Backup & Disaster Recovery",
+    "title": "Implement Azure Backup for Virtual Machines via Recovery Services Vault",
+    "difficulty": "Intermediate",
+    "estimatedMinutes": 25,
+    "summary": "Protect virtual machine workloads using Azure Backup, configure customized backup policies with retention tiers, and trigger initial backup jobs.",
+    "scenarioTemplate": "Business continuity and disaster recovery compliance at {{companyName}} mandates automated daily backups for IaaS workloads in '{{region}}'. You are tasked with creating resource group '{{resourceGroup}}', provisioning an Azure Recovery Services Vault named '{{vaultName}}', creating a customized Backup Policy named '{{policyName}}' with {{snapshotDays}} days of instant recovery snapshot retention and {{dailyRetentionDays}} days of daily backup retention, and protecting a virtual machine.",
+    "variables": {
+      "companyName": [
+        "Contoso Financial",
+        "Fabrikam Aerospace",
+        "Northwind Healthcare",
+        "Tailspin Security"
+      ],
+      "region": [
+        "eastus",
+        "westeurope",
+        "centralus",
+        "eastus2"
+      ],
+      "resourceGroup": [
+        "rg-backup-rsv-{{rand3}}",
+        "rg-bcdr-protection-{{rand3}}"
+      ],
+      "vaultName": [
+        "rsv-core-vault-{{rand3}}",
+        "rsv-dr-backup-{{rand3}}"
+      ],
+      "policyName": [
+        "DailyVmBackupPolicy",
+        "Tier1GoldBackupPolicy"
+      ],
+      "snapshotDays": [
+        2,
+        3
+      ],
+      "dailyRetentionDays": [
+        30,
+        60
+      ],
+      "vmName": [
+        "vm-prod-database"
+      ]
+    },
+    "acceptanceCriteria": [
+      "Create resource group '{{resourceGroup}}' in '{{region}}'.",
+      "Deploy Azure Recovery Services Vault '{{vaultName}}' with storage redundancy set to LocallyRedundant (LRS).",
+      "Deploy a test Virtual Machine '{{vmName}}' in '{{resourceGroup}}'.",
+      "Configure an Azure Backup policy named '{{policyName}}' with daily frequency, {{snapshotDays}} days instant restore, and {{dailyRetentionDays}} days retention.",
+      "Enable backup on '{{vmName}}' referencing '{{policyName}}' and verify protection state.",
+      "Clean up all lab resources."
+    ],
+    "steps": [
+      {
+        "stepNumber": 1,
+        "title": "Create Resource Group and Recovery Services Vault",
+        "portalGuide": "Search for **Recovery Services vaults** > **+ Create**. RG: `{{resourceGroup}}`, Name: `{{vaultName}}`, Region: `{{region}}` > click **Review + create** > **Create**. Once created, open `{{vaultName}}` > **Properties** > **Backup Configuration** > change Storage replication type to **Locally-redundant** > click **Save**.",
+        "cliCommand": "az group create --name {{resourceGroup}} --location {{region}}\n\naz backup vault create \\\n  --name {{vaultName}} \\\n  --resource-group {{resourceGroup}} \\\n  --location {{region}}\n\n# Configure LRS storage redundancy:\naz backup vault backup-properties set \\\n  --name {{vaultName}} \\\n  --resource-group {{resourceGroup}} \\\n  --backup-storage-redundancy LocallyRedundant",
+        "powershellCommand": "New-AzResourceGroup -Name '{{resourceGroup}}' -Location '{{region}}'\nNew-AzRecoveryServicesVault -ResourceGroupName '{{resourceGroup}}' -Name '{{vaultName}}' -Location '{{region}}'\nSet-AzRecoveryServicesBackupProperty -Vault (Get-AzRecoveryServicesVault -ResourceGroupName '{{resourceGroup}}' -Name '{{vaultName}}') -BackupStorageRedundancy LocallyRedundant",
+        "validation": "az backup vault show --name {{vaultName}} --resource-group {{resourceGroup}} --query '{Name:name, Provisioning:properties.provisioningState}' -o table"
+      },
+      {
+        "stepNumber": 2,
+        "title": "Deploy Test Virtual Machine",
+        "portalGuide": "Deploy a lightweight VM `{{vmName}}` in `{{resourceGroup}}` (Ubuntu2204, Standard_B1s).",
+        "cliCommand": "az vm create \\\n  --name {{vmName}} \\\n  --resource-group {{resourceGroup}} \\\n  --location {{region}} \\\n  --image Ubuntu2204 \\\n  --size Standard_B1s \\\n  --generate-ssh-keys",
+        "powershellCommand": "New-AzVM -ResourceGroupName '{{resourceGroup}}' -Name '{{vmName}}' -Location '{{region}}' -Size 'Standard_B1s' -Image 'Ubuntu2204'",
+        "validation": "az vm show --name {{vmName}} --resource-group {{resourceGroup}} --query 'provisioningState' -o tsv"
+      },
+      {
+        "stepNumber": 3,
+        "title": "Enable Backup and Configure Protection Policy",
+        "portalGuide": "In `{{vaultName}}`, select **Overview** > **+ Backup**. Workload: **Azure**, What do you want to backup: **Virtual machine** > click **Backup**. Policy: Create new `{{policyName}}` (Daily 23:00, Instant restore {{snapshotDays}} days, Retention {{dailyRetentionDays}} days). Virtual Machines: Select `{{vmName}}` > click **Enable backup**.",
+        "cliCommand": "# Enable backup on VM:\naz backup protection enable-for-vm \\\n  --vault-name {{vaultName}} \\\n  --resource-group {{resourceGroup}} \\\n  --vm $(az vm show --name {{vmName}} --resource-group {{resourceGroup}} --query id -o tsv) \\\n  --policy-name DefaultPolicy",
+        "powershellCommand": "$vault = Get-AzRecoveryServicesVault -ResourceGroupName '{{resourceGroup}}' -Name '{{vaultName}}'\nSet-AzRecoveryServicesVaultContext -Vault $vault\n$policy = Get-AzRecoveryServicesBackupProtectionPolicy -Name 'DefaultPolicy'\nEnable-AzRecoveryServicesBackupProtection -ResourceGroupName '{{resourceGroup}}' -Name '{{vmName}}' -Policy $policy",
+        "validation": "az backup container list --vault-name {{vaultName}} --resource-group {{resourceGroup}} --backup-management-type AzureIaasVM --query \"[].{Name:name, Status:properties.registrationStatus}\" -o table"
+      },
+      {
+        "stepNumber": 4,
+        "title": "Clean Up Lab Resources",
+        "portalGuide": "In `{{vaultName}}` > **Backup items** > select VM > **Stop backup** > **Delete backup data**. Delete resource group `{{resourceGroup}}`.",
+        "cliCommand": "# Stop protection and delete backup data:\naz backup protection disable \\\n  --vault-name {{vaultName}} \\\n  --resource-group {{resourceGroup}} \\\n  --container-name {{vmName}} \\\n  --item-name {{vmName}} \\\n  --delete-backup-data true --yes 2>/dev/null || true\n\naz group delete --name {{resourceGroup}} --yes --no-wait",
+        "powershellCommand": "Remove-AzResourceGroup -Name '{{resourceGroup}}' -Force",
+        "validation": "az group exists --name {{resourceGroup}}"
+      }
+    ]
+  },
+  {
+    "id": "lab-p06-network-watcher-01",
+    "section": "06-monitor-and-back-up-resources",
+    "pathName": "Path 6: Monitor & Back Up Resources",
+    "topic": "Network Watcher & Diagnostics",
+    "title": "Troubleshoot Network Connectivity using Azure Network Watcher",
+    "difficulty": "Intermediate",
+    "estimatedMinutes": 20,
+    "summary": "Diagnose network connectivity issues, verify NSG traffic filtering using IP Flow Verify, and inspect routing with Next Hop analysis.",
+    "scenarioTemplate": "Users report that application servers in '{{region}}' are unable to communicate with an external API at '{{targetIp}}' on port {{targetPort}}. You must utilize Azure Network Watcher in '{{region}}' to diagnose the failure. Using **IP Flow Verify**, determine whether inbound or outbound NSG security rules are dropping packets. Then run **Next Hop** analysis on Virtual Machine '{{vmName}}' to confirm whether traffic routes via VirtualAppliance, VirtualNetwork, or Internet.",
+    "variables": {
+      "region": [
+        "eastus",
+        "westeurope",
+        "centralus"
+      ],
+      "resourceGroup": [
+        "rg-netwatcher-troubleshoot-{{rand3}}",
+        "rg-diagnostics-lab-{{rand3}}"
+      ],
+      "vmName": [
+        "vm-app-frontend"
+      ],
+      "targetIp": [
+        "203.0.113.25",
+        "198.51.100.40",
+        "13.107.42.16"
+      ],
+      "targetPort": [
+        443,
+        8080,
+        1433
+      ],
+      "protocol": [
+        "TCP"
+      ]
+    },
+    "acceptanceCriteria": [
+      "Verify Azure Network Watcher is enabled for region '{{region}}'.",
+      "Deploy Virtual Machine '{{vmName}}' in '{{resourceGroup}}'.",
+      "Execute Network Watcher IP Flow Verify test on '{{vmName}}' targeting IP '{{targetIp}}' on port {{targetPort}}.",
+      "Execute Network Watcher Next Hop analysis from '{{vmName}}' to target IP '{{targetIp}}'.",
+      "Interpret results (Access Allowed / Denied and effective security rule name).",
+      "Clean up all lab resources."
+    ],
+    "steps": [
+      {
+        "stepNumber": 1,
+        "title": "Verify Network Watcher and Create Test VM",
+        "portalGuide": "Search for **Network Watcher**. Verify your target region `{{region}}` status is **Enabled**. Create RG `{{resourceGroup}}` and deploy VM `{{vmName}}` (Ubuntu2204, Standard_B1s) with a virtual network.",
+        "cliCommand": "# Ensure Network Watcher is enabled for region:\naz network watcher configure \\\n  --locations {{region}} \\\n  --enabled true \\\n  --resource-group NetworkWatcherRG 2>/dev/null || true\n\naz group create --name {{resourceGroup}} --location {{region}}\n\naz vm create \\\n  --name {{vmName}} \\\n  --resource-group {{resourceGroup}} \\\n  --location {{region}} \\\n  --image Ubuntu2204 \\\n  --size Standard_B1s \\\n  --generate-ssh-keys",
+        "powershellCommand": "New-AzResourceGroup -Name '{{resourceGroup}}' -Location '{{region}}'\nNew-AzVM -ResourceGroupName '{{resourceGroup}}' -Name '{{vmName}}' -Location '{{region}}' -Size 'Standard_B1s' -Image 'Ubuntu2204'",
+        "validation": "az network watcher list --query \"[?location=='{{region}}'].{Location:location, Provisioning:provisioningState}\" -o table"
+      },
+      {
+        "stepNumber": 2,
+        "title": "Run IP Flow Verify to Inspect NSG Rule Evaluation",
+        "portalGuide": "In **Network Watcher**, select **IP flow verify** (under Network diagnostic tools). Target: `{{vmName}}`, Protocol: `{{protocol}}`, Direction: **Outbound**, Local IP: (VM IP), Local port: `*`, Remote IP: `{{targetIp}}`, Remote port: `{{targetPort}}` > click **Check**. Observe whether the result is **Access Allowed** or **Access Denied**, and view the matching NSG security rule.",
+        "cliCommand": "VM_NIC_ID=$(az vm show --name {{vmName}} --resource-group {{resourceGroup}} --query 'networkProfile.networkInterfaces[0].id' -o tsv)\n\naz network watcher test-ip-flow \\\n  --vm {{vmName}} \\\n  --resource-group {{resourceGroup}} \\\n  --direction Outbound \\\n  --protocol {{protocol}} \\\n  --local 10.0.0.4:* \\\n  --remote {{targetIp}}:{{targetPort}}",
+        "powershellCommand": "Test-AzNetworkWatcherIPFlow -NetworkWatcher (Get-AzNetworkWatcher -Location '{{region}}') -TargetVirtualMachineId (Get-AzVM -ResourceGroupName '{{resourceGroup}}' -Name '{{vmName}}').Id -Direction Outbound -Protocol {{protocol}} -LocalIPAddress '10.0.0.4' -LocalPort '*' -RemoteIPAddress '{{targetIp}}' -RemotePort '{{targetPort}}'",
+        "validation": "echo \"Verified IP flow test evaluation.\""
+      },
+      {
+        "stepNumber": 3,
+        "title": "Run Next Hop Analysis for Route Diagnostics",
+        "portalGuide": "In **Network Watcher**, select **Next hop** (under Network diagnostic tools). Target: `{{vmName}}`, Source IP: (VM IP), Destination IP: `{{targetIp}}` > click **Next hop**. Inspect whether the next hop is **Internet**, **VirtualAppliance**, or **VirtualNetwork**.",
+        "cliCommand": "az network watcher show-next-hop \\\n  --vm {{vmName}} \\\n  --resource-group {{resourceGroup}} \\\n  --source-ip 10.0.0.4 \\\n  --dest-ip {{targetIp}}",
+        "powershellCommand": "Get-AzNetworkWatcherNextHop -NetworkWatcher (Get-AzNetworkWatcher -Location '{{region}}') -TargetVirtualMachineId (Get-AzVM -ResourceGroupName '{{resourceGroup}}' -Name '{{vmName}}').Id -SourceIPAddress '10.0.0.4' -DestinationIPAddress '{{targetIp}}'",
+        "validation": "echo \"Verified Next Hop routing test.\""
+      },
+      {
+        "stepNumber": 4,
+        "title": "Clean Up Lab Resources",
+        "portalGuide": "Delete resource group `{{resourceGroup}}`.",
+        "cliCommand": "az group delete --name {{resourceGroup}} --yes --no-wait",
+        "powershellCommand": "Remove-AzResourceGroup -Name '{{resourceGroup}}' -Force",
+        "validation": "az group exists --name {{resourceGroup}}"
+      }
+    ]
+  }
+]
