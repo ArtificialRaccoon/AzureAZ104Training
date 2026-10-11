@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AZ-104 QuizMaster - Multiple Choice Certification Practice</title>
+  <meta name="description" content="Offline multiple choice quiz study application for the AZ-104 Microsoft Azure Administrator certification with randomized choices and mistake remediation.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Top App Header -->
+  <header class="app-header">
+    <div class="header-container">
+      <a href="#" class="brand" id="brand-link">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+          </svg>
+        </div>
+        <span class="brand-title">AZ-104 QuizMaster</span>
+        <span class="brand-badge">Practice Exam</span>
+      </a>
+
+      <div class="header-actions">
+        <button class="btn btn-glass" id="btn-open-profile" aria-label="Open Learner Profile">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+          </svg>
+          Learner Profile & Stats
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content View -->
+  <main class="main-container">
+
+    <!-- 1. SETUP / QUIZ CONFIGURATION SCREEN -->
+    <section class="glass-panel setup-screen" id="setup-screen">
+      
+      <div class="section-header">
+        <h2>Practice Exam & Quiz Setup</h2>
+        <p>Configure your multiple choice study test, choose focus topics, and review weak areas.</p>
+      </div>
+
+      <!-- Learner Snapshot Cards -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon blue">📝</div>
+          <div class="stat-content">
+            <div class="stat-val" id="stat-total-quizzes">0</div>
+            <div class="stat-label">Quizzes Taken</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green">🎯</div>
+          <div class="stat-content">
+            <div class="stat-val" id="stat-accuracy">0%</div>
+            <div class="stat-label">Overall Accuracy</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon orange">⚠️</div>
+          <div class="stat-content">
+            <div class="stat-val" id="stat-wrong-count">0</div>
+            <div class="stat-label">Past Mistakes</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon purple">📊</div>
+          <div class="stat-content">
+            <div class="stat-val" id="stat-total-answered">0</div>
+            <div class="stat-label">Questions Answered</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Past Mistakes Remediation Banner (Hidden when 0 wrong) -->
+      <div class="remediation-banner" id="remediation-banner" style="display: none;">
+        <div class="remediation-text">
+          <h4>⚠️ Past Mistakes Remediation Ready</h4>
+          <p id="remediation-count-text">You have questions previously answered incorrectly.</p>
+        </div>
+        <button class="btn btn-warning" id="btn-start-remediation">
+          🎯 Retest Past Mistakes Now
+        </button>
+      </div>
+
+      <!-- Study Mode Selector -->
+      <div class="form-group">
+        <label for="quiz-mode-select" class="form-label">
+          <span>Quiz Delivery Mode</span>
+          <span style="font-size: 0.78rem; color: var(--azure-cyan); font-weight: 500;">Randomized Question & Choice Order</span>
+        </label>
+        <select id="quiz-mode-select" class="btn btn-glass" style="width: 100%; text-align: left; padding: 0.75rem 1rem; font-size: 0.95rem;">
+          <option value="practice">Practice Mode (Instant Feedback & Explanations After Each Question)</option>
+          <option value="exam">Exam Simulation Mode (Complete Full Test, Grade & Reveal at End)</option>
+        </select>
+      </div>
+
+      <!-- Question Count Limit -->
+      <div class="form-group">
+        <label class="form-label">
+          <span>Question Limit</span>
+          <span style="font-size: 0.78rem; color: var(--text-muted);">Random sample per quiz</span>
+        </label>
+        <div class="pill-grid">
+          <div class="pill-option">
+            <input type="radio" id="count-5" name="quiz-count" value="5">
+            <label for="count-5">
+              5 Questions
+              <small>Quick Check</small>
+            </label>
+          </div>
+          <div class="pill-option">
+            <input type="radio" id="count-10" name="quiz-count" value="10" checked>
+            <label for="count-10">
+              10 Questions
+              <small>Standard Drill</small>
+            </label>
+          </div>
+          <div class="pill-option">
+            <input type="radio" id="count-20" name="quiz-count" value="20">
+            <label for="count-20">
+              20 Questions
+              <small>Deep Practice</small>
+            </label>
+          </div>
+          <div class="pill-option">
+            <input type="radio" id="count-all" name="quiz-count" value="all">
+            <label for="count-all">
+              All Available
+              <small>Full Bank</small>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Learning Path / Section Selection -->
+      <div class="form-group">
+        <div class="form-label">
+          <span>Select Learning Paths & Sections</span>
+          <div style="display: flex; gap: 0.4rem;">
+            <button class="btn btn-glass btn-sm" id="btn-select-all" type="button">Select All</button>
+            <button class="btn btn-glass btn-sm" id="btn-deselect-all" type="button">Clear</button>
+          </div>
+        </div>
+        <div class="section-list" id="section-checkbox-list">
+          <!-- Populated dynamically by app.js -->
+        </div>
+      </div>
+
+      <!-- Start Button CTA -->
+      <button class="btn btn-primary" id="btn-start-quiz" style="padding: 1rem; font-size: 1.05rem; width: 100%; margin-top: 0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M8 5v14l11-7z"/>
+        </svg>
+        Generate Quiz & Begin Test
+      </button>
+
+    </section>
+
+
+    <!-- 2. ACTIVE QUIZ SCREEN -->
+    <section class="quiz-screen" id="quiz-screen" style="display: none;">
+      
+      <!-- Top Bar: Progress, Counter, Exit -->
+      <div class="quiz-top-bar">
+        <button class="btn btn-glass btn-sm" id="btn-quit-quiz">
+          ✕ End Quiz
+        </button>
+        <div class="progress-container">
+          <div class="progress-header">
+            <span id="question-counter-label">Question 1 of 10</span>
+            <span style="font-size: 0.75rem; color: var(--text-muted);">Keys 1-4 or A-D to Select • Enter to Check</span>
+          </div>
+          <div class="progress-bar-track">
+            <div class="progress-bar-fill" id="progress-bar-fill"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Question Card Container -->
+      <div class="question-card">
+        
+        <!-- Meta Bar -->
+        <div class="question-meta-bar">
+          <span class="topic-tag" id="quiz-topic-tag">Path • Module</span>
+          <button class="flag-action-btn" id="btn-flag-question" title="Flag this question to review later">
+            🏳️ Flag for Review
+          </button>
+        </div>
+
+        <!-- Problem Statement -->
+        <div class="question-prompt" id="question-prompt-text">
+          Loading question statement...
+        </div>
+
+        <!-- Randomized Choices (A, B, C, D) -->
+        <div class="choices-container" id="choices-container">
+          <!-- Choices rendered dynamically with random shuffle each display -->
+        </div>
+
+        <!-- Instant Explanation & Source Panel (Practice Mode) -->
+        <div class="explanation-panel" id="explanation-panel">
+          <div class="explanation-header" id="explanation-header">✓ Correct Answer</div>
+          <div class="explanation-body" id="explanation-body">Explanation text...</div>
+          <div class="explanation-source" id="explanation-source"></div>
+        </div>
+
+        <!-- Bottom Action Bar -->
+        <div class="quiz-action-bar">
+          <button class="btn btn-secondary" id="btn-prev-question" style="visibility: hidden;">
+            ⬅ Previous
+          </button>
+          <button class="btn btn-primary" id="btn-submit-or-next">
+            Check Answer
+          </button>
+        </div>
+
+        <!-- Question Palette Navigator Grid -->
+        <div class="question-nav-grid" id="question-nav-grid">
+          <!-- Mini navigation dots -->
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- 3. RESULTS & REMEDIATION SCREEN -->
+    <section class="glass-panel results-screen" id="results-screen" style="display: none;">
+      
+      <!-- Score Hero Card -->
+      <div class="score-hero-card">
+        <div class="score-badge-circle pass" id="result-circle">
+          <span class="score-number" id="result-score-number">100%</span>
+          <span class="score-sub" id="result-score-sub">10 / 10</span>
+        </div>
+        <div class="result-verdict pass" id="result-verdict">Exam Passed!</div>
+        <p class="result-subtitle" id="result-subtitle">
+          Great job! Your performance has been logged to your learner profile.
+        </p>
+
+        <!-- Retest Actions -->
+        <div class="results-actions-bar">
+          <button class="btn btn-warning" id="btn-retest-missed-this" style="display: none;">
+            ⚠️ Retest Missed Questions (0)
+          </button>
+          <button class="btn btn-glass" id="btn-retest-all-mistakes" style="display: none;">
+            🔄 Retest All Past Mistakes (0)
+          </button>
+          <button class="btn btn-primary" id="btn-return-to-setup">
+            🏠 Return to Quiz Setup
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Metrics Grid -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon green">✓</div>
+          <div class="stat-content">
+            <div class="stat-val" id="stat-result-correct">0</div>
+            <div class="stat-label">Correct Answers</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon orange">✗</div>
+          <div class="stat-content">
+            <div class="stat-val" id="stat-result-wrong">0</div>
+            <div class="stat-label">Incorrect Answers</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon purple">🚩</div>
+          <div class="stat-content">
+            <div class="stat-val" id="stat-result-flagged">0</div>
+            <div class="stat-label">Flagged Questions</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Topic Performance Breakdown -->
+      <div class="form-group">
+        <label class="form-label">Topic Performance Breakdown</label>
+        <div id="results-topic-breakdown"></div>
+      </div>
+
+      <!-- Detailed Question-by-Question Review -->
+      <div class="form-group" style="margin-top: 2rem;">
+        <div class="form-label">
+          <span>Question Review & Explanations</span>
+          <select id="review-filter-select" class="btn btn-glass btn-sm">
+            <option value="all">Show All Questions</option>
+            <option value="wrong">Show Missed Only</option>
+            <option value="flagged">Show Flagged Only</option>
+          </select>
+        </div>
+        <div class="review-accordion-list" id="review-accordion-list">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <!-- MODAL: LEARNER PROFILE & STATS -->
+  <div class="modal-overlay" id="profile-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>📊 Learner Profile & Mistakes Tracker</h3>
+        <button class="close-btn" id="btn-close-profile">&times;</button>
+      </div>
+
+      <p style="color: var(--text-secondary); font-size: 0.9rem;">
+        Your quiz performance, weak spots, and mistake remediation history are tracked persistently in your browser.
+      </p>
+
+      <!-- Snapshot in Modal -->
+      <div class="stats-grid" style="margin-bottom: 0.5rem;">
+        <div class="stat-card">
+          <div class="stat-content">
+            <div class="stat-val" id="profile-accuracy-val">0%</div>
+            <div class="stat-label">All-Time Accuracy</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-content">
+            <div class="stat-val" id="profile-total-quizzes-val">0</div>
+            <div class="stat-label">Tests Completed</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-content">
+            <div class="stat-val" id="profile-wrong-count-val">0</div>
+            <div class="stat-label">Unresolved Mistakes</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Import / Export Controls -->
+      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+        <button class="btn btn-glass btn-sm" id="btn-export-profile">
+          💾 Export Profile (.json)
+        </button>
+        <label class="btn btn-glass btn-sm" style="cursor: pointer;">
+          📥 Import Profile
+          <input type="file" id="input-import-profile" accept=".json" style="display: none;">
+        </label>
+        <button class="btn btn-glass btn-sm" id="btn-import-questions-trigger">
+          🗃️ Import Custom Questions (.json)
+        </button>
+        <input type="file" id="input-import-questions" accept=".json" style="display: none;">
+      </div>
+
+      <!-- List of Past Mistakes -->
+      <div class="form-group" style="margin-bottom: 0.5rem;">
+        <div class="form-label">
+          <span>Questions Answered Incorrectly in Past Quizzes</span>
+          <button class="btn btn-warning btn-sm" id="btn-launch-profile-remediation" style="display: none;">
+            🎯 Launch Remediation Quiz
+          </button>
+        </div>
+        <div class="modal-items-scroll" id="profile-wrong-questions-list"></div>
+      </div>
+
+      <!-- Reset Option -->
+      <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-subtle); padding-top: 1rem;">
+        <button class="btn btn-danger btn-sm" id="btn-reset-profile">
+          🗑️ Reset Quiz Progress
+        </button>
+        <span style="font-size: 0.75rem; color: var(--text-muted);">Stored locally in localStorage</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notice -->
+  <div class="toast-notice" id="toast-notice">Notice message</div>
+
+  <!-- Load Data First, Then Logic -->
+  <script src="questions.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

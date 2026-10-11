@@ -1,0 +1,298 @@
+[
+  {
+    "id": "p01-m01-01",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "Azure Cloud Shell - Storage Mount",
+    "question": "Where does Azure Cloud Shell mount its persistent file share inside the backing Linux container?",
+    "answer": "At the directory `/home/<user>/clouddrive`.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 3; MS Learn Cloud Shell Overview"
+  },
+  {
+    "id": "p01-m01-02",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "Azure Cloud Shell - Backing Storage Service",
+    "question": "Which Azure storage service provides the persistent storage volume for Azure Cloud Shell?",
+    "answer": "Azure Files (an Azure File Share).",
+    "source": "MS Learn Intro to Cloud Shell, Unit 3; Exam Ref AZ-104, Ch. 1, p. 3"
+  },
+  {
+    "id": "p01-m01-03",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "Azure Cloud Shell - Inactivity Timeout",
+    "question": "How long can an Azure Cloud Shell session remain idle before it automatically times out and disconnects?",
+    "answer": "20 minutes of inactivity.",
+    "source": "MS Learn Intro to Cloud Shell, Unit 3; Exam Ref AZ-104, Ch. 1, p. 4"
+  },
+  {
+    "id": "p01-m01-04",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "Azure Cloud Shell - Storage Persistence Scope",
+    "question": "What happens to files stored outside of `/home/<user>/clouddrive` (such as in `/tmp`) when a Cloud Shell session terminates?",
+    "answer": "They are permanently discarded because the temporary container host is deallocated.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 3"
+  },
+  {
+    "id": "p01-m01-05",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "Azure Cloud Shell - Shell Environment Parity",
+    "question": "Do Bash and PowerShell environments in Azure Cloud Shell share the same persistent storage file share?",
+    "answer": "Yes, both Bash and PowerShell attach to the exact same `clouddrive` Azure Files share.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 4"
+  },
+  {
+    "id": "p01-m01-06",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "Azure Cloud Shell - Built-in Text Editor",
+    "question": "Which CLI command opens the integrated Monaco-based text editor in Azure Cloud Shell Classic mode?",
+    "answer": "The `code` command (e.g., `code <filename>`).",
+    "source": "MS Learn Intro to Cloud Shell, Unit 3; Exam Ref AZ-104, Ch. 1, p. 5"
+  },
+  {
+    "id": "p01-m01-07",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "Azure Cloud Shell - Administrator Permissions",
+    "question": "Can an administrator execute `sudo` commands or gain root privileges inside the Azure Cloud Shell container?",
+    "answer": "No, Cloud Shell provides a standard unprivileged user container without `sudo` access.",
+    "source": "MS Learn Intro to Cloud Shell, Unit 4"
+  },
+  {
+    "id": "p01-m01-08",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "Azure Cloud Shell - Direct Web Access",
+    "question": "What direct URL allows accessing Azure Cloud Shell full-screen in a standalone browser window?",
+    "answer": "`https://shell.azure.com`",
+    "source": "MS Learn Intro to Cloud Shell, Unit 3"
+  },
+  {
+    "id": "p01-m01-09",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "Azure Cloud Shell - Encryption at Rest",
+    "question": "How is the backing infrastructure of Azure Cloud Shell secured against data-at-rest threats by default?",
+    "answer": "It is compliant with double encryption at rest by default without requiring user configuration.",
+    "source": "MS Learn Intro to Cloud Shell, Unit 2"
+  },
+  {
+    "id": "p01-m01-10",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "Azure Cloud Shell - Concurrent Session Limit",
+    "question": "How many concurrent active Cloud Shell instances can a single user run simultaneously?",
+    "answer": "Only one instance at a time per user account.",
+    "source": "MS Learn Intro to Cloud Shell, Unit 4"
+  },
+  {
+    "id": "p01-m01-11",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "Azure Cloud Shell - Advanced Storage Configuration",
+    "question": "When setting up Cloud Shell with Advanced Settings, which three existing resource components can you explicitly specify?",
+    "answer": "An existing Resource Group, Storage Account, and File Share.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 3"
+  },
+  {
+    "id": "p01-m01-12",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "Azure Cloud Shell - Regional Affinity",
+    "question": "Can a single Azure Cloud Shell storage account be spread across multiple Azure regions simultaneously?",
+    "answer": "No, the allocated storage account is pinned to a single designated Azure region.",
+    "source": "MS Learn Intro to Cloud Shell, Unit 4"
+  },
+  {
+    "id": "p01-m01-13",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "Azure Cloud Shell - Host Operating System",
+    "question": "On which operating system kernel do both the Bash and PowerShell Cloud Shell containers execute?",
+    "answer": "A Linux container environment (CBL-Mariner / Ubuntu).",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 4"
+  },
+  {
+    "id": "p01-m01-14",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "Azure Cloud Shell - Module Updates",
+    "question": "Who is responsible for updating the Azure CLI (`az`) and Azure PowerShell (`Az`) modules in Cloud Shell?",
+    "answer": "Microsoft automatically maintains and updates all modules in the hosted container.",
+    "source": "MS Learn Intro to Cloud Shell, Unit 2"
+  },
+  {
+    "id": "p01-m01-15",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "Azure Cloud Shell - Built-in IaC Tools",
+    "question": "Name two third-party Infrastructure as Code (IaC) tools preinstalled in Azure Cloud Shell.",
+    "answer": "Terraform and Ansible.",
+    "source": "MS Learn Intro to Cloud Shell, Unit 3 table"
+  },
+  {
+    "id": "p01-m02-01",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "ARM Templates - Syntax Type",
+    "question": "What syntax style do ARM templates use to define resources compared to imperative scripts?",
+    "answer": "Declarative syntax (defining what the target state looks like rather than step-by-step commands).",
+    "source": "MS Learn Deploy Infrastructure ARM, Unit 2; Exam Ref AZ-104, Ch. 3, p. 131"
+  },
+  {
+    "id": "p01-m02-02",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "ARM Templates - Idempotency",
+    "question": "What does it mean that ARM template deployments are 'idempotent'?",
+    "answer": "Deploying the same template repeatedly results in the exact same resource state without unintended duplicate side effects.",
+    "source": "MS Learn Deploy Infrastructure ARM, Unit 2; Exam Ref AZ-104, Ch. 3, p. 131"
+  },
+  {
+    "id": "p01-m02-03",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "ARM Templates - Incremental vs Complete Mode",
+    "question": "What happens to existing resources not defined in the template when deploying in Incremental Mode?",
+    "answer": "Existing resources are left untouched and unchanged.",
+    "source": "Exam Ref AZ-104, Ch. 3, p. 132; MS Learn ARM Deployment Modes"
+  },
+  {
+    "id": "p01-m02-04",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "ARM Templates - Complete Mode Deletion",
+    "question": "What happens to existing resources in the resource group that are NOT defined in the template when deploying in Complete Mode?",
+    "answer": "Resource Manager permanently deletes them (unless prevented by locks or specific resource behaviors).",
+    "source": "Exam Ref AZ-104, Ch. 3, p. 132"
+  },
+  {
+    "id": "p01-m02-05",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "ARM Templates - Default Deployment Mode",
+    "question": "What is the default deployment mode when deploying an ARM template via CLI or PowerShell if not specified?",
+    "answer": "Incremental Mode.",
+    "source": "Exam Ref AZ-104, Ch. 3, p. 132"
+  },
+  {
+    "id": "p01-m02-06",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "ARM Templates - JSON Top-Level Sections",
+    "question": "Name the four primary top-level sections in an ARM template used to define inputs, values, infrastructure, and return data.",
+    "answer": "`parameters`, `variables`, `resources`, and `outputs`.",
+    "source": "MS Learn Deploy Infrastructure ARM, Unit 2; Exam Ref AZ-104, Ch. 3, p. 131"
+  },
+  {
+    "id": "p01-m02-07",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "ARM Templates - Parameters Purpose",
+    "question": "What is the purpose of the `parameters` section in an ARM template?",
+    "answer": "To allow external values to be passed in at deployment time, making the template reusable across environments.",
+    "source": "MS Learn Deploy Infrastructure ARM, Unit 4"
+  },
+  {
+    "id": "p01-m02-08",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "ARM Templates - Variables Purpose",
+    "question": "How do `variables` differ from `parameters` in an ARM template?",
+    "answer": "`variables` are calculated internally within the template and cannot be overridden by external deployment inputs.",
+    "source": "MS Learn Deploy Infrastructure ARM, Unit 4; Exam Ref AZ-104, Ch. 3, p. 131"
+  },
+  {
+    "id": "p01-m02-09",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "ARM Templates - uniqueString Function",
+    "question": "What does the ARM template function `uniqueString()` return, and why is it used?",
+    "answer": "A 13-character deterministic hash based on input strings, commonly used to create globally unique resource names.",
+    "source": "MS Learn Deploy Infrastructure ARM, Unit 4; Exam Ref AZ-104, Ch. 3, p. 133"
+  },
+  {
+    "id": "p01-m02-10",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "ARM Templates - Dynamic Location Best Practice",
+    "question": "What expression should you use in an ARM template to set a resource location to match its containing resource group?",
+    "answer": "`[resourceGroup().location]`",
+    "source": "MS Learn Deploy Infrastructure ARM, Unit 4; Exam Ref AZ-104, Ch. 3, p. 133"
+  },
+  {
+    "id": "p01-m02-11",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "ARM Templates - Resource Dependencies",
+    "question": "Which ARM template property explicitly enforces the sequential deployment order of dependent resources?",
+    "answer": "The `dependsOn` property array.",
+    "source": "MS Learn Deploy Infrastructure ARM, Unit 2; Exam Ref AZ-104, Ch. 3, p. 134"
+  },
+  {
+    "id": "p01-m02-12",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "ARM Templates - Parallel Execution",
+    "question": "How does Azure Resource Manager handle the deployment of multiple independent resources defined in a template?",
+    "answer": "It deploys them in parallel to maximize deployment speed.",
+    "source": "MS Learn Deploy Infrastructure ARM, Unit 2"
+  },
+  {
+    "id": "p01-m02-13",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "ARM Templates - What-If Operation",
+    "question": "Which ARM deployment feature allows administrators to preview resource changes and deletions before applying a template?",
+    "answer": "The What-If operation (`az deployment group what-if` or `Get-AzResourceGroupDeploymentWhatIfResult`).",
+    "source": "Exam Ref AZ-104, Ch. 3, p. 133"
+  },
+  {
+    "id": "p01-m02-14",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "ARM Templates - Pre-Deployment Validation",
+    "question": "How can you validate an ARM template syntax and quota checks without actually provisioning resources?",
+    "answer": "Using `az deployment group validate` or `Test-AzResourceGroupDeployment`.",
+    "source": "MS Learn Deploy Infrastructure ARM, Unit 3; Exam Ref AZ-104, Ch. 3, p. 133"
+  },
+  {
+    "id": "p01-m02-15",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "ARM Templates - Outputs Section",
+    "question": "What is the primary function of the `outputs` section in an ARM template?",
+    "answer": "To return values generated during deployment (such as provisioned IP addresses or FQDNs) back to the caller.",
+    "source": "MS Learn Deploy Infrastructure ARM, Unit 4; Exam Ref AZ-104, Ch. 3, p. 131"
+  },
+  {
+    "id": "p01-m02-16",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "ARM Templates - Parameter Constraints",
+    "question": "Name two parameter constraint attributes you can define in an ARM template to restrict valid inputs.",
+    "answer": "`allowedValues` and `minValue`/`maxValue` (or `minLength`/`maxLength`).",
+    "source": "MS Learn Deploy Infrastructure ARM, Unit 4"
+  },
+  {
+    "id": "p01-m02-17",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "ARM Templates - Parameter File Extension",
+    "question": "How are external parameter values conventionally provided to an ARM template deployment?",
+    "answer": "Through a JSON parameter file (e.g., `azuredeploy.parameters.json`).",
+    "source": "Exam Ref AZ-104, Ch. 3, p. 132"
+  },
+  {
+    "id": "p01-m02-18",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "ARM Templates - Bicep Relationship",
+    "question": "What is the relationship between Azure Bicep code and ARM JSON templates?",
+    "answer": "Bicep is a domain-specific language that compiles directly down to standard ARM JSON templates.",
+    "source": "MS Learn Deploy Infrastructure ARM, Unit 1 note; Exam Ref AZ-104, Ch. 3, p. 135"
+  },
+  {
+    "id": "p01-m02-19",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "Bicep - Syntax Advantages",
+    "question": "What primary syntax advantages does Azure Bicep offer compared to JSON ARM templates?",
+    "answer": "Bicep provides cleaner concise syntax, direct module reuse, automatic dependency management via symbolic names, and eliminates complex JSON bracket escaping.",
+    "source": "Exam Ref AZ-104, Ch. 3, p. 135; MS Learn Bicep Basics, Unit 2"
+  },
+  {
+    "id": "p01-m02-20",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "Bicep - Decompiling ARM JSON",
+    "question": "What CLI command converts an existing ARM JSON template into an equivalent Bicep file?",
+    "answer": "`az bicep decompile --file <template.json>`",
+    "source": "Exam Ref AZ-104, Ch. 3, p. 137; MS Learn Bicep Basics, Unit 5"
+  },
+  {
+    "id": "p01-m02-21",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "ARM Templates - Export Deployment",
+    "question": "Where can you export an existing resource group's configuration as an ARM template?",
+    "answer": "In the Azure Portal under Resource Group > 'Export template', or under Resource Group > 'Deployments' history.",
+    "source": "Exam Ref AZ-104, Ch. 3, p. 134; MS Learn Deploy Infrastructure ARM, Unit 5"
+  },
+  {
+    "id": "p01-m02-22",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "Bicep - Direct Deployment Command",
+    "question": "Which Azure CLI command directly deploys a `.bicep` file to a resource group without precompiling to JSON?",
+    "answer": "`az deployment group create --resource-group <rg> --template-file <main.bicep>`",
+    "source": "Exam Ref AZ-104, Ch. 3, p. 136; MS Learn Bicep Basics, Unit 3"
+  }
+]

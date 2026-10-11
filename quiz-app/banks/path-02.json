@@ -1,0 +1,1832 @@
+[
+  {
+    "id": "q-p02-m01-01",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Microsoft Entra ID - Protocols",
+    "question": "A company is migrating on-premises applications to Azure. The applications rely on Kerberos and NTLM authentication. Which statement accurately describes Microsoft Entra ID support for these protocols?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Microsoft Entra ID natively uses HTTP-based web protocols (SAML, OIDC, OAuth); legacy Kerberos and NTLM require AD DS or Microsoft Entra Domain Services",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Microsoft Entra ID natively supports Kerberos and NTLM on port 88 over the public internet",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Microsoft Entra ID requires all legacy apps to convert to LDAP v1 without additional services",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Kerberos is supported natively in Microsoft Entra Free, but disabled in P1 and P2",
+        "correct": false
+      }
+    ],
+    "explanation": "Microsoft Entra ID is a modern cloud identity platform that uses web authentication protocols (OAuth 2.0, OpenID Connect, SAML). It does not provide native Kerberos/NTLM domain controller services unless paired with Microsoft Entra Domain Services or on-premises AD DS.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 2; MS Learn Understand Entra ID, Unit 2"
+  },
+  {
+    "id": "q-p02-m01-02",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Microsoft Entra ID - License Tier Minimums",
+    "question": "You need to configure dynamic group membership for cloud users and enable Self-Service Password Reset (SSPR) with on-premises password writeback. What is the minimum Microsoft Entra ID license required for these users?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Microsoft Entra ID P1",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Microsoft Entra ID Free",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Microsoft Entra ID P2",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Microsoft 365 Business Basic without add-ons",
+        "correct": false
+      }
+    ],
+    "explanation": "Dynamic group membership rules and on-premises SSPR password writeback require Microsoft Entra ID P1 licenses. Entra ID P2 is required for Privileged Identity Management (PIM) and risk-based Identity Protection.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 4; MS Learn Understand Entra ID, Unit 4"
+  },
+  {
+    "id": "q-p02-m01-03",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Microsoft Entra ID - Custom Domain Verification",
+    "question": "You add the custom domain name `corp.contoso.com` to your Microsoft Entra tenant. What DNS record must you create at your domain registrar to verify ownership before the domain can be used?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "A DNS TXT record (or alternately an MX record) containing the verification value",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "A DNS CNAME record pointing to `verify.entra.microsoft.com`",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "A DNS SRV record pointing to Microsoft Entra Connect",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "A DNS PTR reverse lookup record",
+        "correct": false
+      }
+    ],
+    "explanation": "Microsoft Entra ID verifies custom domain ownership by checking for a specific TXT record (or MX record) published in your public DNS registrar.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 7; MS Learn Understand Entra ID, Unit 3"
+  },
+  {
+    "id": "q-p02-m01-04",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Microsoft Entra ID - Primary Domain Deletion",
+    "question": "An administrator wants to delete the initial `contoso.onmicrosoft.com` domain name from the tenant after successfully adding and verifying a custom domain. What is the result?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "The `.onmicrosoft.com` domain cannot be deleted because it is immutable and permanently anchored to the tenant",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "The domain can be deleted only if all user accounts have been updated to the custom domain",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "The domain is deleted automatically once the custom domain is made primary",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "The domain can be deleted by contacting Microsoft Support with Global Admin credentials",
+        "correct": false
+      }
+    ],
+    "explanation": "The initial `.onmicrosoft.com` domain created when provisioning the tenant is immutable. It cannot be deleted or renamed even after custom domains are configured as primary.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 8"
+  },
+  {
+    "id": "q-p02-m01-05",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Microsoft Entra ID - Subscription Association",
+    "question": "Which statement correctly describes the trust relationship between an Azure subscription and Microsoft Entra ID tenants?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "A subscription can trust only one Microsoft Entra tenant, but a tenant can be trusted by multiple subscriptions",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "A subscription can trust multiple Microsoft Entra tenants simultaneously for multi-cloud identity",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Each Microsoft Entra tenant can be associated with only one Azure subscription",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "A subscription does not require an association with any Entra ID tenant",
+        "correct": false
+      }
+    ],
+    "explanation": "Each Azure subscription trusts exactly one Microsoft Entra ID tenant for authentication. However, a single tenant can be associated with and trusted by multiple Azure subscriptions.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 11; MS Learn Understand Entra ID, Unit 3"
+  },
+  {
+    "id": "q-p02-m01-06",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Microsoft Entra ID - AD DS vs Entra ID Structure",
+    "question": "How does the directory object organization in Microsoft Entra ID differ from on-premises Active Directory Domain Services?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Entra ID is a flat directory structure without Organizational Units (OUs) or native Group Policy Objects (GPOs)",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Entra ID supports multi-forest kerberos trusts and forest root OUs natively in the cloud",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Entra ID requires deploying schema extensions to create user attributes",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Entra ID uses Active Directory Sites and Services to route user sign-in traffic",
+        "correct": false
+      }
+    ],
+    "explanation": "Unlike on-premises AD DS which is hierarchical with Domains, Trees, Forests, and OUs, Microsoft Entra ID is a flat directory model. Delegation is managed through Administrative Units, Security Groups, and RBAC rather than OUs and GPOs.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 3"
+  },
+  {
+    "id": "q-p02-m01-07",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Microsoft Entra ID - Identity Synchronization Tool",
+    "question": "Which tool provides synchronization of user accounts, groups, and password hashes from on-premises Active Directory to Microsoft Entra ID?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Microsoft Entra Connect (or Microsoft Entra Cloud Sync)",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Azure Data Factory",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Azure Migrate Appliance",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Azure File Sync Agent",
+        "correct": false
+      }
+    ],
+    "explanation": "Microsoft Entra Connect (and the lightweight Microsoft Entra Cloud Sync agent) synchronizes on-premises AD objects, attributes, and password hashes to Microsoft Entra ID.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 5; MS Learn Understand Entra ID, Unit 4"
+  },
+  {
+    "id": "q-p02-m01-08",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Microsoft Entra ID - Privileged Identity Management (PIM)",
+    "question": "You need to implement just-in-time (JIT) role elevation and require approval before administrators can activate the Global Administrator role. Which feature is required?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Microsoft Entra Privileged Identity Management (PIM) with Entra ID P2 licenses",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Azure Policy Deny rules with Entra ID Free",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Microsoft Entra Domain Services with P1 licenses",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Administrative Units with Basic tier licensing",
+        "correct": false
+      }
+    ],
+    "explanation": "Privileged Identity Management (PIM) provides time-bound, just-in-time role activation with multi-factor authentication and approval workflows. It requires Microsoft Entra ID P2 licenses.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 4; MS Learn Understand Entra ID, Unit 4"
+  },
+  {
+    "id": "q-p02-m01-09",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Microsoft Entra ID - Tenant Definition",
+    "question": "What is a Microsoft Entra ID tenant?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "A dedicated, isolated instance of Microsoft Entra ID that represents an organization and hosts its users, groups, and app registrations",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "A dedicated hypervisor host running in an Azure datacenter",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "A billing agreement associated with a single credit card",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "A collection of resource groups deployed inside a single virtual network",
+        "correct": false
+      }
+    ],
+    "explanation": "A tenant is an isolated instance of Microsoft Entra ID that an organization receives when it signs up for Microsoft cloud services like Azure, Microsoft 365, or Intune.",
+    "source": "MS Learn Understand Entra ID, Unit 2"
+  },
+  {
+    "id": "q-p02-m01-10",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Microsoft Entra ID - B2B Collaboration",
+    "question": "You invite external contractors to collaborate on Azure resources using their existing company email addresses. Which Entra feature enables this without creating duplicate accounts?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Microsoft Entra B2B External Collaboration (Guest Accounts)",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Microsoft Entra B2C Consumer Tenancy",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Active Directory Federation Services (ADFS) on-premises farm",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Azure Bastion Native Client Access",
+        "correct": false
+      }
+    ],
+    "explanation": "Entra B2B External Collaboration allows inviting external users as Guests. They authenticate against their own identity provider (Google, corporate Entra ID, etc.) while accessing authorized resources in your tenant.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 14; MS Learn Understand Entra ID, Unit 4"
+  },
+  {
+    "id": "q-p02-m02-01",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Identity Management - User Types",
+    "question": "What are the three distinct origin categories for user accounts in Microsoft Entra ID?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Cloud identity, Directory-synced identity, and Guest user",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Local administrator, Domain administrator, and Enterprise administrator",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Service account, Shared mailbox, and Room resource",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Static user, Dynamic user, and Federated device",
+        "correct": false
+      }
+    ],
+    "explanation": "User types in Entra ID are categorized based on where their source identity originates: Cloud identities (native to Entra ID), Directory-synced identities (originating in on-premises AD), and Guest users (external B2B partners).",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 13; MS Learn Manage Identities, Unit 2"
+  },
+  {
+    "id": "q-p02-m02-02",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Identity Management - Deleted User Retention",
+    "question": "An administrator accidentally deletes a cloud user account in Microsoft Entra ID. For how many days is the deleted user retained in the recycle bin before being permanently purged?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "30 days",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "14 days",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "60 days",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "90 days",
+        "correct": false
+      }
+    ],
+    "explanation": "Deleted users are placed in a soft-deleted state for 30 days. During this period, the account can be restored along with all its group memberships, role assignments, and licenses.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 15; MS Learn Manage Identities, Unit 3"
+  },
+  {
+    "id": "q-p02-m02-03",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Identity Management - Bulk Operations Format",
+    "question": "You need to create 200 user accounts at once using the bulk create option in the Microsoft Entra admin center. Which file format is required?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "A CSV (Comma-Separated Values) file matching Microsoft's template format",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "A JSON file structured as an ARM resource template",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "An XML file following the LDAP schema",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "A Microsoft Excel workbook (`.xlsx`)",
+        "correct": false
+      }
+    ],
+    "explanation": "Bulk operations (user creation, user invite, user deletion, group membership) in Microsoft Entra ID use CSV files structured according to Microsoft's downloadable template.",
+    "source": "MS Learn Manage Identities, Unit 4; Exam Ref AZ-104, Ch. 1, p. 17"
+  },
+  {
+    "id": "q-p02-m02-04",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Identity Management - Group Types",
+    "question": "Which type of Microsoft Entra group is specifically designed to manage access to Azure resources, applications, and security policies?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Security groups",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Microsoft 365 groups",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Distribution groups",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Mail-enabled security groups",
+        "correct": false
+      }
+    ],
+    "explanation": "Security groups are used to assign permissions and roles across Azure resources, licenses, and applications. Microsoft 365 groups provide shared collaboration tools (Teams, SharePoint, mailbox).",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 19; MS Learn Manage Identities, Unit 6"
+  },
+  {
+    "id": "q-p02-m02-05",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Identity Management - Dynamic Group Query Syntax",
+    "question": "You want all users with a Department attribute of 'Engineering' and who are located in 'US' to be added automatically to a security group. What membership type should you configure?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Dynamic User membership with a rule syntax `(user.department -eq \"Engineering\") -and (user.country -eq \"US\")`",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Assigned membership with an Azure Policy Append rule",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Dynamic Device membership querying hardware telemetry",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Administrative Unit scoped membership",
+        "correct": false
+      }
+    ],
+    "explanation": "Dynamic User groups evaluate user object attributes using Boolean rule expressions. When a user's department and country match the rule, Entra ID automatically adds them as a member.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 21; MS Learn Manage Identities, Unit 7"
+  },
+  {
+    "id": "q-p02-m02-06",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Identity Management - Group-Based Licensing",
+    "question": "How does Group-Based Licensing streamline administrator management in Microsoft Entra ID?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Licenses are assigned to a group; when users join the group, licenses are automatically allocated, and revoked when they leave",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "It applies volume pricing discounts to all virtual machines deployed by group members",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "It allows unauthenticated guest users to consume M365 licenses anonymously",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "It overrides individual license assignments with free community licenses",
+        "correct": false
+      }
+    ],
+    "explanation": "Group-based licensing automates license management. Administrators assign product licenses (such as M365 E5 or Entra ID P1) to a group, and members automatically inherit the licenses based on group membership.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 23; MS Learn Manage Identities, Unit 8"
+  },
+  {
+    "id": "q-p02-m02-07",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Identity Management - Group Nesting Limitation",
+    "question": "Group A is a member of Group B (nested group). Group B is assigned the Contributor role on an Azure Resource Group. Will members of Group A receive the Contributor role permissions?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "No, Azure RBAC does not support nested group memberships for role assignments",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Yes, Azure RBAC recursively evaluates nested groups up to 10 levels",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Yes, but only if Group A is a dynamic security group",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Yes, but only if both groups are Microsoft 365 groups",
+        "correct": false
+      }
+    ],
+    "explanation": "Azure RBAC role assignments do not evaluate nested groups. Only direct members of the assigned group receive access permissions.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 20"
+  },
+  {
+    "id": "q-p02-m02-08",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Identity Management - Administrative Units (AUs)",
+    "question": "You need to allow the regional IT lead in London to reset passwords and manage users in the London office only, without granting them tenant-wide User Administrator privileges. What should you create?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "An Administrative Unit (AU) containing London users, assigning the User Administrator role scoped to the AU",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "A separate Microsoft Entra tenant for the London region",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "A Management Group with an Azure Policy deny rule",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "A dynamic device group restricted by GPS coordinates",
+        "correct": false
+      }
+    ],
+    "explanation": "Administrative Units (AUs) are containers of directory resources (users, groups, devices) that allow delegating administrative roles scoped strictly to members of that AU.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 25; MS Learn Manage Identities, Unit 9"
+  },
+  {
+    "id": "q-p02-m02-09",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Identity Management - User Principal Name Structure",
+    "question": "What are the two parts that comprise a User Principal Name (UPN) in Microsoft Entra ID?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Username prefix (alias) and domain suffix, separated by an `@` symbol",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Tenant ID GUID and object GUID",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "NetBIOS domain name and SAM account name separated by a backslash",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "First name, last name, and employee ID number",
+        "correct": false
+      }
+    ],
+    "explanation": "A UPN is an Internet-style login name formatted as `username@domain.com`, consisting of the prefix (user alias) and suffix (verified tenant domain name).",
+    "source": "MS Learn Manage Identities, Unit 2"
+  },
+  {
+    "id": "q-p02-m02-10",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Identity Management - Dynamic Device Membership",
+    "question": "Which attribute can be evaluated in a dynamic group membership rule when the group membership type is set to 'Dynamic Device'?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "`device.deviceOSType` and `device.deviceOwnership`",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "`user.department` and `user.jobTitle`",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "`subscription.subscriptionId`",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "`resourceGroup.location`",
+        "correct": false
+      }
+    ],
+    "explanation": "Dynamic Device groups evaluate device properties (such as operating system, compliance status, or ownership) rather than user attributes.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 21"
+  },
+  {
+    "id": "q-p02-m03-01",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure Hierarchy - Management Group Depth",
+    "question": "What is the maximum supported hierarchy depth for Management Groups in an Azure tenant (excluding the Root Management Group)?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "6 levels of depth",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "3 levels of depth",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "10 levels of depth",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Unlimited levels of depth",
+        "correct": false
+      }
+    ],
+    "explanation": "A management group tree can support up to six levels of depth. This limit does not include the Tenant Root Group or the subscription level.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 29; MS Learn Architectural Components, Unit 4"
+  },
+  {
+    "id": "q-p02-m03-02",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure Hierarchy - Root Management Group",
+    "question": "What is the name of the top-level container automatically provisioned in every tenant that encompasses all subscriptions and management groups?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Tenant Root Group",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Default Subscription Group",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Global Admin Container",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Master Billing Hierarchy",
+        "correct": false
+      }
+    ],
+    "explanation": "The top-level management group built into every directory is called the Tenant Root Group. All management groups and subscriptions fold up to this root group.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 30; MS Learn Architectural Components, Unit 4"
+  },
+  {
+    "id": "q-p02-m03-03",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure Hierarchy - Management Groups Limit",
+    "question": "How many total Management Groups can be created within a single Microsoft Entra directory?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Up to 10,000",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Up to 1,000",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Up to 500",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Up to 50,000",
+        "correct": false
+      }
+    ],
+    "explanation": "A single directory can support up to 10,000 management groups.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 30; MS Learn Architectural Components, Unit 4"
+  },
+  {
+    "id": "q-p02-m03-04",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure Hierarchy - Four Scopes of Management",
+    "question": "What are the four levels of management scope in Azure, listed from broadest to most specific?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Management Group -> Subscription -> Resource Group -> Resource",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Subscription -> Management Group -> Resource Group -> Resource",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Tenant -> Resource Group -> Subscription -> Resource",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Resource Group -> Resource -> Subscription -> Management Group",
+        "correct": false
+      }
+    ],
+    "explanation": "Azure organizes access and policy at four levels: Management Groups contain Subscriptions; Subscriptions contain Resource Groups; Resource Groups contain Resources.",
+    "source": "MS Learn Architectural Components, Unit 2; Exam Ref AZ-104, Ch. 1, p. 28"
+  },
+  {
+    "id": "q-p02-m03-05",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure Hierarchy - Resource Group Membership Rule",
+    "question": "An administrator creates a Virtual Machine named VM1. Can VM1 be a member of two different Resource Groups simultaneously?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "No, each Azure resource can exist in only one Resource Group at a time",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Yes, provided both Resource Groups are in the same subscription",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Yes, by adding a cross-group alias tag to the VM",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Yes, if the VM is managed by an Azure Availability Set",
+        "correct": false
+      }
+    ],
+    "explanation": "Each resource can belong to only one Resource Group at a time. Resources cannot be shared across multiple resource groups simultaneously.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 35; MS Learn Architectural Components, Unit 5"
+  },
+  {
+    "id": "q-p02-m03-06",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure Hierarchy - Resource Group Regions",
+    "question": "A Resource Group named `RG-Prod` is created in the `East US` region. Can you deploy a Virtual Machine into `RG-Prod` that is located in `West Europe`?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Yes, resources in a resource group can reside in different Azure regions than the resource group itself",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "No, all resources must be deployed in the exact same region as the resource group",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "No, cross-region resource containment requires a Premium subscription",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Yes, but only if VNet peering connects both regions",
+        "correct": false
+      }
+    ],
+    "explanation": "A Resource Group's location specifies where its management metadata is stored. The actual resources inside it can be provisioned in any supported Azure region.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 35; MS Learn Architectural Components, Unit 5"
+  },
+  {
+    "id": "q-p02-m03-07",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Resource Locks - Lock Types",
+    "question": "What are the two types of resource locks supported in Azure Resource Manager?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "`CanNotDelete` and `ReadOnly`",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "`WriteLock` and `ReadLock`",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "`ImmutableLock` and `ComplianceLock`",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "`AdminOnly` and `Audited`",
+        "correct": false
+      }
+    ],
+    "explanation": "Azure Resource Manager supports two lock types: `CanNotDelete` (authorized users can read and modify a resource, but cannot delete it) and `ReadOnly` (authorized users can only read a resource, but cannot modify or delete it).",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 39; MS Learn Architectural Components, Unit 6"
+  },
+  {
+    "id": "q-p02-m03-08",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Resource Locks - RBAC Overriding Rule",
+    "question": "A user assigned the Subscription Owner role attempts to delete a Virtual Machine in a Resource Group that has a `CanNotDelete` lock applied. What happens?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "The deletion is denied; resource locks apply to all users regardless of their RBAC roles until the lock is deleted",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "The deletion succeeds because the Owner role bypasses all locks",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "The deletion triggers an automated MFA push notification before deleting the VM",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "The VM is deallocated, but its OS disk remains intact",
+        "correct": false
+      }
+    ],
+    "explanation": "Resource locks take precedence over RBAC permissions and apply to all users, including Subscription Owners. To delete the resource, an authorized user must first delete the lock.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 39"
+  },
+  {
+    "id": "q-p02-m03-09",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Resource Locks - ReadOnly Side Effect on Storage",
+    "question": "Why does applying a `ReadOnly` lock on a Storage Account prevent users from listing the account access keys in the Azure portal?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Listing storage account keys is a POST request that grants write permissions to data, which the ReadOnly lock blocks",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "A ReadOnly lock disables the Azure Resource Manager REST API for storage",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "The ReadOnly lock converts all storage accounts to the Archive access tier",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "The storage account is automatically quarantined until an administrator signs in via SSH",
+        "correct": false
+      }
+    ],
+    "explanation": "Listing storage keys uses a POST action (`Microsoft.Storage/storageAccounts/listKeys/action`) that returns write-capable credentials. Because `ReadOnly` blocks write actions on the control plane, listing keys is denied.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 40"
+  },
+  {
+    "id": "q-p02-m03-10",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Resource Locks - Inheritance",
+    "question": "If you apply a `CanNotDelete` lock at the Subscription level, which resources inherit this lock?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "All Resource Groups and all resources residing within that subscription",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Only the subscription object itself, not child resources",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Only resources that have an explicit compliance tag",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Only virtual machines, not networking or storage resources",
+        "correct": false
+      }
+    ],
+    "explanation": "Resource locks are inherited down the Azure hierarchy. A lock placed at the Subscription level applies to all child Resource Groups and all resources inside them.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 39"
+  },
+  {
+    "id": "q-p02-m03-11",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure Hierarchy - Resource Group Deletion Cascade",
+    "question": "What happens when an administrator deletes a Resource Group containing 15 virtual machines and 3 storage accounts?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "All resources inside the Resource Group are permanently deleted along with the group",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "The deletion fails unless each individual resource is manually deleted first",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "The resources are moved to an orphaned holding container for 14 days",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "The storage accounts are preserved, but the virtual machines are deleted",
+        "correct": false
+      }
+    ],
+    "explanation": "Deleting a Resource Group deletes all resources contained within it in an asynchronous cascade. Locks can be used to prevent accidental deletion.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 36"
+  },
+  {
+    "id": "q-p02-m04-01",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure Policy - Core Purpose vs RBAC",
+    "question": "What is the primary difference in scope between Azure Policy and Azure Role-Based Access Control (RBAC)?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Azure Policy enforces resource properties and configurations, while RBAC controls user permissions and actions",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Azure Policy controls user authentication, while RBAC manages cost billing alerts",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Azure Policy is applied only to virtual machines, while RBAC applies to all services",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Azure Policy replaces the need for Network Security Groups in virtual networks",
+        "correct": false
+      }
+    ],
+    "explanation": "Azure Policy focuses on resource compliance and properties (e.g., allowed VM SKUs, required tags, allowed regions). RBAC focuses on user and principal actions (who can perform operations).",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 42; MS Learn Azure Policy, Unit 2"
+  },
+  {
+    "id": "q-p02-m04-02",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure Policy - Initiatives Definition",
+    "question": "What is an Azure Policy Initiative (also referred to as a Policy Set)?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "A grouping of multiple policy definitions managed and assigned as a single unit toward a compliance objective",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "A script that runs on virtual machines to install antivirus agents",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "A custom role that grants write access to compliance logs",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "A scheduled task that reboots non-compliant virtual machines",
+        "correct": false
+      }
+    ],
+    "explanation": "An initiative is a collection of policy definitions grouped together. Assigning an initiative simplifies governance by applying multiple related policies in a single assignment.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 44; MS Learn Azure Policy, Unit 3"
+  },
+  {
+    "id": "q-p02-m04-03",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure Policy - Deny Effect",
+    "question": "A policy definition with the `Deny` effect is assigned to a subscription to restrict deployments to `East US`. A user attempts to create a storage account in `West Europe`. What is the result?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "The request is rejected by Azure Resource Manager, and the deployment fails immediately",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "The storage account is deployed in West Europe, but marked as non-compliant in the portal",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "The storage account is automatically redirected and provisioned in East US",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "The deployment succeeds, but the storage account is placed in Read-Only mode",
+        "correct": false
+      }
+    ],
+    "explanation": "When a resource creation or update request violates a policy with the `Deny` effect, Azure Resource Manager immediately rejects the request with a policy violation error.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 43; MS Learn Azure Policy, Unit 4"
+  },
+  {
+    "id": "q-p02-m04-04",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure Policy - Audit Effect",
+    "question": "How does the `Audit` effect in Azure Policy behave when a non-compliant resource deployment is attempted?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "The deployment succeeds, but an event is logged in the Activity Log and the resource is flagged in the compliance dashboard",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "The deployment is stopped until an administrator approves it via email",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "The deployment is permitted, but the resource is billed at double cost",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "The deployment is rejected if the user is a non-admin",
+        "correct": false
+      }
+    ],
+    "explanation": "The `Audit` effect does not block or modify resource deployment; instead, it records a non-compliance warning in the policy compliance store and activity log.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 43"
+  },
+  {
+    "id": "q-p02-m04-05",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure Policy - Append vs Modify Effect",
+    "question": "Which Azure Policy effect is commonly used to automatically add a required tag (e.g., `CostCenter: 101`) to resources during creation?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "`Append` (or `Modify`)",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "`Deny`",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "`Audit`",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "`Manual`",
+        "correct": false
+      }
+    ],
+    "explanation": "The `Append` effect adds defined fields or properties to the resource during creation or update. The `Modify` effect can also alter or add tags and properties.",
+    "source": "MS Learn Azure Policy, Unit 4; Exam Ref AZ-104, Ch. 1, p. 43"
+  },
+  {
+    "id": "q-p02-m04-06",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure Policy - DeployIfNotExists Effect",
+    "question": "You need to ensure that every virtual machine deployed in your subscription has the Azure Monitor Agent installed automatically if missing. Which policy effect should you use?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "`DeployIfNotExists`",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "`Deny`",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "`Audit`",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "`Disabled`",
+        "correct": false
+      }
+    ],
+    "explanation": "`DeployIfNotExists` evaluates a condition on a resource, and if a required sub-resource or extension is missing, it triggers an automated ARM template deployment to provision it.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 44; MS Learn Azure Policy, Unit 4"
+  },
+  {
+    "id": "q-p02-m04-07",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure Policy - Remediation Tasks",
+    "question": "How are pre-existing non-compliant resources brought into compliance after assigning a policy with the `Modify` or `DeployIfNotExists` effect?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "By executing an Azure Policy Remediation Task (which uses a managed identity)",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "By rebooting all virtual machines in the subscription",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Existing resources are deleted and redeployed automatically",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "By opening a support ticket with Microsoft",
+        "correct": false
+      }
+    ],
+    "explanation": "For existing non-compliant resources, assigning a policy does not alter them immediately. Administrators must run a Remediation Task, which uses an assigned managed identity to update existing resources.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 47; MS Learn Azure Policy, Unit 5"
+  },
+  {
+    "id": "q-p02-m04-08",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure Policy - Policy Exclusions",
+    "question": "A policy restricting VM sizes is assigned at the Subscription scope. Development workloads in `RG-Dev` require larger VM sizes for testing. How should you configure the policy assignment?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Add `RG-Dev` to the Exclusions list in the policy assignment",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Delete the policy and recreate it as a custom RBAC role",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Grant Developers the Subscription Owner role to bypass the policy",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Apply a ReadOnly lock to `RG-Dev`",
+        "correct": false
+      }
+    ],
+    "explanation": "Policy assignments allow defining an Exclusions list. Any child scope (management group, subscription, or resource group) added to the exclusions list is exempted from the policy.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 46; MS Learn Azure Policy, Unit 3"
+  },
+  {
+    "id": "q-p02-m04-09",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure Policy - Evaluation Triggers",
+    "question": "When does Azure Policy automatically evaluate compliance across resources?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "During resource creation or update (PUT/PATCH), when a policy is assigned, and periodically every 24 hours",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Only when a VM is restarted",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Continuously every 60 seconds",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Only when manually initiated via the Azure CLI",
+        "correct": false
+      }
+    ],
+    "explanation": "Azure Policy runs real-time evaluation during Resource Manager request operations (create/update), when a policy or initiative is assigned or updated, and periodically on a 24-hour compliance cycle.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 45"
+  },
+  {
+    "id": "q-p02-m04-10",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure Policy - Disabled Effect",
+    "question": "What happens when an administrator sets the effect of a policy definition to `Disabled`?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "The policy rule is skipped and not evaluated against resources",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "The policy definition is permanently deleted from the tenant",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "All non-compliant resources are immediately shut down",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "The policy effect changes automatically to Deny after 7 days",
+        "correct": false
+      }
+    ],
+    "explanation": "The `Disabled` effect turns off the policy evaluation without requiring the administrator to delete the policy assignment.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 44"
+  },
+  {
+    "id": "q-p02-m05-01",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure RBAC - Three Elements of Role Assignment",
+    "question": "What three core elements are combined to create an Azure Role-Based Access Control (RBAC) role assignment?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Security Principal, Role Definition, and Scope",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Tenant ID, Resource Lock, and Storage Key",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Network Security Group, Route Table, and Subnet",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Policy Rule, Effect, and Remediation Task",
+        "correct": false
+      }
+    ],
+    "explanation": "An RBAC role assignment is composed of a Security Principal (who: user, group, service principal, managed identity), a Role Definition (what: collection of permissions), and a Scope (where: management group, subscription, resource group, or resource).",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 48; MS Learn Secure Resources with RBAC, Unit 2"
+  },
+  {
+    "id": "q-p02-m05-02",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure RBAC - Owner vs Contributor",
+    "question": "Which capability distinguishes the built-in `Owner` role from the `Contributor` role in Azure RBAC?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "The `Owner` role can grant and manage access permissions (RBAC assignments) for others, while `Contributor` cannot",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "The `Contributor` role can delete subscriptions, while `Owner` cannot",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "The `Owner` role can only view resources, while `Contributor` can modify them",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "The `Owner` role cannot create virtual machines in custom subnets",
+        "correct": false
+      }
+    ],
+    "explanation": "`Owner` grants full access to manage all resources, including the ability to assign roles in Azure RBAC (`Microsoft.Authorization/*/Write`). `Contributor` grants full management access to resources, but cannot assign roles to others.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 49; MS Learn Secure Resources with RBAC, Unit 3"
+  },
+  {
+    "id": "q-p02-m05-03",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure RBAC - Reader Role Permissions",
+    "question": "A user is assigned the `Reader` role on a Resource Group containing a Storage Account. Can the user view the account access keys in the Azure portal?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "No, viewing access keys requires write permissions (`listKeys` action) which the Reader role lacks",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Yes, Reader permits viewing all properties and credentials",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Yes, but only if they are an Entra Guest user",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "No, access keys can only be viewed in the Azure CLI by Global Admins",
+        "correct": false
+      }
+    ],
+    "explanation": "Listing storage access keys uses a POST management action that returns write-capable access keys. The `Reader` role only includes `*/read` permissions, so `listKeys` operations are denied.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 50"
+  },
+  {
+    "id": "q-p02-m05-04",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure RBAC - User Access Administrator Role",
+    "question": "What is the primary responsibility of the built-in `User Access Administrator` role?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Managing user access and role assignments to Azure resources without granting permission to manage the resources themselves",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Resetting passwords for Microsoft Entra cloud users",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Deploying virtual machines across multiple subscriptions",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Configuring Network Security Groups on subnets",
+        "correct": false
+      }
+    ],
+    "explanation": "`User Access Administrator` allows managing access to Azure resources via RBAC role assignments, without granting permissions to create, modify, or delete the workload resources.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 50; MS Learn Secure Resources with RBAC, Unit 3"
+  },
+  {
+    "id": "q-p02-m05-05",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure RBAC - NotActions Behavior",
+    "question": "A custom role has `Actions: [\"Microsoft.Compute/*\"]` and `NotActions: [\"Microsoft.Compute/virtualMachines/delete\"]`. If the user is also assigned `Virtual Machine Contributor` through another group, can they delete virtual machines?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Yes, because `NotActions` is not a Deny; it merely subtracts permissions from that specific role definition",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "No, `NotActions` acts as an absolute Deny rule across all assigned roles",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "No, the more restrictive role always takes precedence in Azure RBAC",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Yes, but only if they delete the VM via Azure PowerShell",
+        "correct": false
+      }
+    ],
+    "explanation": "`NotActions` is not a deny rule. It simply subtracts matching operations from the `Actions` array in that specific role definition. If another role grants the permission, the user still receives it.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 53"
+  },
+  {
+    "id": "q-p02-m05-06",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure RBAC - Deny Assignments Priority",
+    "question": "How do Azure Deny Assignments interact with Allow role assignments?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Deny assignments take absolute precedence over allow role assignments",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Allow assignments override deny assignments if granted at a higher scope",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Deny assignments only apply to guest users",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Deny assignments are evaluated only if the user is not an Owner",
+        "correct": false
+      }
+    ],
+    "explanation": "Deny assignments block users from performing specific actions even if their role assignments would otherwise grant permission. Deny assignments take precedence over allow assignments.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 54; MS Learn Secure Resources with RBAC, Unit 2"
+  },
+  {
+    "id": "q-p02-m05-07",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure RBAC - DataActions vs Actions",
+    "question": "What is the difference between `Actions` and `DataActions` in an Azure custom role definition?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "`Actions` apply to management plane operations (e.g., creating a storage account), while `DataActions` apply to data plane operations (e.g., reading blobs)",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "`Actions` are for Windows, while `DataActions` are for Linux",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "`Actions` run on virtual machines, while `DataActions` run in Azure SQL",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "`Actions` require Entra P2, while `DataActions` work on Entra Free",
+        "correct": false
+      }
+    ],
+    "explanation": "`Actions` control the management plane (Resource Manager control operations), whereas `DataActions` control data plane access within resources (such as reading/writing blobs, tables, or Cosmos DB items).",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 53"
+  },
+  {
+    "id": "q-p02-m05-08",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure RBAC - AssignableScopes Scopes",
+    "question": "Which scopes are valid to include in the `AssignableScopes` property of an Azure custom RBAC role?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Management Groups, Subscriptions, or Resource Groups",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Only individual virtual machine resource IDs",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Only the Microsoft Entra tenant root ID",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Any external on-premises Active Directory domain",
+        "correct": false
+      }
+    ],
+    "explanation": "Custom roles can define `AssignableScopes` at the Management Group, Subscription, or Resource Group level. Individual resources cannot be specified as assignable scopes in custom role definitions.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 54"
+  },
+  {
+    "id": "q-p02-m05-09",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure RBAC - Global Admin Elevate Access",
+    "question": "A Microsoft Entra Global Administrator cannot view or manage any Azure subscriptions in the tenant. How can they gain administrative control over all subscriptions?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Turn on the 'Access management for Azure resources' toggle in Entra ID properties to grant User Access Administrator at the Root Management Group",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Delete and recreate the subscriptions under their personal user account",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Generate a User Delegation SAS token using Azure Storage Explorer",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Submit a support ticket to transfer subscription ownership",
+        "correct": false
+      }
+    ],
+    "explanation": "Global Administrators can elevate access by toggling 'Access management for Azure resources'. This grants the `User Access Administrator` role at the Root Management Group scope across all subscriptions.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 51"
+  },
+  {
+    "id": "q-p02-m05-10",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure RBAC - Scope Inheritance Principle",
+    "question": "A user is assigned the `Virtual Machine Contributor` role at the Subscription level. What permissions do they have on a virtual machine in a Resource Group within that subscription?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "They inherit full `Virtual Machine Contributor` permissions on the VM due to downward scope inheritance",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "They have only `Reader` permissions unless explicitly assigned at the Resource Group level",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "They have no access because roles must be assigned directly to individual resources",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Their access is blocked unless an Azure Policy initiative approves it",
+        "correct": false
+      }
+    ],
+    "explanation": "Permissions in Azure RBAC inherit downward: assignments at the Subscription scope automatically apply to all child Resource Groups and resources contained within.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 48"
+  },
+  {
+    "id": "q-p02-m06-01",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Entra SSPR - Target Group Scope",
+    "question": "You want to pilot Self-Service Password Reset (SSPR) with the Customer Service department before rolling it out organization-wide. Which SSPR enablement setting should you configure?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Set SSPR to 'Selected' and designate a specific security group containing Customer Service users",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Set SSPR to 'All' and apply an Azure Policy Deny rule to other departments",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Set SSPR to 'None' and create custom PowerShell scripts for password resets",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Configure an Administrative Unit with a ReadOnly lock",
+        "correct": false
+      }
+    ],
+    "explanation": "Microsoft Entra SSPR allows setting enablement to 'None', 'Selected' (targeting a specific security group for pilot deployments), or 'All'.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 56; MS Learn SSPR, Unit 3"
+  },
+  {
+    "id": "q-p02-m06-02",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Entra SSPR - Password Writeback Direction",
+    "question": "What is the primary function of Microsoft Entra SSPR Password Writeback?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "It writes password resets made by users in the cloud back to on-premises Active Directory in real time",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "It exports on-premises user passwords to Azure Key Vault backups every night",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "It writes cloud passwords to Azure Blob Storage Archive containers",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "It synchronizes Windows BitLocker recovery keys to on-premises domain controllers",
+        "correct": false
+      }
+    ],
+    "explanation": "Password writeback allows users who change or reset their password in Microsoft Entra ID to have that updated password written back immediately to their on-premises Active Directory Domain Services.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 58; MS Learn SSPR, Unit 4"
+  },
+  {
+    "id": "q-p02-m06-03",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Entra SSPR - Authentication Methods Required",
+    "question": "What configuration options exist for the 'Number of methods required to reset' in Entra SSPR policy?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "1 method or 2 methods",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "1, 2, 3, 4, or 5 methods",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Always 3 methods for security compliance",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Only 1 method is supported in Entra ID",
+        "correct": false
+      }
+    ],
+    "explanation": "Administrators can configure users to require either 1 authentication method or 2 authentication methods before they can reset their password.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 57; MS Learn SSPR, Unit 3"
+  },
+  {
+    "id": "q-p02-m06-04",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Entra SSPR - Administrator Password Policy Default",
+    "question": "How many authentication methods are administrators required to provide by default when resetting passwords via SSPR, regardless of the tenant SSPR policy?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "2 authentication methods (enforced by Microsoft's default administrator policy)",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "1 authentication method",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Administrators cannot use SSPR under any circumstances",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "3 authentication methods including hardware FIDO2 keys",
+        "correct": false
+      }
+    ],
+    "explanation": "Microsoft enforces a default two-gate password reset policy for administrator accounts, requiring two authentication methods regardless of whether 1 method is configured for standard users.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 57"
+  },
+  {
+    "id": "q-p02-m06-05",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Entra SSPR - Notification Options",
+    "question": "Which notification setting alerts users immediately if someone resets their password via SSPR?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "'Notify users on password resets?' set to Yes",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Azure Monitor Log Search alert rule",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Network Watcher IP flow verify trigger",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Service Health maintenance notification",
+        "correct": false
+      }
+    ],
+    "explanation": "Setting 'Notify users on password resets?' to Yes sends an email to the user's primary and alternate email addresses whenever their password is reset, alerting them to potential unauthorized access.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 58; MS Learn SSPR, Unit 3"
+  },
+  {
+    "id": "q-p02-m06-06",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Entra SSPR - Combined Registration",
+    "question": "What is the benefit of the Combined Security Information Registration experience in Microsoft Entra ID?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Users register their authentication methods once for both Multi-Factor Authentication (MFA) and SSPR",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "It combines Azure billing invoices into a single PDF receipt",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "It combines Windows 10 and Linux user accounts into a shared profile",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "It links Azure Key Vault secrets to GitHub repositories",
+        "correct": false
+      }
+    ],
+    "explanation": "Combined registration allows users to register authentication methods (Authenticator app, phone, email) in a single streamlined workflow that satisfies both MFA and SSPR requirements.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 58; MS Learn SSPR, Unit 2"
+  },
+  {
+    "id": "q-p02-m04-11",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure Cost Management - Budgets & Alerts",
+    "question": "An IT department sets a monthly budget of $10,000 for a subscription. The finance manager wants an email notification when spending reaches 80% of the budget ($8,000) and another notification if the machine learning model projects that spending will exceed 100% before the end of the month. What feature in Azure Cost Management configures this?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Azure Budget alerts with an 'Actual' spending condition at 80% and a 'Forecasted' spending condition at 100%.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Azure Advisor high-availability alerts.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Azure Service Health scheduled maintenance alerts.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Log Analytics daily cap thresholds.",
+        "correct": false
+      }
+    ],
+    "explanation": "Azure Cost Management Budgets support both 'Actual' alerts (triggering when current accrued spend crosses a percentage threshold) and 'Forecasted' alerts (triggering when Azure predictive algorithms project that total spend will cross a threshold by the end of the billing period).",
+    "source": "Exam Ref AZ-104, Ch. 1, pp. 34–36; MS Learn Manage Subscriptions, Unit 4"
+  },
+  {
+    "id": "q-p02-m04-12",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure Advisor - Cost Recommendations",
+    "question": "Which specific recommendation does Azure Advisor provide under the 'Cost' category to reduce monthly cloud expenditure?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Identifying and shutting down underutilized or idle virtual machines, and purchasing reserved instances for stable workloads.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Increasing the number of fault domains in availability sets.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Converting Standard SSDs to Ultra Disks.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Enabling Cross-Region Restore on backup vaults.",
+        "correct": false
+      }
+    ],
+    "explanation": "Azure Advisor analyzes resource telemetry (such as CPU, RAM, and network utilization over 7+ days) to recommend cost optimizations, including resizing or shutting down low-utilization VMs, deleting unattached managed disks, and buying 1-year or 3-year Azure Reserved Instances.",
+    "source": "Exam Ref AZ-104, Ch. 1, pp. 36–37; MS Learn Manage Subscriptions, Unit 5"
+  },
+  {
+    "id": "q-p02-m04-13",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Resource Tags - Inheritance Behavior",
+    "question": "An administrator applies the tag `CostCenter: 1042` to a Resource Group. Subsequently, a developer deploys a new Virtual Machine into that Resource Group. What happens to the tag on the newly deployed Virtual Machine?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "The Virtual Machine does NOT inherit the tag; tags on resource groups do not automatically propagate down to child resources.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "The Virtual Machine automatically inherits `CostCenter: 1042`.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "The deployment fails unless the VM explicitly specifies the exact same tag.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "The tag is applied to the VM's OS disk only.",
+        "correct": false
+      }
+    ],
+    "explanation": "Tags applied to a resource group or subscription do NOT automatically inherit to the resources contained within them. To enforce tag inheritance, organizations deploy an Azure Policy with the `Modify` or `Append` effect.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 33; MS Learn Azure Governance, Unit 4"
+  },
+  {
+    "id": "q-p02-m04-14",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Resource Moves - Dependencies & Scope",
+    "question": "You are moving an Azure Virtual Machine named `VM-App` from `ResourceGroup-A` to `ResourceGroup-B` in the same subscription. Which related resources MUST be moved together in the same operation?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "The VM, its attached managed disks (OS and data), and its network interface card (NIC).",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Only the virtual machine entity; disks and NICs stay in the source group.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "The entire virtual network and all subnets.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "The Azure Key Vault hosting tenant secrets.",
+        "correct": false
+      }
+    ],
+    "explanation": "When moving a virtual machine to another resource group or subscription, all dependent child resources—specifically the VM itself, its OS and attached data disks, and its primary NIC—must be moved simultaneously in the same operation.",
+    "source": "Exam Ref AZ-104, Ch. 1, pp. 31–32; MS Learn Azure Governance, Unit 3"
+  }
+]

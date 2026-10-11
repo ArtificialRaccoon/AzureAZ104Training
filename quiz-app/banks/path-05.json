@@ -1,0 +1,2042 @@
+[
+  {
+    "id": "q-p05-m01-01",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "Virtual Machine States & Billing",
+    "question": "An administrator shuts down an Azure Virtual Machine from inside the Windows guest operating system by clicking Start > Shut Down. What is the status of the VM in the Azure portal, and will compute billing continue?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Status is `Stopped`; compute charges continue because hardware resources remain allocated.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Status is `Stopped (Deallocated)`; compute charges immediately stop.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Status is `Terminated`; all storage and compute charges cease immediately.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Status is `Deallocated`; only dynamic public IP charges continue.",
+        "correct": false
+      }
+    ],
+    "explanation": "Shutting down a VM from inside the guest OS transitions the VM to the `Stopped` state. In this state, the underlying hypervisor hardware, CPU, and RAM remain reserved for the VM, and Azure continues to bill for compute. To stop compute billing, the VM must be stopped from the Azure portal, CLI, or PowerShell, which places it into the `Stopped (Deallocated)` state.",
+    "source": "Exam Ref AZ-104, Ch. 3, p. 145; MS Learn Intro to Azure Virtual Machines, Unit 3"
+  },
+  {
+    "id": "q-p05-m01-02",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "VM Resizing Requirements",
+    "question": "You attempt to resize an active production VM from `Standard_D4s_v5` to `Standard_M64ms`. The Azure portal reports that the selected size is unavailable. What must you do to successfully change to this VM size?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Stop and deallocate the VM first so Azure can allocate it onto a physical hardware cluster supporting the M-series size.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Upgrade the subscription support tier to Premier before initiating the resize.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Convert the OS disk from Premium SSD to Ultra Disk.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Move the VM into an Availability Set with three fault domains.",
+        "correct": false
+      }
+    ],
+    "explanation": "If a desired VM size is not supported on the physical hardware cluster currently hosting the VM, the resize operation fails. Deallocating the VM frees it from the existing cluster, allowing Azure to redeploy and start the VM on a different hardware cluster within the region that supports the new size.",
+    "source": "Exam Ref AZ-104, Ch. 3, p. 156; MS Learn Intro to Azure Virtual Machines, Unit 4"
+  },
+  {
+    "id": "q-p05-m01-03",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "VM Disk Caching - Best Practices",
+    "question": "You are attaching managed data disks to an Azure VM running Microsoft SQL Server. The disks will store SQL Server transaction log files (`.ldf`). Which host caching option should you configure for the log file disks?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "None",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Read-only",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Read/Write",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Write-through caching with flush",
+        "correct": false
+      }
+    ],
+    "explanation": "For SQL Server transaction log files, write caching can cause data loss or database corruption during an ungraceful shutdown. Microsoft strongly recommends setting host caching to 'None' for disks hosting transaction logs, and 'Read-only' for disks hosting SQL data files (`.mdf`).",
+    "source": "Exam Ref AZ-104, Ch. 3, p. 158; MS Learn Intro to Azure Virtual Machines, Unit 4"
+  },
+  {
+    "id": "q-p05-m01-04",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "Ultra Disk Constraints",
+    "question": "An enterprise database administrator wants to deploy an Azure Ultra Disk for maximum transactional throughput. Which architectural restriction applies to Azure Ultra Disks?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Ultra Disks cannot be used as the operating system (OS) disk; they can only be attached as data disks.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Ultra Disks do not support dynamic adjustment of IOPS and throughput.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Ultra Disks are only supported in regions that do not have availability zones.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Ultra Disks cannot be attached to VMs with more than 8 vCPUs.",
+        "correct": false
+      }
+    ],
+    "explanation": "Azure Ultra Disks offer high throughput, high IOPS, and sub-millisecond latencies, but they can only be used as data disks. Ultra Disks cannot be configured as the boot operating system disk.",
+    "source": "Exam Ref AZ-104, Ch. 3, pp. 156–157; MS Learn Intro to Azure Virtual Machines, Unit 4"
+  },
+  {
+    "id": "q-p05-m01-05",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "Azure Bastion - Architecture",
+    "question": "You need to enable secure administrative RDP and SSH connectivity to Azure VMs in a virtual network without assigning public IP addresses to the VMs or exposing RDP/SSH ports to the internet. Which service should you deploy?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Azure Bastion deployed in a dedicated `AzureBastionSubnet`",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Azure Application Gateway with WAF v2",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Azure Front Door with Private Link",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Network Virtual Appliance with port forwarding",
+        "correct": false
+      }
+    ],
+    "explanation": "Azure Bastion is a fully managed PaaS service that provides seamless and secure RDP and SSH access directly through the Azure portal over SSL/TLS (port 443). The VMs do not require public IP addresses. Azure Bastion must be deployed into a dedicated subnet named exactly `AzureBastionSubnet` with at least a `/26` prefix.",
+    "source": "Exam Ref AZ-104, Ch. 3, pp. 148–150; MS Learn Intro to Azure Virtual Machines, Unit 5"
+  },
+  {
+    "id": "q-p05-m01-06",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "Just-In-Time (JIT) VM Access",
+    "question": "How does Microsoft Defender for Cloud's Just-In-Time (JIT) VM Access secure management ports on Azure virtual machines?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "It locks down inbound ports like 3389 and 22 via NSG rules, and only creates temporary allow rules when an authorized user requests access for a specified duration.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "It encrypts all SSH traffic with quantum keys inside Azure Key Vault.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "It automatically rotates the local administrator password every 60 minutes.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "It redirects all inbound management connections through a local VPN client.",
+        "correct": false
+      }
+    ],
+    "explanation": "JIT VM Access uses Network Security Groups (NSGs) to block inbound management ports (e.g., 22, 3389). When an approved user requests access, JIT dynamically adds high-priority inbound NSG allow rules restricted to the requester's IP for a limited duration (e.g. 3 hours), automatically closing them upon expiry.",
+    "source": "Exam Ref AZ-104, Ch. 3, pp. 150–152; MS Learn Intro to Azure Virtual Machines, Unit 5"
+  },
+  {
+    "id": "q-p05-m01-07",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "VM Boot Diagnostics",
+    "question": "A Windows VM fails to start up after a system update, remaining in the `Starting` state indefinitely. RDP connections fail. Which Azure VM troubleshooting feature allows you to view the hypervisor console screenshot and serial log output?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Boot Diagnostics",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Network Watcher IP Flow Verify",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Azure Advisor Recommendations",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Log Analytics Heartbeat agent",
+        "correct": false
+      }
+    ],
+    "explanation": "Boot Diagnostics captures screenshots of the VM console during boot and records serial log output. This enables administrators to diagnose blue screens (BSOD), kernel panic, disk errors, or Windows updates in progress when remote desktop or SSH access is unavailable.",
+    "source": "Exam Ref AZ-104, Ch. 3, pp. 152–153; MS Learn Intro to Azure Virtual Machines, Unit 7"
+  },
+  {
+    "id": "q-p05-m01-08",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "Custom Script Extension",
+    "question": "You need to automatically execute a PowerShell configuration script on 20 newly provisioned Windows VMs during deployment without manually logging into each VM. Which feature should you include in the deployment?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Azure Custom Script Extension",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Azure Bastion Shareable Links",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Azure Monitor Alert Action Group",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Azure Policy AuditIfNotExists",
+        "correct": false
+      }
+    ],
+    "explanation": "The Azure Custom Script Extension downloads and runs scripts on Azure virtual machines. It is ideal for post-deployment software configuration, package installation, and custom system setup.",
+    "source": "Exam Ref AZ-104, Ch. 3, p. 154; MS Learn Intro to Azure Virtual Machines, Unit 7"
+  },
+  {
+    "id": "q-p05-m01-09",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "Spot Virtual Machines - Eviction Policy",
+    "question": "Your company is running non-critical, batch video processing jobs that can tolerate interruptions. You deploy Azure Spot VMs to save compute costs. When Azure needs to reclaim the unused capacity, what two eviction policy options are available?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Deallocate (stops the VM preserving disks) or Delete (permanently deletes VM and ephemeral resources)",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Reboot or Hibernate",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Failover to secondary region or Snapshot",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Downgrade SKU or Reduce vCPU count",
+        "correct": false
+      }
+    ],
+    "explanation": "When deploying Spot VMs, you can set the eviction policy to either 'Deallocate' (which stops the VM so it can be restarted later when capacity returns, while preserving data disks) or 'Delete' (which deletes the VM and OS disk immediately).",
+    "source": "Exam Ref AZ-104, Ch. 3, p. 147; MS Learn Intro to Azure Virtual Machines, Unit 3"
+  },
+  {
+    "id": "q-p05-m01-10",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "Ephemeral OS Disks",
+    "question": "Which workload characteristic makes Ephemeral OS Disks an optimal choice compared to persistent managed OS disks?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Stateless workloads (such as batch jobs or VMSS scale set nodes) that benefit from zero storage cost and fast reimaging from the local VM cache/temp disk.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Mission-critical SQL databases that require point-in-time recovery across reboots.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "File servers that store user profiles permanently.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Domain controllers running Active Directory Domain Services.",
+        "correct": false
+      }
+    ],
+    "explanation": "Ephemeral OS disks are created directly on the local VM cache or temporary storage rather than Azure remote storage. They provide faster boot and reimaging times, lower latency, and zero storage cost, making them ideal for stateless workloads like VMSS nodes and batch compute.",
+    "source": "Exam Ref AZ-104, Ch. 3, p. 157; MS Learn Intro to Azure Virtual Machines, Unit 4"
+  },
+  {
+    "id": "q-p05-m01-11",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "VM Generation 2 vs Generation 1",
+    "question": "Which capability is uniquely supported by Generation 2 Azure Virtual Machines compared to Generation 1?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "UEFI-based boot architecture, OS disks larger than 2 TB, and Trusted Launch security",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "BIOS-based boot architecture with MBR partitioning only",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Compatibility with Windows Server 2003",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Support for unmanaged VHD storage accounts only",
+        "correct": false
+      }
+    ],
+    "explanation": "Generation 2 VMs use UEFI-based boot architecture rather than legacy BIOS, support OS boot disks exceeding 2 TB, support Intel Software Guard Extensions (SGX), and provide Trusted Launch security (vTPM and Secure Boot).",
+    "source": "Exam Ref AZ-104, Ch. 3, p. 146; MS Learn Intro to Azure Virtual Machines, Unit 3"
+  },
+  {
+    "id": "q-p05-m01-12",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "VM Disks - Standard SSD vs Standard HDD",
+    "question": "What is the key technological and performance difference between Azure Standard SSD and Standard HDD managed disks?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Standard SSDs use solid-state technology providing consistent single-digit millisecond latencies and higher reliability than magnetic Standard HDDs.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Standard SSDs can only be attached to M-series VMs.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Standard HDDs support dynamic disk bursting up to 20,000 IOPS.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Standard SSDs do not support Azure Backup snapshots.",
+        "correct": false
+      }
+    ],
+    "explanation": "Standard SSDs utilize solid-state drives to deliver consistent performance and lower latency for web servers and dev/test workloads, whereas Standard HDDs utilize spinning magnetic media suitable for non-critical, infrequent access backups.",
+    "source": "Exam Ref AZ-104, Ch. 3, p. 156; MS Learn Intro to Azure Virtual Machines, Unit 4"
+  },
+  {
+    "id": "q-p05-m01-13",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "VM Disk Bursting",
+    "question": "How does credit-based disk bursting work on Azure Premium SSD managed disks (such as disk tier P20 and smaller)?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "The disk accumulates burst credits when I/O demand is below its baseline limit, which can then be spent to burst up to 3,500 IOPS for up to 30 minutes during sudden traffic spikes.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Azure automatically upgrades the disk to an Ultra Disk permanently when traffic surges.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Bursting requires restarting the virtual machine into a burstable B-series SKU.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Burst credits must be purchased as prepayment vouchers through Azure Cost Management.",
+        "correct": false
+      }
+    ],
+    "explanation": "Premium SSDs of size 512 GiB (P20) and smaller include credit-based disk bursting. When disk usage operates below the provisioned baseline IOPS/throughput, the disk accumulates credits. During sudden traffic spikes, it bursts up to 3,500 IOPS and 170 MB/s for up to 30 minutes.",
+    "source": "Exam Ref AZ-104, Ch. 3, p. 157; MS Learn Intro to Azure Virtual Machines, Unit 4"
+  },
+  {
+    "id": "q-p05-m01-14",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "Azure Bastion - SKU Capabilities",
+    "question": "Which Azure Bastion tier/SKU is required if you need support for Native Client (connecting via local SSH/RDP clients without the browser), IP-based connections, and shareable links?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Standard SKU",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Basic SKU",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Developer SKU",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Free SKU",
+        "correct": false
+      }
+    ],
+    "explanation": "Azure Bastion Basic SKU supports only browser-based RDP/SSH. To use the Azure CLI native client (`az network bastion rdp/ssh`), shareable links, host scaling up to 50 instances, or IP-based connection targets, you must deploy the Standard SKU.",
+    "source": "Exam Ref AZ-104, Ch. 3, p. 149; MS Learn Intro to Azure Virtual Machines, Unit 5"
+  },
+  {
+    "id": "q-p05-m01-15",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "VM Availability Sets - Domains Architecture",
+    "question": "An administrator creates an Azure Availability Set with 3 Fault Domains and 5 Update Domains, then deploys 6 VMs into the set. How many update domains will contain 2 VMs?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Exactly 1 update domain (UD 0)",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "2 update domains",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "All 5 update domains",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "0 update domains",
+        "correct": false
+      }
+    ],
+    "explanation": "VMs are allocated to Update Domains sequentially: VM 1 to UD 0, VM 2 to UD 1, VM 3 to UD 2, VM 4 to UD 3, VM 5 to UD 4, and VM 6 wraps around to UD 0. Therefore, only UD 0 has 2 VMs, while UD 1 through 4 have 1 VM each.",
+    "source": "Exam Ref AZ-104, Ch. 3, p. 160; MS Learn Configure VM Availability, Unit 3"
+  },
+  {
+    "id": "q-p05-m02-01",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "Availability Sets - Adding Existing VMs",
+    "question": "You have a standalone Azure virtual machine named `VM1` running in production. Your manager asks you to add `VM1` to an existing Availability Set named `AS1`. How can you accomplish this in Azure?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "You cannot add an existing VM to an Availability Set; you must delete the VM and recreate it from its existing OS disk inside `AS1`.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "In the Azure portal, navigate to `VM1` > Availability + scaling, and select `AS1` from the dropdown.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Run `Set-AzVM -ResourceGroupName RG1 -Name VM1 -AvailabilitySetId $as1.Id` while the VM is running.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Deallocate `VM1`, attach it to an Azure Load Balancer backend pool, and Azure will automatically associate it with `AS1`.",
+        "correct": false
+      }
+    ],
+    "explanation": "A virtual machine can ONLY be added to an Availability Set during VM creation. Azure does not support moving an existing VM into an Availability Set. The VM must be deleted (preserving its OS and data disks) and recreated with the Availability Set specified.",
+    "source": "Exam Ref AZ-104, Ch. 3, p. 161; MS Learn Configure VM Availability, Unit 3"
+  },
+  {
+    "id": "q-p05-m02-02",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "Availability Sets vs Availability Zones SLA",
+    "question": "What is the Microsoft Azure SLA guarantee for two or more VM instances deployed across distinct Availability Zones in the same region, compared to two or more VMs deployed in an Availability Set?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Availability Zones provide 99.99% availability; Availability Sets provide 99.95% availability.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Availability Zones provide 99.95% availability; Availability Sets provide 99.99% availability.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Both options provide identical 99.99% availability SLAs.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Availability Zones provide 99.9% availability; single VMs provide 95.0% availability.",
+        "correct": false
+      }
+    ],
+    "explanation": "Deploying two or more VM instances across separate Availability Zones in the same Azure region guarantees at least 99.99% VM uptime SLA. An Availability Set guarantees at least 99.95% uptime SLA.",
+    "source": "Exam Ref AZ-104, Ch. 3, pp. 161–163; MS Learn Configure VM Availability, Unit 2"
+  },
+  {
+    "id": "q-p05-m02-03",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "Availability Sets - Maximum Fault Domains",
+    "question": "What is the maximum number of Fault Domains (FD) configurable in an Azure Availability Set within a standard Azure region?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "3 Fault Domains",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "5 Fault Domains",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "10 Fault Domains",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "20 Fault Domains",
+        "correct": false
+      }
+    ],
+    "explanation": "An Availability Set supports up to 3 Fault Domains (0, 1, and 2) in most Azure regions, representing distinct physical server racks sharing common power sources and network switches. Update Domains can be configured up to 20.",
+    "source": "Exam Ref AZ-104, Ch. 3, p. 160; MS Learn Configure VM Availability, Unit 3"
+  },
+  {
+    "id": "q-p05-m02-04",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "Proximity Placement Groups",
+    "question": "A high-performance trading platform requires ultra-low network latency between its application VMs and database VMs. Which Azure construct groups VMs physically as close together as possible inside a single datacenter?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Proximity Placement Group (PPG)",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Availability Zone 1",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Virtual Network Peering mesh",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Dedicated Host Group",
+        "correct": false
+      }
+    ],
+    "explanation": "A Proximity Placement Group (PPG) is an Azure logical grouping used to ensure that compute resources (VMs, Availability Sets, VMSS) are physically located close to each other in the same physical datacenter to achieve the lowest possible network latency.",
+    "source": "Exam Ref AZ-104, Ch. 3, p. 163; MS Learn Configure VM Availability, Unit 4"
+  },
+  {
+    "id": "q-p05-m02-05",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "VMSS Orchestration Modes - Uniform vs Flexible",
+    "question": "You are deploying an Azure Virtual Machine Scale Set (VMSS) and need the ability to mix different VM sizes, manage individual VM instances like regular standalone VMs, and mix Spot and on-demand instances. Which orchestration mode should you select?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Flexible orchestration mode",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Uniform orchestration mode",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Classic orchestration mode",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Autonomous orchestration mode",
+        "correct": false
+      }
+    ],
+    "explanation": "Flexible orchestration mode (`orchestrationMode: Flexible`) allows deploying a heterogeneous fleet of VMs with mixed sizes, spot instances, and standalone VM management capabilities while leveraging scale set availability and zones. Uniform orchestration mode uses identical VM profiles.",
+    "source": "Exam Ref AZ-104, Ch. 3, pp. 164–165; MS Learn Configure VM Availability, Unit 5"
+  },
+  {
+    "id": "q-p05-m02-06",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "VMSS Upgrade Policies",
+    "question": "You update the VM model template in a Virtual Machine Scale Set (VMSS). You want existing VM instances to be updated one batch at a time automatically without taking down the entire service. Which upgrade policy should you configure?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Rolling upgrade policy",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Automatic upgrade policy",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Manual upgrade policy",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Immediate upgrade policy",
+        "correct": false
+      }
+    ],
+    "explanation": "The 'Rolling' upgrade policy updates instances in staged batches. A batch of instances is upgraded, tested against health probes, and once verified healthy, the next batch is upgraded, ensuring zero service downtime. 'Automatic' updates all instances without batching guarantees.",
+    "source": "Exam Ref AZ-104, Ch. 3, pp. 166–167; MS Learn Configure VM Availability, Unit 7"
+  },
+  {
+    "id": "q-p05-m02-07",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "VMSS Autoscale - Scale-In Policy",
+    "question": "During off-peak hours, a VMSS automatically scales in from 10 instances to 4 instances. Which scale-in policy configuration guarantees that the newest instances created during the spike are removed first?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Scale-in policy: `NewestVM`",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Scale-in policy: `OldestVM`",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Scale-in policy: `Default`",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Scale-in policy: `Random`",
+        "correct": false
+      }
+    ],
+    "explanation": "The `NewestVM` scale-in policy terminates the newest instances in the scale set first when scaling in. Conversely, `OldestVM` deletes the oldest instances, while `Default` balances across availability zones/fault domains before checking creation time.",
+    "source": "Exam Ref AZ-104, Ch. 3, p. 167; MS Learn Configure VM Availability, Unit 8"
+  },
+  {
+    "id": "q-p05-m02-08",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "VMSS Autoscale - Cooldown Period",
+    "question": "In an autoscale rule for a Virtual Machine Scale Set, what is the purpose of configuring the 'cooldown' duration (e.g., 10 minutes)?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "To prevent 'flapping' (rapid, repeated scale-out and scale-in actions) by pausing scaling actions until new instances have had time to stabilize and absorb traffic.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "To allow CPU temperatures to decrease on the host server.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "To automatically disconnect idle client HTTP sessions.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "To wait for Azure Backup to complete a daily snapshot.",
+        "correct": false
+      }
+    ],
+    "explanation": "The cooldown period specifies the amount of time to wait after an autoscale action before initiating another scaling action. This allows newly added instances to spin up, join load balancer pools, and absorb traffic so the metric stabilizes, preventing thrashing/flapping.",
+    "source": "Exam Ref AZ-104, Ch. 3, p. 168; MS Learn Configure VM Availability, Unit 8"
+  },
+  {
+    "id": "q-p05-m02-09",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "VMSS Overprovisioning Feature",
+    "question": "What does the `overprovision` property in Azure Virtual Machine Scale Sets do when set to `true`?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Azure spins up more VM instances than requested simultaneously, keeps the fastest instances that successfully boot, and deallocates the excess instances without extra charge.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Azure allocates double the requested vCPUs to each VM permanently.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Azure reserves extra compute quota in the paired region.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Azure bills the customer at double the standard hourly rate.",
+        "correct": false
+      }
+    ],
+    "explanation": "When `overprovision` is true (the default), Azure provisions extra VM instances in parallel to ensure successful deployment. Once the required number of healthy instances are ready, Azure deallocates the excess instances. You are not billed for the extra instances that are destroyed.",
+    "source": "Exam Ref AZ-104, Ch. 3, p. 165; MS Learn Configure VM Availability, Unit 6"
+  },
+  {
+    "id": "q-p05-m02-10",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "Availability Zones - Zonal vs Zone-Redundant",
+    "question": "When deploying a single virtual machine with zonal pinning into Availability Zone 1, how is the VM classified compared to an Azure Load Balancer frontend deployed across all zones?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "The VM is a zonal resource pinned to Zone 1, whereas the Load Balancer frontend is a zone-redundant resource.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Both the VM and Load Balancer are non-zonal regional resources.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "The VM is zone-redundant; the Load Balancer is zonal.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "The VM cannot communicate with resources in Zone 2 or Zone 3.",
+        "correct": false
+      }
+    ],
+    "explanation": "A 'zonal' resource (like an explicitly pinned VM or zonal public IP) is tied to a specific physical zone (e.g. Zone 1). A 'zone-redundant' resource (like a standard load balancer or gateway) automatically spans multiple zones and survives failure of any single zone.",
+    "source": "Exam Ref AZ-104, Ch. 3, p. 162; MS Learn Configure VM Availability, Unit 2"
+  },
+  {
+    "id": "q-p05-m02-11",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "Automatic OS Image Upgrades in VMSS",
+    "question": "Which requirement must be met for a Virtual Machine Scale Set to support Automatic OS image upgrades without administrator intervention?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "An Application Health extension or load balancer health probe must be configured to report instance health.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "All instances must run Windows Server 2012 R2.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "The scale set must use unmanaged OS disks in Premium storage accounts.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "The scale set must have exactly 100 instances.",
+        "correct": false
+      }
+    ],
+    "explanation": "Automatic OS image upgrades require an application health check mechanism (either an Application Health extension or a health probe from an Azure Load Balancer or Application Gateway) so Azure can monitor that upgraded instances function properly before upgrading the rest.",
+    "source": "Exam Ref AZ-104, Ch. 3, p. 166; MS Learn Configure VM Availability, Unit 7"
+  },
+  {
+    "id": "q-p05-m02-12",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "Availability Sets - Managed Disks Fault Domain Alignment",
+    "question": "Why does Microsoft mandate using Managed Disks rather than unmanaged storage account VHDs when deploying VMs in an Availability Set?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Managed disks automatically align the storage cluster fault domains with the compute rack fault domains of the VMs.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Unmanaged disks do not support NTFS file formatting.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Unmanaged disks are restricted to 10 GB maximum capacity.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Managed disks eliminate the need for network security groups.",
+        "correct": false
+      }
+    ],
+    "explanation": "When an Availability Set uses Managed Disks, Azure automatically aligns the storage fault domains with the VM compute fault domains. This guarantees that two VMs in different compute fault domains do not share the same single point of failure in storage hardware.",
+    "source": "Exam Ref AZ-104, Ch. 3, p. 161; MS Learn Configure VM Availability, Unit 3"
+  },
+  {
+    "id": "q-p05-m03-01",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "App Service Plan - Core Concept",
+    "question": "What is the primary role of an Azure App Service Plan in hosting web applications?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "It defines the set of compute resources (region, VM size, CPU, memory, and instance count) that run the hosted web applications.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "It acts as a public DNS zone registrar for custom domains.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "It stores database tables and SQL connection strings.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "It manages SSL certificate renewal via Let's Encrypt.",
+        "correct": false
+      }
+    ],
+    "explanation": "An App Service plan represents the underlying virtual machine compute infrastructure (pricing tier, region, number of VM instances, and compute sizing) allocated to run one or more Azure App Service web apps, mobile backends, or API apps.",
+    "source": "Exam Ref AZ-104, Ch. 3, p. 190; MS Learn Configure App Service Plans, Unit 2"
+  },
+  {
+    "id": "q-p05-m03-02",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "App Service Plan Pricing Tiers - Free/Shared Limits",
+    "question": "Which limitation applies to applications hosted on the Free and Shared tiers of Azure App Service?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Apps run on shared multi-tenant VMs with other customers, have daily CPU quotas (e.g. 60 min/day), and have no SLA.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "They do not support HTML5 or HTTPS.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "They cannot connect to any external SQL database.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "They can only be created using the Azure PowerShell module.",
+        "correct": false
+      }
+    ],
+    "explanation": "The Free and Shared pricing tiers run apps on shared infrastructure alongside other customers. They have strict CPU usage limits (e.g. 60 CPU minutes per day on Free), no SLA, and do not support scaling or features like deployment slots or VNet integration.",
+    "source": "Exam Ref AZ-104, Ch. 3, p. 191; MS Learn Configure App Service Plans, Unit 3"
+  },
+  {
+    "id": "q-p05-m03-03",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "App Service Plan Pricing Tiers - Basic vs Standard",
+    "question": "You have an App Service web app on the Basic (B1) tier. You need to enable automatic scaling based on CPU utilization and configure deployment slots for zero-downtime testing. What is the minimum App Service plan pricing tier required?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Standard (S1)",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Basic (B3)",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Shared (D1)",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Isolated (I1v2)",
+        "correct": false
+      }
+    ],
+    "explanation": "The Basic tier provides dedicated compute but supports only manual scaling (up to 3 instances) and does not support deployment slots. Autoscaling (up to 10 instances) and deployment slots (up to 5 slots) require at least the Standard pricing tier.",
+    "source": "Exam Ref AZ-104, Ch. 3, pp. 191–192; MS Learn Configure App Service Plans, Unit 3"
+  },
+  {
+    "id": "q-p05-m03-04",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "Scaling - Scale Up vs Scale Out",
+    "question": "An administrator changes an App Service Plan from `Standard S1` (1 Core, 1.75 GB RAM) to `Premium P2v3` (4 vCPUs, 16 GB RAM). What type of scaling operation was performed?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Scale up (vertical scaling)",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Scale out (horizontal scaling)",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Autoscale",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Zonal failover",
+        "correct": false
+      }
+    ],
+    "explanation": "'Scale up' involves changing the pricing tier/SKU to acquire more CPU cores, RAM, and disk space for the existing instances. 'Scale out' involves increasing the number of VM instances running the App Service plan.",
+    "source": "Exam Ref AZ-104, Ch. 3, pp. 192–193; MS Learn Configure App Service Plans, Unit 4"
+  },
+  {
+    "id": "q-p05-m03-05",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "App Service Plan - Isolated Tier & ASE",
+    "question": "A defense contractor requires deploying web applications inside an isolated, dedicated Azure compute network that communicates exclusively across private subnets with no public multitenant exposure. Which tier should you choose?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Isolated v2 tier (App Service Environment - ASE v3)",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Premium P3v3 with private endpoint",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Standard S3 tier",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Basic B3 tier",
+        "correct": false
+      }
+    ],
+    "explanation": "The Isolated (v2) tier deploys web apps inside an App Service Environment (ASE), which provides dedicated hypervisors running directly inside the customer's private virtual network with full network isolation and maximum scalability.",
+    "source": "Exam Ref AZ-104, Ch. 3, p. 191; MS Learn Configure App Service Plans, Unit 3"
+  },
+  {
+    "id": "q-p05-m03-06",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "App Service Plan Sharing",
+    "question": "You create five separate Azure Web Apps inside the same `Standard S2` App Service Plan. How are compute resources and costs distributed among these five apps?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "All five web apps share the compute resources (vCPUs and RAM) of the plan instances, and you are billed only for the App Service plan, not per web app.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Each web app is automatically assigned an isolated dedicated VM, and you are billed 5 times the plan fee.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Only one web app can run at a time; the others are placed in standby.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Sharing a plan between apps is prohibited in Azure.",
+        "correct": false
+      }
+    ],
+    "explanation": "Multiple apps hosted in the same App Service plan share the same underlying VM instances and resources (CPU, RAM). Billing is determined by the App Service plan tier and instance count, regardless of how many apps reside in the plan.",
+    "source": "Exam Ref AZ-104, Ch. 3, p. 190; MS Learn Configure App Service Plans, Unit 2"
+  },
+  {
+    "id": "q-p05-m03-07",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "Autoscale Rules - Metric vs Scheduled",
+    "question": "You configure an App Service plan to scale to 10 instances every Friday at 5:00 PM and scale back to 2 instances on Monday at 6:00 AM. What type of autoscale rule is this?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Schedule-based (recurring date/time) autoscale condition",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Metric-based dynamic autoscale rule",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "App Insights ping test rule",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Vertical scale policy",
+        "correct": false
+      }
+    ],
+    "explanation": "Azure Autoscale supports two primary mechanisms: metric-based rules (scaling based on CPU %, memory %, HTTP queue) and schedule-based conditions (scaling to specific instance counts based on fixed dates or recurring days/times).",
+    "source": "Exam Ref AZ-104, Ch. 3, p. 192; MS Learn Configure App Service Plans, Unit 5"
+  },
+  {
+    "id": "q-p05-m03-08",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "Autoscale Rules - Metric Aggregations",
+    "question": "When configuring an autoscale rule based on average CPU percentage over a 10-minute time window, which time aggregation setting evaluates the average value across all active VM instances?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Average",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Maximum",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Minimum",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Total",
+        "correct": false
+      }
+    ],
+    "explanation": "The 'Average' time aggregation calculates the arithmetic mean of the metric values across all instances in the App Service plan over the specified time grain, which prevents temporary single-instance anomalies from triggering unnecessary scale actions.",
+    "source": "Exam Ref AZ-104, Ch. 3, p. 193; MS Learn Configure App Service Plans, Unit 5"
+  },
+  {
+    "id": "q-p05-m03-09",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "App Service Plan - Operating System Constraints",
+    "question": "Can you host both Windows web apps and Linux web apps inside the exact same Azure App Service Plan?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "No, an App Service plan is configured for either Windows or Linux; you cannot mix OS types within a single plan.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Yes, if the plan is running Premium P3v3.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Yes, as long as both apps use .NET 8.0.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Yes, provided they are in the same resource group.",
+        "correct": false
+      }
+    ],
+    "explanation": "An App Service plan is tied to a specific operating system platform (either Windows or Linux). Windows apps cannot run on Linux App Service plans and vice versa; you must deploy separate App Service plans for each OS.",
+    "source": "Exam Ref AZ-104, Ch. 3, p. 190; MS Learn Configure App Service Plans, Unit 2"
+  },
+  {
+    "id": "q-p05-m03-10",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "App Service Plan - Scale Limits by Tier",
+    "question": "What is the maximum number of scaled-out VM instances supported by the App Service Standard tier compared to the Premium v3 tier?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Standard supports up to 10 instances; Premium v3 supports up to 30 instances.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Standard supports up to 3 instances; Premium v3 supports up to 10 instances.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Standard supports up to 20 instances; Premium v3 supports up to 100 instances.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Both tiers support up to 50 instances.",
+        "correct": false
+      }
+    ],
+    "explanation": "The Standard tier of Azure App Service supports scaling out up to 10 instances. Premium v2/v3 plans support scaling out up to 30 instances (and up to 100 in Isolated v2 plans).",
+    "source": "Exam Ref AZ-104, Ch. 3, p. 191; MS Learn Configure App Service Plans, Unit 3"
+  },
+  {
+    "id": "q-p05-m03-11",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "Autoscale - Default Instance Count",
+    "question": "In an Azure autoscale profile with minimum instance count 2, maximum instance count 10, and default instance count 4, when will the default instance count be applied?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "When the monitoring service cannot read metric data due to a telemetry outage or service failure.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Every time the web application restarts.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "At midnight every Sunday.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Whenever CPU utilization reaches exactly 50%.",
+        "correct": false
+      }
+    ],
+    "explanation": "The 'default' instance count is used as a fallback if the autoscale engine cannot retrieve metric data from the telemetry pipeline, ensuring the app maintains adequate capacity until metrics recover.",
+    "source": "Exam Ref AZ-104, Ch. 3, p. 192; MS Learn Configure App Service Plans, Unit 5"
+  },
+  {
+    "id": "q-p05-m03-12",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "App Service Plan - Moving Resources",
+    "question": "Can you move an existing Azure Web App to a different App Service plan in the same resource group and region?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Yes, as long as the destination App Service plan is in the same resource group and geographical region.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "No, a web app is permanently bound to its initial App Service plan.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Yes, but only if the web app is shut down for at least 24 hours.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Only if moving from a Linux plan to a Windows plan.",
+        "correct": false
+      }
+    ],
+    "explanation": "Azure allows you to move a web app between App Service plans provided both plans exist in the same subscription, resource group, and geographical region (and run the same OS platform).",
+    "source": "Exam Ref AZ-104, Ch. 3, p. 193; MS Learn Configure App Service Plans, Unit 2"
+  },
+  {
+    "id": "q-p05-m04-01",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "Deployment Slots - Concept & Swap Mechanics",
+    "question": "What happens under the hood when you perform a swap operation between a staging deployment slot and the production slot of an Azure Web App?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Azure warms up the staging instance and swaps virtual IP routing so production traffic is redirected to the new build with zero downtime.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Azure copies all source files from staging to the production VM and restarts the production VM.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Azure permanently deletes the staging slot after 10 minutes.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "The DNS CNAME records are updated in public internet registrars.",
+        "correct": false
+      }
+    ],
+    "explanation": "Slot swapping works by warming up the target slot with production traffic configuration, and then swapping the underlying virtual routing pointers. This achieves instant redirection of live customer traffic with zero downtime.",
+    "source": "Exam Ref AZ-104, Ch. 3, pp. 193–194; MS Learn Configure App Service, Unit 4"
+  },
+  {
+    "id": "q-p05-m04-02",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "Deployment Slots - Sticky Settings",
+    "question": "You configure a database connection string in your web app's staging slot that points to a test database. You want this connection string to REMAIN in the staging slot and NOT get moved to production during slot swaps. What must you configure?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Select the 'Deployment slot setting' checkbox on the connection string in the staging slot.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Encrypt the connection string with an Azure Key Vault secret.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Place a ReadOnly lock on the staging slot resource.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Set the connection string name to `DB_TEST_PERMANENT`.",
+        "correct": false
+      }
+    ],
+    "explanation": "Checking the 'Deployment slot setting' (sticky setting) checkbox ensures that the configuration setting stays pinned to that specific slot during a swap. Unchecked settings swap along with the application binaries.",
+    "source": "Exam Ref AZ-104, Ch. 3, pp. 194–195; MS Learn Configure App Service, Unit 4"
+  },
+  {
+    "id": "q-p05-m04-03",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "Deployment Slots - Swappable Settings",
+    "question": "Which of the following configuration settings will ALWAYS swap with the application payload during a slot swap by default?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "General settings (such as framework version, 32/64-bit platform, WebSockets)",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Custom domain names and SSL certificates",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Publishing endpoints and credentials",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "IP restrictions and access restriction rules",
+        "correct": false
+      }
+    ],
+    "explanation": "General settings (such as framework version, platform bitness, WebSockets, and application code) swap between slots. Settings such as custom domain names, SSL certificates, publishing endpoints, and IP restrictions are inherently slot-specific (non-swappable).",
+    "source": "Exam Ref AZ-104, Ch. 3, p. 195; MS Learn Configure App Service, Unit 4"
+  },
+  {
+    "id": "q-p05-m04-04",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "Custom Domain Verification",
+    "question": "You want to map `www.contoso.com` to your Azure Web App `contoso-app.azurewebsites.net`. Which DNS record is used to verify domain ownership during custom domain configuration?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "A `TXT` record pointing `asuid.www.contoso.com` to the Custom Domain Verification ID token.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "An `MX` record pointing to `mail.contoso.com`.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "An `SRV` record on port 443.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "A `PTR` reverse DNS pointer record.",
+        "correct": false
+      }
+    ],
+    "explanation": "To prevent unauthorized domain claims, Azure requires a TXT record with the prefix `asuid.<subdomain>` (e.g. `asuid.www.contoso.com`) containing the Custom Domain Verification ID token provided in the App Service portal blade.",
+    "source": "Exam Ref AZ-104, Ch. 3, pp. 196–198; MS Learn Configure App Service, Unit 2"
+  },
+  {
+    "id": "q-p05-m04-05",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "App Service Managed Certificates - Capabilities & Limits",
+    "question": "What is a key requirement and limitation of an Azure App Service Managed Certificate?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "It is a free, automatically renewing SSL/TLS certificate, but it does NOT support wildcard domains or apex/naked domains using A records.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "It requires an annual paid fee billed through Microsoft 365.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "It cannot be exported and only works on the Free tier.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "It requires installing an on-premises enterprise certificate authority.",
+        "correct": false
+      }
+    ],
+    "explanation": "App Service Managed Certificates provide free, auto-renewed SSL/TLS certificates for custom domains. However, they do not support wildcard certificates (e.g., `*.contoso.com`) or apex domains configured via standard A records (they require CNAME or root CNAME flattening).",
+    "source": "Exam Ref AZ-104, Ch. 3, pp. 200–201; MS Learn Configure App Service, Unit 3"
+  },
+  {
+    "id": "q-p05-m04-06",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "SSL Binding Types - SNI vs IP SSL",
+    "question": "What is the primary difference between Server Name Indication (SNI) SSL and IP-based SSL in Azure App Service?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "SNI SSL allows multiple secure websites to share a single public IP address using TLS hostname extensions, while IP-based SSL binds a dedicated IP address to the app at an additional cost.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "SNI SSL is deprecated and rejected by all modern browsers.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "IP-based SSL requires an Azure ExpressRoute circuit.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "SNI SSL only supports 128-bit encryption.",
+        "correct": false
+      }
+    ],
+    "explanation": "SNI SSL is the modern standard that allows multiple SSL certificates and domains to be hosted on the same IP address. IP-based SSL maps a certificate to a dedicated IP address (often for legacy clients), incurring an additional monthly IP address charge.",
+    "source": "Exam Ref AZ-104, Ch. 3, pp. 202–203; MS Learn Configure App Service, Unit 3"
+  },
+  {
+    "id": "q-p05-m04-07",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "App Service Configuration - Always On",
+    "question": "Users complain that the first HTTP request of each morning to an Azure Web App experiences a 20-second delay. What configuration setting eliminates this cold start latency?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Enable 'Always On' in the App Service Configuration blade.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Change the platform bitness from 64-bit to 32-bit.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Upgrade the storage account to Premium Block Blobs.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Disable HTTP/2.",
+        "correct": false
+      }
+    ],
+    "explanation": "By default, Azure App Service unloads web apps from memory after a period of inactivity to conserve resources. Enabling 'Always On' sends an automatic ping to keep the process continuously loaded in RAM, avoiding cold starts. (Requires Basic tier or higher).",
+    "source": "Exam Ref AZ-104, Ch. 3, p. 196; MS Learn Configure App Service, Unit 5"
+  },
+  {
+    "id": "q-p05-m04-08",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "App Service Backups - Requirements",
+    "question": "You want to configure automated daily backups of an Azure Web App and its associated SQL database. What is a prerequisite for App Service automated backups?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "The app must run on at least the Standard pricing tier, and an Azure Storage account container must be configured as the backup destination.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "The app must be hosted in an App Service Environment (Isolated).",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "The storage account must use Archive access tier.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "The web app must have at least two deployment slots.",
+        "correct": false
+      }
+    ],
+    "explanation": "App Service Backup and Restore requires at least the Standard pricing tier (or Premium/Isolated). Backups are stored in an Azure Blob storage container within an Azure Storage account specified by the administrator.",
+    "source": "Exam Ref AZ-104, Ch. 3, pp. 204–206; MS Learn Configure App Service, Unit 6"
+  },
+  {
+    "id": "q-p05-m04-09",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "Virtual Network Integration",
+    "question": "An Azure Web App needs to connect securely to an Azure SQL Database that is secured behind a private endpoint on your internal Virtual Network. How should you connect the web app?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Enable Regional Virtual Network Integration on the web app into a dedicated delegated subnet.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Create an NSG rule on the web app allowing outbound port 1433.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Deploy an Azure Load Balancer with public IP.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Assign a public IP address directly to the App Service plan.",
+        "correct": false
+      }
+    ],
+    "explanation": "Regional VNet integration routes outbound traffic from the web app into a delegated subnet in your virtual network. This allows the app to communicate with private endpoints, internal VMs, and on-premises resources reachable via VPN/ExpressRoute.",
+    "source": "Exam Ref AZ-104, Ch. 3, pp. 207–208; MS Learn Configure App Service, Unit 7"
+  },
+  {
+    "id": "q-p05-m04-10",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "Traffic Routing between Slots (Testing in Production)",
+    "question": "You have a production web app and a staging slot with a new design. You want 15% of your live customer traffic to automatically be directed to the staging slot to conduct an A/B test. How can you accomplish this in Azure App Service?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Configure the 'Traffic %' routing rule on the Deployment Slots blade to route 15% to staging and 85% to production.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Configure Azure Front Door with priority routing.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Create a round-robin Traffic Manager profile with 15 endpoints.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Deploy a script in Cloud Shell that swaps slots every 15 minutes.",
+        "correct": false
+      }
+    ],
+    "explanation": "Azure App Service supports traffic routing (testing in production) directly on the Deployment Slots blade. You can assign a specific percentage of live user traffic (e.g. 15%) to a secondary slot without completing a full swap.",
+    "source": "Exam Ref AZ-104, Ch. 3, pp. 195–196; MS Learn Configure App Service, Unit 4"
+  },
+  {
+    "id": "q-p05-m04-11",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "App Service Logging - Retention Differences",
+    "question": "You enable Application Logging (Filesystem) on a Windows web app for real-time troubleshooting. What happens to filesystem application logging after 12 hours?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Filesystem application logging turns off automatically after 12 hours to prevent disk exhaustion.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "The entire web app is stopped automatically.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "The log files are automatically emailed to the subscription administrator.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "The logs are converted into an Azure Monitor Metric alert.",
+        "correct": false
+      }
+    ],
+    "explanation": "Application Logging (Filesystem) on Azure App Service automatically resets to 'Off' after 12 hours to prevent the local disk quota from filling up. For permanent log retention, you should configure Application Logging (Blob) or Diagnostic Settings streaming to Log Analytics.",
+    "source": "Exam Ref AZ-104, Ch. 3, p. 209; MS Learn Configure App Service, Unit 8"
+  },
+  {
+    "id": "q-p05-m04-12",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "App Service Authentication (Easy Auth)",
+    "question": "What is the primary benefit of enabling built-in App Service Authentication (Easy Auth) for an Azure Web App?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "It provides turnkey authentication (supporting Microsoft Entra ID, Google, GitHub, etc.) handled at the platform level without writing security authentication code in the application.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "It forces users to enter a shared PIN code stored in a cookie.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "It eliminates the need for SSL certificates.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "It decrypts HTTPS traffic directly in the browser.",
+        "correct": false
+      }
+    ],
+    "explanation": "Built-in App Service Authentication (Easy Auth) intercepts incoming requests at the platform layer and authenticates users via identity providers (Microsoft Entra ID, Facebook, Google, GitHub, Twitter) without requiring code modifications in the app.",
+    "source": "Exam Ref AZ-104, Ch. 3, pp. 206–207; MS Learn Configure App Service, Unit 7"
+  },
+  {
+    "id": "q-p05-m04-13",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "FTPS Enforcement",
+    "question": "To satisfy security compliance, you must block unencrypted FTP publishing access to an Azure Web App while allowing secure FTPS. What setting should you configure?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Set 'FTP state' to `FTPS Only` in the Configuration > General settings blade.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Disable the Windows Firewall on the guest OS.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Delete the publishing profile credentials.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Set Minimum TLS version to TLS 1.0.",
+        "correct": false
+      }
+    ],
+    "explanation": "Under the General Settings tab of the Configuration blade, setting 'FTP state' to `FTPS Only` rejects plain unencrypted FTP connections and requires TLS-encrypted FTPS for all file publishing transfers.",
+    "source": "Exam Ref AZ-104, Ch. 3, p. 196; MS Learn Configure App Service, Unit 5"
+  },
+  {
+    "id": "q-p05-m05-01",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "ACI vs VM & Orchestrators",
+    "question": "Under which scenario is Azure Container Instances (ACI) the most suitable architectural choice compared to Azure Kubernetes Service (AKS) or Virtual Machines?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Fast, isolated execution of simple containerized tasks, event-driven jobs, or short-lived batch processes without managing cluster infrastructure.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Complex microservice fleets requiring service mesh, dynamic canary deployments, and ingress controllers.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Workloads requiring legacy kernel-mode drivers and direct hypervisor BIOS access.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Applications requiring shared physical SAN fiber-channel storage.",
+        "correct": false
+      }
+    ],
+    "explanation": "ACI is a serverless container solution designed for isolated containers and simple container groups without managing virtual machines, clusters, or orchestrators like AKS. It excels at batch processing, CI/CD runners, and burst workloads.",
+    "source": "Exam Ref AZ-104, Ch. 3, pp. 174–175; MS Learn Configure ACI, Unit 2"
+  },
+  {
+    "id": "q-p05-m05-02",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "ACI Restart Policies - Batch Workloads",
+    "question": "You deploy an Azure Container Instance that downloads a data file, processes calculations, and writes results to Azure Storage. When the process finishes with exit code 0, you do NOT want the container to execute again. Which restart policy must you configure?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "`Never`",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "`Always`",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "`OnFailure`",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "`Continuous`",
+        "correct": false
+      }
+    ],
+    "explanation": "The `Never` restart policy runs the container once and does not restart it upon exit. If set to `Always` (the default for web apps), the container will restart immediately after completing, causing an infinite loop of redundant batch processing.",
+    "source": "Exam Ref AZ-104, Ch. 3, p. 176; MS Learn Configure ACI, Unit 4"
+  },
+  {
+    "id": "q-p05-m05-03",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "ACI Restart Policies - Fault Recovery",
+    "question": "You deploy a background processing container that should terminate permanently if it succeeds (exit code 0), but should automatically restart if an unhandled crash or exception occurs (non-zero exit code). Which restart policy should you use?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "`OnFailure`",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "`Always`",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "`Never`",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "`RestartAlways`",
+        "correct": false
+      }
+    ],
+    "explanation": "The `OnFailure` restart policy restarts container instances only when the process within the container fails (exits with a non-zero exit code). If the process terminates successfully with return code 0, it stops running.",
+    "source": "Exam Ref AZ-104, Ch. 3, p. 176; MS Learn Configure ACI, Unit 4"
+  },
+  {
+    "id": "q-p05-m05-04",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "ACI Container Groups - Shared Resources",
+    "question": "In Azure Container Instances, what resources and characteristics are shared among multiple containers inside the same Container Group?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "They share the lifecycle, local network interface (IP address, port space, `localhost`), and storage volume mounts on the same host.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "They share CPU memory addresses and kernel process ID tables directly.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "They share nothing; container groups are only administrative billing tags.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "They share a single operating system disk image.",
+        "correct": false
+      }
+    ],
+    "explanation": "A container group in ACI is equivalent to a Pod in Kubernetes. All containers within the group are scheduled on the same host machine, share a single public or private IP address and port space, communicate via `localhost`, and can share mounted volumes.",
+    "source": "Exam Ref AZ-104, Ch. 3, pp. 176–177; MS Learn Configure ACI, Unit 3"
+  },
+  {
+    "id": "q-p05-m05-05",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "ACI Secure Environment Variables",
+    "question": "You need to pass an API authentication secret to an Azure Container Instance. You want to prevent the secret from appearing in plain text when inspecting the container definition via the Azure portal or `az container show`. How should you define this variable?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Use a secure environment variable (`secureValue`) in the container group deployment specification.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Pass it as a regular command-line argument in the Docker `ENTRYPOINT`.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Hardcode the secret inside the Dockerfile image layers.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Place the secret in the container's public DNS name label.",
+        "correct": false
+      }
+    ],
+    "explanation": "Azure Container Instances supports secure values for environment variables (`secureValue`). Secure values are masked in the Azure portal and API output (showing `null` or asterisks), ensuring credentials and secrets are not visible in plain text.",
+    "source": "Exam Ref AZ-104, Ch. 3, pp. 177–178; MS Learn Configure ACI, Unit 4"
+  },
+  {
+    "id": "q-p05-m05-06",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "ACI Storage Volume Mounts",
+    "question": "Which Azure Storage service can be directly mounted as a persistent volume inside an Azure Container Instance container group?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Azure Files file share",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Azure Blob Storage container",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Azure Table Storage",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Azure Data Lake Storage Gen2",
+        "correct": false
+      }
+    ],
+    "explanation": "Azure Container Instances natively supports mounting an Azure Files share as a persistent volume using SMB. Blob storage, Queue storage, and Table storage cannot be natively mounted as POSIX file system volumes in ACI without third-party tools.",
+    "source": "Exam Ref AZ-104, Ch. 3, p. 178; MS Learn Configure ACI, Unit 5"
+  },
+  {
+    "id": "q-p05-m05-07",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "ACI Virtual Network Deployment",
+    "question": "You plan to deploy an Azure Container Instance into an Azure Virtual Network so it can communicate with private backend services. What is a requirement for the subnet hosting the container group?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "The subnet must be delegated to `Microsoft.ContainerInstance/containerGroups` and contain no other resource types.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "The subnet must be named `AzureContainerSubnet` with at least a `/24` prefix.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "The subnet must have an Azure Firewall public IP assigned to it.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "The subnet must have BGP route propagation disabled.",
+        "correct": false
+      }
+    ],
+    "explanation": "Deploying container groups into a VNet requires a dedicated subnet delegated exclusively to the `Microsoft.ContainerInstance/containerGroups` resource provider. The subnet cannot contain other resources such as VMs or load balancers.",
+    "source": "Exam Ref AZ-104, Ch. 3, pp. 178–179; MS Learn Configure ACI, Unit 5"
+  },
+  {
+    "id": "q-p05-m05-08",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "Azure Container Registry (ACR) - SKUs",
+    "question": "Which Azure Container Registry (ACR) pricing tier is required to enable Geo-replication across multiple Azure regions and Private Link integration?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Premium SKU",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Standard SKU",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Basic SKU",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Developer SKU",
+        "correct": false
+      }
+    ],
+    "explanation": "The Premium SKU of Azure Container Registry provides advanced enterprise capabilities including multi-region Geo-replication, Private Link endpoints, Customer-Managed Keys (CMK), and Content Trust (Docker Notary signing).",
+    "source": "Exam Ref AZ-104, Ch. 3, pp. 169–171; MS Learn Configure ACI, Unit 2"
+  },
+  {
+    "id": "q-p05-m05-09",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "ACR Authentication - Best Practices",
+    "question": "When deploying production workloads from Azure Container Registry to ACI or AKS, which authentication method is recommended by Microsoft rather than using the admin user credentials?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "A Microsoft Entra Managed Identity or Service Principal assigned the `AcrPull` role",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "The storage account Shared Key of the ACR backing store",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Embedding username and password in the Docker build args",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Anonymous public read access",
+        "correct": false
+      }
+    ],
+    "explanation": "For automated production deployments, Microsoft recommends authenticating with a Microsoft Entra Managed Identity or Service Principal assigned the built-in `AcrPull` RBAC role. The individual admin user account is intended only for initial local dev testing.",
+    "source": "Exam Ref AZ-104, Ch. 3, pp. 172–174; MS Learn Configure ACI, Unit 2"
+  },
+  {
+    "id": "q-p05-m05-10",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "ACI DNS Name Label",
+    "question": "You deploy an Azure Container Instance with a public IP and configure the DNS name label as `myapi`. Assuming the container is in the `eastus` region, what is its fully qualified domain name (FQDN)?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "`myapi.eastus.azurecontainer.io`",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "`myapi.azurewebsites.net`",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "`myapi.cloudapp.azure.com`",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "`myapi.blob.core.windows.net`",
+        "correct": false
+      }
+    ],
+    "explanation": "Public Azure Container Instances with a DNS name label follow the default FQDN syntax: `<dns-name-label>.<region>.azurecontainer.io`. In this scenario, it is `myapi.eastus.azurecontainer.io`.",
+    "source": "Exam Ref AZ-104, Ch. 3, p. 175; MS Learn Configure ACI, Unit 3"
+  },
+  {
+    "id": "q-p05-m05-11",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "ACI Logs & Troubleshooting",
+    "question": "An Azure Container Instance fails to start up and exits unexpectedly. Which Azure CLI command allows you to view the standard output (`stdout`) and standard error (`stderr`) logs emitted by the container?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "`az container logs --resource-group <rg> --name <container-group-name>`",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "`az monitor log-analytics query --table ContainerLog`",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "`az vm boot-diagnostics get-boot-log`",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "`az network watcher packet-capture`",
+        "correct": false
+      }
+    ],
+    "explanation": "The `az container logs` command retrieves the console output (`stdout` and `stderr`) generated by the container process, allowing administrators to diagnose application crashes or syntax errors during startup.",
+    "source": "Exam Ref AZ-104, Ch. 3, p. 178; MS Learn Configure ACI, Unit 6"
+  },
+  {
+    "id": "q-p05-m05-12",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "ACR Content Trust",
+    "question": "What is the primary function of ACR Content Trust (available in the Premium SKU)?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "It enables digital signing and cryptographic verification of container image tags using Docker Notary, preventing untrusted or modified images from running.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "It scans images for known CVE software vulnerabilities upon push.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "It restricts image downloads to specific client IP addresses.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "It automatically builds container images from GitHub commits.",
+        "correct": false
+      }
+    ],
+    "explanation": "ACR Content Trust integrates Docker Notary to enable digital signatures for container images. Publishers sign images with cryptographic keys, and consumers verify that the image originates from a trusted publisher and was not tampered with.",
+    "source": "Exam Ref AZ-104, Ch. 3, p. 171; MS Learn Configure ACI, Unit 2"
+  },
+  {
+    "id": "q-p05-m01-16",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "VM Security - Encryption at Host",
+    "question": "You need to encrypt the temporary disk, ephemeral OS disk, and memory caches of an Azure Virtual Machine end-to-end at rest on the physical hypervisor host without consuming CPU cycles inside the guest operating system. Which feature should you enable?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Encryption at Host",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Azure Disk Encryption with BitLocker",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Server-Side Encryption with Customer-Managed Keys",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Windows EFS file encryption",
+        "correct": false
+      }
+    ],
+    "explanation": "Encryption at Host performs hardware encryption directly on the Azure physical host server hosting the VM. Data on temporary disks, OS disk caches, and data disk caches is encrypted at rest before flowing over storage networks to Azure Storage, with zero overhead on the VM's CPU.",
+    "source": "Exam Ref AZ-104, Ch. 3, p. 159; MS Learn Intro to Azure Virtual Machines, Unit 4"
+  },
+  {
+    "id": "q-p05-m01-17",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "Virtual Machines - Cross-Region Move with Resource Mover",
+    "question": "You need to move an existing production Azure Virtual Machine and its dependent networking resources from `East US` to `West US 2`. Which dedicated Azure service orchestrates and automates this cross-region relocation?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Azure Resource Mover",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Azure Migrate",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Azure Site Recovery CLI",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Azure Data Box",
+        "correct": false
+      }
+    ],
+    "explanation": "Azure Resource Mover is the dedicated Azure service designed to orchestrate moving existing Azure resources (including VMs, virtual networks, and load balancers) across Azure regions, validating dependencies and managing replication and cleanup.",
+    "source": "Exam Ref AZ-104, Ch. 3, p. 158; MS Learn Intro to Azure Virtual Machines, Unit 3"
+  },
+  {
+    "id": "q-p05-m05-13",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "Azure Container Apps (ACA) - Core Concepts",
+    "question": "What is the primary difference between Azure Container Apps (ACA) and Azure Container Instances (ACI)?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "ACA provides a fully managed serverless microservice application platform built on AKS that includes dynamic revisions, built-in ingress, and Dapr support, whereas ACI is for simple isolated container execution.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "ACI supports Linux while ACA only supports Windows Server 2016.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "ACA requires manual Kubernetes node management and patching.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "ACI is only available in US government regions.",
+        "correct": false
+      }
+    ],
+    "explanation": "Azure Container Apps (ACA) is built on top of Azure Kubernetes Service and provides a higher-level serverless platform tailored for microservices, featuring ingress routing, multiple revision splits for A/B testing, and background event-driven scaling.",
+    "source": "Exam Ref AZ-104, Ch. 3, pp. 179–181; MS Learn Configure ACI, Unit 2"
+  },
+  {
+    "id": "q-p05-m05-14",
+    "section": "05-deploy-and-manage-compute-resources",
+    "topic": "Azure Container Apps - Scaling with KEDA",
+    "question": "Which open-source scaling component is embedded inside Azure Container Apps (ACA) to enable event-driven autoscaling based on queue messages, HTTP traffic, or schedule, including scaling down to zero replicas?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "KEDA (Kubernetes Event-driven Autoscaling)",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Docker Swarm Autoscale",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Azure Automation DSC",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Apache Mesos scheduler",
+        "correct": false
+      }
+    ],
+    "explanation": "Azure Container Apps embeds KEDA (Kubernetes Event-driven Autoscaling). KEDA allows container apps to autoscale horizontally based on external metrics (such as messages in an Azure Service Bus queue, HTTP requests per second, or CPU/memory), including scaling down to 0 instances to eliminate compute costs during idle periods.",
+    "source": "Exam Ref AZ-104, Ch. 3, pp. 181–183; MS Learn Configure ACI, Unit 3"
+  }
+]

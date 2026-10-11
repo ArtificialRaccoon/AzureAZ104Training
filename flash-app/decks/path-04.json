@@ -1,0 +1,506 @@
+[
+  {
+    "id": "p04-m01-01",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Storage Accounts - Naming Rules",
+    "question": "What are the naming rules for an Azure Storage Account name?",
+    "answer": "Between 3 and 24 characters, lowercase letters and numbers only, and globally unique across all of Azure.",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 88; MS Learn Configure Storage Accounts, Unit 2"
+  },
+  {
+    "id": "p04-m01-02",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Storage Redundancy - Locally Redundant Storage (LRS)",
+    "question": "How many copies of data are maintained in Locally Redundant Storage (LRS) and where are they located?",
+    "answer": "3 copies synchronously within a single physical datacenter in the primary region (11 nines durability).",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 90; MS Learn Configure Storage Accounts, Unit 3"
+  },
+  {
+    "id": "p04-m01-03",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Storage Redundancy - Zone-Redundant Storage (ZRS)",
+    "question": "How does Zone-Redundant Storage (ZRS) distribute data within the primary region?",
+    "answer": "Synchronously across three separate Azure Availability Zones in the primary region (12 nines durability).",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 91; MS Learn Configure Storage Accounts, Unit 3"
+  },
+  {
+    "id": "p04-m01-04",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Storage Redundancy - Geo-Redundant Storage (GRS)",
+    "question": "How is data replicated in Geo-Redundant Storage (GRS)?",
+    "answer": "Synchronously 3 times using LRS in the primary region, then replicated asynchronously using LRS to the paired secondary region (16 nines durability).",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 92; MS Learn Configure Storage Accounts, Unit 3"
+  },
+  {
+    "id": "p04-m01-05",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Storage Redundancy - Geo-Zone-Redundant Storage (GZRS)",
+    "question": "What replication strategy does Geo-Zone-Redundant Storage (GZRS) use?",
+    "answer": "Replicates synchronously across 3 availability zones (ZRS) in the primary region, and asynchronously replicates using LRS to the secondary paired region.",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 92; MS Learn Configure Storage Accounts, Unit 3"
+  },
+  {
+    "id": "p04-m01-06",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Storage Redundancy - Read-Access Secondary (RA-GRS)",
+    "question": "What operational capability does RA-GRS provide that standard GRS does not?",
+    "answer": "Read-only access to replicated data at the secondary endpoint (`*-secondary.blob.core.windows.net`) without initiating a failover.",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 93; MS Learn Configure Storage Accounts, Unit 3"
+  },
+  {
+    "id": "p04-m01-07",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Storage Redundancy - Account Failover Outcome",
+    "question": "What happens to the redundancy level of a GRS storage account immediately after an administrator triggers a customer-managed account failover?",
+    "answer": "The storage account redundancy is converted to LRS in the new primary region, and geo-replication ceases.",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 94; MS Learn Configure Storage Accounts, Unit 4"
+  },
+  {
+    "id": "p04-m01-08",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Storage Redundancy - Paired Region Mapping",
+    "question": "Can you choose any arbitrary Azure region as the geo-replication target for a GRS storage account?",
+    "answer": "No, Azure automatically pairs designated regions (e.g., East US is paired with West US).",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 92"
+  },
+  {
+    "id": "p04-m01-09",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Storage Accounts - Standard vs Premium Performance",
+    "question": "What backing storage hardware differentiates Standard storage accounts from Premium storage accounts?",
+    "answer": "Standard accounts are backed by magnetic hard disk drives (HDD); Premium accounts are backed by solid-state drives (SSD).",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 89; MS Learn Configure Storage Accounts, Unit 2"
+  },
+  {
+    "id": "p04-m01-10",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Storage Accounts - Supported Data Services",
+    "question": "Name the four core data services provided by a General-purpose v2 Azure Storage account.",
+    "answer": "Blob Storage, Azure Files, Queue Storage, and Table Storage.",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 89; MS Learn Configure Storage Accounts, Unit 2"
+  },
+  {
+    "id": "p04-m01-11",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Storage Accounts - Object Replication Feature",
+    "question": "What is Azure Storage Object Replication?",
+    "answer": "Asynchronous block-blob copying from a container in one storage account to a container in another account in any region.",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 95; MS Learn Configure Storage Accounts, Unit 5"
+  },
+  {
+    "id": "p04-m01-12",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Storage Accounts - Object Replication Prerequisites",
+    "question": "Which two blob features must be enabled on both source and destination accounts to use Object Replication?",
+    "answer": "Blob versioning and Change feed.",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 96"
+  },
+  {
+    "id": "p04-m01-13",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Storage Accounts - Default Access Tier Setting",
+    "question": "What are the two options for the default access tier of a General-purpose v2 storage account?",
+    "answer": "Hot and Cool.",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 97; MS Learn Configure Storage Accounts, Unit 2"
+  },
+  {
+    "id": "p04-m01-14",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Storage Accounts - Data Lake Storage Gen2 Feature",
+    "question": "Which setting in a General-purpose v2 storage account enables Azure Data Lake Storage Gen2 hierarchical namespace?",
+    "answer": "'Enable hierarchical namespace'.",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 89; MS Learn Configure Storage Accounts, Unit 2"
+  },
+  {
+    "id": "p04-m01-15",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Storage Accounts - Conversion Between LRS and ZRS",
+    "question": "Can an existing LRS storage account be converted to ZRS in regions supporting Availability Zones?",
+    "answer": "Yes, either through customer-initiated live migration or manual data copy.",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 94"
+  },
+  {
+    "id": "p04-m02-01",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Blob Storage - Blob Types",
+    "question": "What are the three types of blobs supported in Azure Blob Storage?",
+    "answer": "Block blobs (text/binary data), Append blobs (logging/stream writes), and Page blobs (random read/write for VM disks).",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 104; MS Learn Configure Blob Storage, Unit 2"
+  },
+  {
+    "id": "p04-m02-02",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Blob Storage - Four Access Tiers",
+    "question": "Name the four access tiers available for Azure Blob Storage.",
+    "answer": "Hot, Cool, Cold, and Archive.",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 107; MS Learn Configure Blob Storage, Unit 3"
+  },
+  {
+    "id": "p04-m02-03",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Blob Storage - Hot vs Cool Cost Trade-off",
+    "question": "How do the storage costs and data access costs compare between Hot tier and Cool tier?",
+    "answer": "Hot tier has higher storage cost but lowest access cost; Cool tier has lower storage cost but higher access/transaction cost.",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 108; MS Learn Configure Blob Storage, Unit 3"
+  },
+  {
+    "id": "p04-m02-04",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Blob Storage - Minimum Retention Days by Tier",
+    "question": "What are the minimum retention periods for Cool, Cold, and Archive tiers before early deletion fees apply?",
+    "answer": "Cool: 30 days; Cold: 90 days; Archive: 180 days.",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 108; MS Learn Configure Blob Storage, Unit 3"
+  },
+  {
+    "id": "p04-m02-05",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Blob Storage - Archive Tier Offline Status",
+    "question": "Can client applications read or download a blob stored in the Archive tier directly?",
+    "answer": "No, Archive is an offline tier; blobs must first be rehydrated to Hot or Cool tier before reading.",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 109; MS Learn Configure Blob Storage, Unit 4"
+  },
+  {
+    "id": "p04-m02-06",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Blob Storage - Rehydration Priority Options",
+    "question": "What are the two priority options when rehydrating an archived blob, and what are their typical completion times?",
+    "answer": "Standard priority (up to 15 hours) and High priority (under 1 hour for blobs < 10 GB).",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 110; MS Learn Configure Blob Storage, Unit 4"
+  },
+  {
+    "id": "p04-m02-07",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Blob Storage - Lifecycle Management Action Types",
+    "question": "What automated actions can an Azure Blob Lifecycle Management rule perform based on blob age?",
+    "answer": "Transition to Cool tier, transition to Cold tier, transition to Archive tier, and delete the blob.",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 111; MS Learn Configure Blob Storage, Unit 5"
+  },
+  {
+    "id": "p04-m02-08",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Blob Storage - Blob Soft Delete Retention Range",
+    "question": "What is the configurable retention range for Blob Soft Delete?",
+    "answer": "Between 1 and 365 days (default is 7 days if enabled).",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 113; MS Learn Configure Blob Storage, Unit 6"
+  },
+  {
+    "id": "p04-m02-09",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Blob Storage - Blob Versioning Mechanism",
+    "question": "What does Blob Versioning do when a blob is modified or overwritten?",
+    "answer": "It automatically creates an immutable previous version timestamp while updating the current base blob.",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 114; MS Learn Configure Blob Storage, Unit 6"
+  },
+  {
+    "id": "p04-m02-10",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Blob Storage - Immutable Storage Types",
+    "question": "What are the two types of immutable policies supported for WORM (Write Once, Read Many) blob compliance?",
+    "answer": "Time-based retention policies and Legal holds.",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 115; MS Learn Configure Blob Storage, Unit 6"
+  },
+  {
+    "id": "p04-m02-11",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Blob Storage - Legal Hold Removal",
+    "question": "How long does a Legal Hold protect blobs from deletion or modification?",
+    "answer": "Indefinitely until an authorized administrator explicitly removes the legal hold tag.",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 116"
+  },
+  {
+    "id": "p04-m02-12",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Blob Storage - Container Public Access Levels",
+    "question": "What are the three anonymous public read access levels available for a blob container?",
+    "answer": "Private (no anonymous access), Blob (anonymous read for blobs only), and Container (anonymous read for entire container and blob listings).",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 106; MS Learn Configure Blob Storage, Unit 2"
+  },
+  {
+    "id": "p04-m02-13",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Blob Storage - Disable Public Access Toggle",
+    "question": "What storage account setting blocks all anonymous public read access regardless of container-level permissions?",
+    "answer": "'Allow Blob anonymous access' set to Disabled.",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 106"
+  },
+  {
+    "id": "p04-m02-14",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Blob Storage - Change Feed Purpose",
+    "question": "What does the Azure Blob Storage Change Feed provide?",
+    "answer": "An ordered, read-only, durable log of all create, update, and delete events that occur in blob containers.",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 115"
+  },
+  {
+    "id": "p04-m02-15",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Blob Storage - Snapshot vs Version",
+    "question": "How does an Azure Blob Snapshot differ from a Blob Version?",
+    "answer": "A snapshot is a manual point-in-time read-only copy, while a version is automatically created by Azure on every blob write operation.",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 114"
+  },
+  {
+    "id": "p04-m03-01",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Storage Security - Shared Key Zero Downtime Rotation",
+    "question": "How do you rotate storage account access keys without application downtime?",
+    "answer": "Update applications to use `key2`, regenerate `key1`, update applications to use `key1`, then regenerate `key2`.",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 118; MS Learn Configure Storage Security, Unit 2"
+  },
+  {
+    "id": "p04-m03-02",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Storage Security - Shared Access Signature (SAS) Types",
+    "question": "What are the three types of Shared Access Signatures (SAS) supported in Azure Storage?",
+    "answer": "User Delegation SAS, Service SAS, and Account SAS.",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 120; MS Learn Configure Storage Security, Unit 3"
+  },
+  {
+    "id": "p04-m03-03",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Storage Security - User Delegation SAS Security Advantage",
+    "question": "Why is a User Delegation SAS more secure than a Service SAS or Account SAS?",
+    "answer": "It is signed with Microsoft Entra ID credentials rather than the root storage account key, eliminating root key exposure.",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 121; MS Learn Configure Storage Security, Unit 3"
+  },
+  {
+    "id": "p04-m03-04",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Storage Security - Stored Access Policy Purpose",
+    "question": "What administrative control does a Stored Access Policy provide over a Service SAS?",
+    "answer": "It allows modifying the permissions, start/expiry time, or immediately revoking the SAS without changing the storage account key.",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 122; MS Learn Configure Storage Security, Unit 3"
+  },
+  {
+    "id": "p04-m03-05",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Storage Security - Stored Access Policy Limit",
+    "question": "What is the maximum number of Stored Access Policies that can be defined on a single container, share, table, or queue?",
+    "answer": "Up to 5 stored access policies.",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 123"
+  },
+  {
+    "id": "p04-m03-06",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Storage Security - Customer-Managed Keys (CMK) Location",
+    "question": "Where are Customer-Managed Keys stored when configuring double encryption at rest for Azure Storage?",
+    "answer": "In Azure Key Vault (or Azure Key Vault Managed HSM).",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 125; MS Learn Configure Storage Security, Unit 4"
+  },
+  {
+    "id": "p04-m03-07",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Storage Security - Key Vault Prerequisites for CMK",
+    "question": "Which two Key Vault security features must be enabled before using it for storage customer-managed keys?",
+    "answer": "Soft Delete and Purge Protection.",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 125; MS Learn Configure Storage Security, Unit 4"
+  },
+  {
+    "id": "p04-m03-08",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Storage Security - Storage Firewall Default Rule",
+    "question": "When storage firewall 'Selected networks' is enabled, what happens to requests from IP addresses not in the allowlist?",
+    "answer": "They are denied with an HTTP 403 Forbidden error.",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 127; MS Learn Configure Storage Security, Unit 5"
+  },
+  {
+    "id": "p04-m03-09",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Storage Security - Trusted Microsoft Services Bypass",
+    "question": "What setting allows Azure Backup, Azure Monitor, and Azure Site Recovery to reach a firewalled storage account?",
+    "answer": "'Allow Azure services on the trusted services list to access this storage account'.",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 128; MS Learn Configure Storage Security, Unit 5"
+  },
+  {
+    "id": "p04-m03-10",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Storage Security - Minimum TLS Enforcement",
+    "question": "What minimum version of Transport Layer Security (TLS) should be configured on Azure Storage accounts for modern compliance?",
+    "answer": "TLS 1.2 (or TLS 1.3).",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 126; MS Learn Configure Storage Security, Unit 2"
+  },
+  {
+    "id": "p04-m03-11",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Storage Security - Secure Transfer Required",
+    "question": "What does the 'Secure transfer required' setting enforce on an Azure Storage account?",
+    "answer": "It rejects unencrypted HTTP requests and enforces HTTPS for all REST API calls and SMB connections.",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 126; MS Learn Configure Storage Security, Unit 2"
+  },
+  {
+    "id": "p04-m03-12",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Storage Security - Disable Shared Key Access Setting",
+    "question": "How can an administrator enforce that all blob access requests must authenticate exclusively with Microsoft Entra ID?",
+    "answer": "By setting 'Allow storage account key access' to Disabled (`allowSharedKeyAccess = false`).",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 119; MS Learn Configure Storage Security, Unit 2"
+  },
+  {
+    "id": "p04-m03-13",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Storage Security - Azure RBAC Data Plane Roles",
+    "question": "Name two built-in Azure RBAC roles that grant data plane read/write access to Azure Blob Storage.",
+    "answer": "`Storage Blob Data Contributor` and `Storage Blob Data Owner` (or `Storage Blob Data Reader`).",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 124; MS Learn Configure Storage Security, Unit 3"
+  },
+  {
+    "id": "p04-m03-14",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Storage Security - SAS IP Address Restriction",
+    "question": "Can a Shared Access Signature (SAS) token be restricted to accept requests only from a specific client IP address or range?",
+    "answer": "Yes, by configuring the `IP address or range` parameter during SAS generation.",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 121"
+  },
+  {
+    "id": "p04-m03-15",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Storage Security - HTTPS Only Protocol Restriction in SAS",
+    "question": "Which protocol setting should always be selected when generating an Azure Storage SAS token?",
+    "answer": "`HTTPS only`.",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 122"
+  },
+  {
+    "id": "p04-m04-01",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Azure Files - Standard vs Premium Protocols",
+    "question": "Which network file-sharing protocols are supported by Azure Files on Standard vs Premium file shares?",
+    "answer": "Standard supports SMB (2.1 and 3.0); Premium supports both SMB and NFS 4.1.",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 98; MS Learn Configure Azure Files, Unit 2"
+  },
+  {
+    "id": "p04-m04-02",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Azure Files - SMB Outbound Port Requirement",
+    "question": "Which TCP network port must be open outbound for clients to mount an Azure Files share via SMB 3.0?",
+    "answer": "TCP Port 445.",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 99; MS Learn Configure Azure Files, Unit 3"
+  },
+  {
+    "id": "p04-m04-03",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Azure Files - Identity-Based Authentication Options",
+    "question": "What three identity sources can authenticate SMB access to Azure file shares?",
+    "answer": "On-premises Active Directory Domain Services (AD DS), Microsoft Entra Domain Services, and Microsoft Entra Kerberos for hybrid identities.",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 100; MS Learn Configure Azure Files, Unit 4"
+  },
+  {
+    "id": "p04-m04-04",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Azure Files - Share-Level RBAC Roles",
+    "question": "Name the three built-in Azure RBAC roles used to assign share-level permissions on Azure file shares.",
+    "answer": "`Storage File Data SMB Share Reader`, `Storage File Data SMB Share Contributor`, and `Storage File Data SMB Share Elevated Contributor`.",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 101; MS Learn Configure Azure Files, Unit 4"
+  },
+  {
+    "id": "p04-m04-05",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Azure File Sync - Core Components",
+    "question": "What are the four primary architectural components of Azure File Sync?",
+    "answer": "Storage Sync Service, Registered Server, Sync Group, and Endpoints (Cloud Endpoint and Server Endpoint).",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 102; MS Learn Configure Azure Files, Unit 5"
+  },
+  {
+    "id": "p04-m04-06",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Azure File Sync - Cloud Endpoint Definition",
+    "question": "What is a Cloud Endpoint in an Azure File Sync group?",
+    "answer": "An Azure file share that acts as the centralized master storage location in the cloud.",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 102; MS Learn Configure Azure Files, Unit 5"
+  },
+  {
+    "id": "p04-m04-07",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Azure File Sync - Server Endpoint Definition",
+    "question": "What is a Server Endpoint in Azure File Sync?",
+    "answer": "A specific folder path on a registered Windows Server that synchronizes with the Cloud Endpoint.",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 102; MS Learn Configure Azure Files, Unit 5"
+  },
+  {
+    "id": "p04-m04-08",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Azure File Sync - Cloud Tiering Function",
+    "question": "What is the purpose of Cloud Tiering in Azure File Sync?",
+    "answer": "It caches frequently accessed files locally on Windows Server while archiving infrequently accessed files to Azure Files as pointer stubs.",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 103; MS Learn Configure Azure Files, Unit 6"
+  },
+  {
+    "id": "p04-m04-09",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Azure File Sync - Cloud Tiering Policies",
+    "question": "Which two policies control when files are tiered in Azure File Sync?",
+    "answer": "The Volume Free Space Policy (maintains a % of free disk space) and the Date Policy (tiers files not accessed within N days).",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 103; MS Learn Configure Azure Files, Unit 6"
+  },
+  {
+    "id": "p04-m04-10",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Azure File Sync - System Volume Restriction",
+    "question": "Can a Server Endpoint in Azure File Sync be configured on the Windows Server system volume root (`C:\\`)?",
+    "answer": "No, Server Endpoints cannot be located on the root of a volume or system directory.",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 102"
+  },
+  {
+    "id": "p04-m04-11",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Azure Files - File Share Soft Delete Window",
+    "question": "What is the default and maximum retention duration for Azure File Share soft delete?",
+    "answer": "Default is 7 days; can be configured up to 365 days.",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 104; MS Learn Configure Azure Files, Unit 2"
+  },
+  {
+    "id": "p04-m04-12",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Azure Files - Snapshot Mechanism",
+    "question": "What is an Azure File Share Snapshot?",
+    "answer": "A read-only, point-in-time copy of an Azure file share that charges only for incremental block differences.",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 104; MS Learn Configure Azure Files, Unit 3"
+  },
+  {
+    "id": "p04-m04-13",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Azure Files - Share Capacity Maximum Limit",
+    "question": "What is the maximum capacity of a large Azure file share?",
+    "answer": "Up to 100 TiB (when Large File Shares is enabled).",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 98; MS Learn Configure Azure Files, Unit 2"
+  },
+  {
+    "id": "p04-m04-14",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Azure Files - Storage File Data SMB Share Elevated Contributor",
+    "question": "Which role is specifically required to set Windows NTFS Access Control Lists (ACLs) on an Azure file share?",
+    "answer": "`Storage File Data SMB Share Elevated Contributor`.",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 101"
+  },
+  {
+    "id": "p04-m04-15",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Azure File Sync - OS Compatibility",
+    "question": "Which operating system family supports the Azure File Sync agent?",
+    "answer": "Windows Server (2012 R2, 2016, 2019, 2022, 2025).",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 102"
+  },
+  {
+    "id": "p04-m01-16",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Data Transfer - AzCopy Command Purpose",
+    "question": "What is the primary command-line tool optimized for scriptable, high-speed, resumable blob and file data transfers to Azure Storage?",
+    "answer": "AzCopy (`azcopy copy` / `azcopy sync`).",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 95; MS Learn Configure Storage Accounts, Unit 6"
+  },
+  {
+    "id": "p04-m02-16",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Blob Storage - Container Soft Delete Scope",
+    "question": "What does Container Soft Delete protect in Azure Blob Storage?",
+    "answer": "It protects entire deleted containers (and all contained blobs) from permanent deletion for a retention period of 1 to 365 days.",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 116; MS Learn Configure Blob Storage, Unit 6"
+  },
+  {
+    "id": "p04-m03-16",
+    "section": "04-implement-and-manage-storage",
+    "topic": "Storage Security - Infrastructure Encryption",
+    "question": "What is 'Infrastructure Encryption' in Azure Storage and when must it be enabled?",
+    "answer": "It provides 256-bit AES double encryption at both service and infrastructure layers; it can only be enabled during storage account creation.",
+    "source": "Exam Ref AZ-104, Ch. 2, p. 87; MS Learn Configure Storage Security, Unit 5"
+  }
+]

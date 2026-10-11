@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AZ-104 FlashMaster - Interactive Study Deck</title>
+  <meta name="description" content="Offline spaced-repetition flashcard study application for the AZ-104 Microsoft Azure Administrator certification.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Top Header -->
+  <header class="app-header">
+    <div class="header-container">
+      <a href="#" class="brand" id="brand-link">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+          </svg>
+        </div>
+        <span class="brand-title">AZ-104 FlashMaster</span>
+        <span class="brand-badge">Study Deck</span>
+      </a>
+
+      <div class="header-actions">
+        <button class="btn btn-glass" id="btn-open-profile" aria-label="Open Learner Profile">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+          </svg>
+          Learner Profile & Stats
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Area -->
+  <main class="main-container">
+
+    <!-- 1. SETUP / DECK SELECTION SCREEN -->
+    <section class="glass-panel setup-screen" id="setup-screen">
+      
+      <div class="section-header">
+        <h2>AZ-104 Certification Deck Setup</h2>
+        <p>Configure your study session by choosing sections, card limits, and focus mode.</p>
+      </div>
+
+      <!-- Learner Snapshot Bar -->
+      <div class="learner-snapshot">
+        <div class="stat-box">
+          <div class="stat-icon blue">⚡</div>
+          <div class="stat-content">
+            <div class="stat-val" id="stat-total-reviews">0</div>
+            <div class="stat-label">Total Reviews</div>
+          </div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-icon green">🎯</div>
+          <div class="stat-content">
+            <div class="stat-val" id="stat-mastered">0</div>
+            <div class="stat-label">Mastered Cards</div>
+          </div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-icon orange">⚠️</div>
+          <div class="stat-content">
+            <div class="stat-val" id="stat-trouble">0</div>
+            <div class="stat-label">Needs Review</div>
+          </div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-icon red">🚩</div>
+          <div class="stat-content">
+            <div class="stat-val" id="stat-flagged">0</div>
+            <div class="stat-label">Inaccurate Flags</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mode & Filter Selector -->
+      <div class="form-group">
+        <label for="study-filter-mode" class="form-label">
+          <span>Study Focus Mode</span>
+        </label>
+        <select id="study-filter-mode" class="btn btn-glass" style="width: 100%; text-align: left; padding: 0.75rem 1rem; font-size: 0.95rem;">
+          <option value="all">Standard Review (All Cards in Selected Sections)</option>
+          <option value="trouble">Targeted Drill (Only Cards Marked as Trouble)</option>
+          <option value="unstudied">New Material (Cards Never Studied)</option>
+        </select>
+      </div>
+
+      <!-- Card Count Selection -->
+      <div class="form-group">
+        <label class="form-label">
+          <span>Session Card Limit</span>
+          <span class="count-badge">Randomized Draw</span>
+        </label>
+        <div class="pill-grid">
+          <div class="pill-option">
+            <input type="radio" id="count-5" name="card-count" value="5">
+            <label for="count-5">5 Cards</label>
+          </div>
+          <div class="pill-option">
+            <input type="radio" id="count-10" name="card-count" value="10" checked>
+            <label for="count-10">10 Cards</label>
+          </div>
+          <div class="pill-option">
+            <input type="radio" id="count-20" name="card-count" value="20">
+            <label for="count-20">20 Cards</label>
+          </div>
+          <div class="pill-option">
+            <input type="radio" id="count-50" name="card-count" value="50">
+            <label for="count-50">50 Cards</label>
+          </div>
+          <div class="pill-option">
+            <input type="radio" id="count-all" name="card-count" value="all">
+            <label for="count-all">All Available</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Learning Path / Section Selection -->
+      <div class="form-group">
+        <div class="form-label">
+          <span>Select Learning Paths & Sections</span>
+          <div class="section-controls">
+            <button class="btn btn-glass btn-sm" id="btn-select-all" type="button">Select All</button>
+            <button class="btn btn-glass btn-sm" id="btn-deselect-all" type="button">Clear</button>
+          </div>
+        </div>
+        <div class="section-list" id="section-checkbox-list">
+          <!-- Populated dynamically by app.js -->
+        </div>
+      </div>
+
+      <!-- Start Button CTA -->
+      <button class="btn btn-primary" id="btn-start-study" style="padding: 1rem; font-size: 1.05rem; margin-top: 0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M8 5v14l11-7z"/>
+        </svg>
+        Begin Study Session
+      </button>
+
+    </section>
+
+
+    <!-- 2. ACTIVE STUDY SCREEN -->
+    <section class="study-screen" id="study-screen" style="display: none;">
+      
+      <!-- Top Progress Bar -->
+      <div class="study-top-bar">
+        <button class="btn btn-glass btn-sm" id="btn-quit-study">
+          ✕ End Session
+        </button>
+        <div class="progress-container">
+          <div class="progress-header">
+            <span id="card-counter-label">Card 1 of 10</span>
+            <span style="font-size: 0.75rem;">Space to Flip • Esc to Exit</span>
+          </div>
+          <div class="progress-bar-track">
+            <div class="progress-bar-fill" id="progress-bar-fill"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3D Interactive Flashcard Scene -->
+      <div class="flashcard-scene" id="flashcard-scene">
+        <div class="flashcard-inner" id="flashcard-inner">
+          
+          <!-- Card Front (Question) -->
+          <div class="flashcard-face card-front">
+            <div class="card-meta-bar">
+              <span class="card-topic-tag" id="card-topic-tag">Path • Module</span>
+              <div class="card-flag-indicators" id="card-indicators"></div>
+            </div>
+            <div class="card-main-content">
+              <span class="card-prompt-type" id="card-prompt-type">Question Prompt</span>
+              <div class="card-text" id="card-question-text">Loading question...</div>
+            </div>
+            <div class="card-footer-hint">
+              <span>💡 Formulate your answer mentally</span>
+              <span style="color: var(--azure-cyan);">Click or press Spacebar to flip ➔</span>
+            </div>
+          </div>
+
+          <!-- Card Back (Answer) -->
+          <div class="flashcard-face card-back">
+            <div class="card-meta-bar">
+              <span class="card-topic-tag" style="background: rgba(16, 124, 65, 0.2); color: #34d399; border-color: rgba(16, 124, 65, 0.4);">
+                Answer & Key Concept
+              </span>
+              <span style="font-size: 0.75rem; color: var(--text-muted);">Active Recall</span>
+            </div>
+            <div class="card-main-content">
+              <div class="card-text" id="card-answer-text" style="color: #e2e8f0;">Loading answer...</div>
+              <div class="card-source-citation" id="card-source-text"></div>
+            </div>
+            <div class="card-footer-hint">
+              <span>Rate your recall difficulty below</span>
+              <span style="color: #34d399;">Keys: 1=Hard • 2=Good • 3=Easy</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Card Quick Action Bar -->
+      <div class="card-quick-actions">
+        <button class="btn btn-glass btn-sm" id="btn-flip-card">
+          🔄 Flip Card (Space)
+        </button>
+        <button class="btn btn-glass btn-sm" id="btn-mark-trouble" title="Mark card as trouble to review more frequently">
+          ⚠️ Needs Review (T)
+        </button>
+        <button class="btn btn-glass btn-sm" id="btn-flag-inaccurate" title="Flag this card if you suspect inaccuracy or outdated info">
+          🚩 Flag Inaccurate (F)
+        </button>
+      </div>
+
+      <!-- Rating Controls (Appears on flip) -->
+      <div class="rating-controls" id="rating-controls">
+        <button class="btn btn-rate hard" id="btn-rate-hard">
+          <span>Struggled</span>
+          <small>Mark for Review (1)</small>
+        </button>
+        <button class="btn btn-rate good" id="btn-rate-good">
+          <span>Recalled</span>
+          <small>Standard Recall (2)</small>
+        </button>
+        <button class="btn btn-rate easy" id="btn-rate-easy">
+          <span>Mastered</span>
+          <small>Instant Recall (3)</small>
+        </button>
+      </div>
+
+    </section>
+
+
+    <!-- 3. SESSION SUMMARY SCREEN -->
+    <section class="glass-panel" id="summary-screen" style="display: none; flex-direction: column; gap: 1.5rem;">
+      <div class="section-header">
+        <h2>🎉 Session Completed!</h2>
+        <p>Your study results have been recorded to your local Learner Profile.</p>
+      </div>
+
+      <div class="summary-grid">
+        <div class="stat-box">
+          <div class="stat-icon blue">📖</div>
+          <div class="stat-content">
+            <div class="stat-val" id="summary-reviewed">0</div>
+            <div class="stat-label">Reviewed</div>
+          </div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-icon green">⭐</div>
+          <div class="stat-content">
+            <div class="stat-val" id="summary-mastered">0</div>
+            <div class="stat-label">Mastered (Easy)</div>
+          </div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-icon orange">⚠️</div>
+          <div class="stat-content">
+            <div class="stat-val" id="summary-trouble">0</div>
+            <div class="stat-label">Struggled (Hard)</div>
+          </div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-icon red">🚩</div>
+          <div class="stat-content">
+            <div class="stat-val" id="summary-flagged">0</div>
+            <div class="stat-label">Flagged</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Topic Performance Breakdown -->
+      <div class="form-group">
+        <label class="form-label">Topic Performance Breakdown</label>
+        <div id="summary-topic-breakdown" style="display: flex; flex-direction: column; gap: 0.5rem;"></div>
+      </div>
+
+      <!-- Summary Action Buttons -->
+      <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 0.5rem;">
+        <button class="btn btn-warning" id="btn-study-trouble-again" style="flex: 1;">
+          ⚠️ Drill Struggled Cards Now
+        </button>
+        <button class="btn btn-primary" id="btn-return-setup" style="flex: 1;">
+          🏠 Return to Deck Setup
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+
+  <!-- MODAL 1: LEARNER PROFILE & STATS -->
+  <div class="modal-overlay" id="profile-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>📊 Learner Profile & Knowledge Tracking</h3>
+        <button class="close-btn" id="btn-close-profile">&times;</button>
+      </div>
+
+      <p style="color: var(--text-secondary); font-size: 0.9rem;">
+        Your learning progress, trouble items, and card revisions are tracked locally in your browser's persistent learner object.
+      </p>
+
+      <!-- Data Export / Import Controls -->
+      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+        <button class="btn btn-glass btn-sm" id="btn-export-profile">
+          💾 Export Learner Profile (.json)
+        </button>
+        <label class="btn btn-glass btn-sm" style="cursor: pointer;">
+          📥 Import Profile
+          <input type="file" id="input-import-profile" accept=".json" style="display: none;">
+        </label>
+        <button class="btn btn-glass btn-sm" id="btn-import-deck-trigger">
+          🗃️ Import Custom Deck (.json/.tsv)
+        </button>
+        <input type="file" id="input-import-deck" accept=".json,.tsv,.txt" style="display: none;">
+      </div>
+
+      <!-- Trouble Cards Review List -->
+      <div class="form-group">
+        <label class="form-label">
+          <span>Cards Marked for Extra Review (Trouble)</span>
+        </label>
+        <div class="trouble-list-container" id="profile-trouble-list"></div>
+      </div>
+
+      <!-- Flagged Inaccurate List -->
+      <div class="form-group">
+        <label class="form-label">
+          <span>Cards Flagged as Inaccurate / Audited</span>
+        </label>
+        <div class="trouble-list-container" id="profile-flagged-list"></div>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-subtle); padding-top: 1rem;">
+        <button class="btn btn-danger btn-sm" id="btn-reset-profile">
+          🗑️ Reset Learner Progress
+        </button>
+        <span style="font-size: 0.75rem; color: var(--text-muted);">Stored locally in localStorage</span>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- MODAL 2: FLAG INACCURATE CARD -->
+  <div class="modal-overlay" id="flag-modal">
+    <div class="modal-content" style="max-width: 500px;">
+      <div class="modal-header">
+        <h3>🚩 Flag Card as Inaccurate</h3>
+      </div>
+      <p style="color: var(--text-secondary); font-size: 0.85rem;">
+        Flagging notes that this card contains potential factual errors or needs revision.
+      </p>
+      
+      <div id="flag-card-question-preview" style="padding: 0.75rem; background: rgba(0,0,0,0.3); border-radius: 6px; font-size: 0.9rem; font-style: italic;"></div>
+
+      <div class="form-group">
+        <label for="flag-reason-input" class="form-label">Reason / Notes for Revision</label>
+        <textarea id="flag-reason-input" rows="3" class="btn btn-glass" style="width: 100%; text-align: left; padding: 0.75rem; resize: vertical;" placeholder="e.g. Obsolete SKU name, incorrect IP formula, or typo..."></textarea>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+        <button class="btn btn-glass" id="btn-cancel-flag">Cancel</button>
+        <button class="btn btn-danger" id="btn-confirm-flag">Confirm Flag</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Toast Notification Popover -->
+  <div class="toast-notice" id="toast-notice">Notice message</div>
+
+  <!-- Load Data First, Then Application Logic -->
+  <script src="cards.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

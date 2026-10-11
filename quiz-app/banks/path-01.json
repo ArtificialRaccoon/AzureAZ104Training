@@ -1,0 +1,903 @@
+[
+  {
+    "id": "q-p01-m01-01",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "Azure Cloud Shell - Storage Persistence",
+    "question": "An administrator uses Azure Cloud Shell to run PowerShell scripts. Where does Cloud Shell mount the Azure File Share that persists files across sessions?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "At the Linux directory path `/home/<user>/clouddrive`",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "At the root directory path `/clouddrive`",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "In an ephemeral directory at `/tmp/storage`",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "In a Windows drive mapped as `Z:\\`",
+        "correct": false
+      }
+    ],
+    "explanation": "Azure Cloud Shell mounts an Azure Files share to `/home/<user>/clouddrive` inside the backing Linux container. Files placed in other directories like `/tmp` are discarded upon session deallocation.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 3; MS Learn Cloud Shell Overview"
+  },
+  {
+    "id": "q-p01-m01-02",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "Azure Cloud Shell - Inactivity Timeout",
+    "question": "You leave an Azure Cloud Shell browser window open while attending a meeting. After how many minutes of inactivity will the Cloud Shell session automatically disconnect?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "20 minutes",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "10 minutes",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "30 minutes",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "60 minutes",
+        "correct": false
+      }
+    ],
+    "explanation": "Cloud Shell sessions automatically time out and disconnect after 20 minutes of inactivity. When a session terminates, the container VM is deallocated, but files saved in `clouddrive` remain preserved in Azure Files.",
+    "source": "MS Learn Intro to Cloud Shell, Unit 3; Exam Ref AZ-104, Ch. 1, p. 4"
+  },
+  {
+    "id": "q-p01-m01-03",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "Azure Cloud Shell - Backing Storage Account Type",
+    "question": "Which Azure Storage service is used to create the persistent volume backing Azure Cloud Shell?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Azure Files",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Azure Blob Storage (Hot tier)",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Azure Queue Storage",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Azure Data Lake Storage Gen2",
+        "correct": false
+      }
+    ],
+    "explanation": "Azure Cloud Shell requires an Azure Storage account backing an Azure Files file share to provide persistent storage. Blob, Table, and Queue storage are not supported for the user storage mount.",
+    "source": "MS Learn Intro to Cloud Shell, Unit 2; Exam Ref AZ-104, Ch. 1, p. 3"
+  },
+  {
+    "id": "q-p01-m01-04",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "Azure Cloud Shell - Shell Switching",
+    "question": "An administrator creates a script in Azure Cloud Shell using Bash and then switches the environment to PowerShell. What happens to the script stored in `clouddrive`?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "The script remains accessible because both Bash and PowerShell share the same persistent file share",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "The script is inaccessible because PowerShell uses an independent Windows file share",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "The script is deleted because switching environments wipes the storage account",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "The script must be exported to Azure Key Vault before switching shells",
+        "correct": false
+      }
+    ],
+    "explanation": "Both the Bash and PowerShell environments in Azure Cloud Shell execute on Linux containers and share the exact same underlying `clouddrive` Azure Files mount. Files created in one shell are immediately accessible in the other.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 4"
+  },
+  {
+    "id": "q-p01-m01-05",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "Azure Cloud Shell - Integrated Editor",
+    "question": "Which command opens the integrated Monaco-based graphical text editor in Azure Cloud Shell Classic mode?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "`code <filename>`",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "`notepad <filename>`",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "`edit <filename>`",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "`az editor open <filename>`",
+        "correct": false
+      }
+    ],
+    "explanation": "The `code` command in Cloud Shell opens the lightweight Monaco-based editor (the same engine powering Visual Studio Code). You can also click the curly braces `{}` icon in the top toolbar.",
+    "source": "MS Learn Intro to Cloud Shell, Unit 3; Exam Ref AZ-104, Ch. 1, p. 5"
+  },
+  {
+    "id": "q-p01-m01-06",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "Azure Cloud Shell - Administrative Privileges",
+    "question": "You attempt to run `sudo apt-get install` inside Azure Cloud Shell to install a custom diagnostic utility. What is the result?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "The command fails because Cloud Shell runs as a standard unprivileged user without sudo rights",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "The command succeeds but changes are lost after 20 minutes",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "The command prompts for your Microsoft Entra Global Administrator password",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "The command prompts to attach an Azure Managed Disk before executing",
+        "correct": false
+      }
+    ],
+    "explanation": "Cloud Shell containers are provisioned with standard unprivileged user accounts. Users do not have `sudo` or root permissions to install custom operating system packages at the machine level.",
+    "source": "MS Learn Intro to Cloud Shell, Unit 4"
+  },
+  {
+    "id": "q-p01-m01-07",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "Azure Cloud Shell - Direct Standalone Access",
+    "question": "You want to launch Azure Cloud Shell directly in a browser without opening the full Azure portal interface. Which URL should you navigate to?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "`https://shell.azure.com`",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "`https://portal.azure.com/cloudshell`",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "`https://cli.azure.com`",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "`https://admin.azure.com/shell`",
+        "correct": false
+      }
+    ],
+    "explanation": "`https://shell.azure.com` provides a dedicated, full-screen standalone Cloud Shell environment.",
+    "source": "MS Learn Intro to Cloud Shell, Unit 3"
+  },
+  {
+    "id": "q-p01-m01-08",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "Azure Cloud Shell - Advanced Storage Settings",
+    "question": "When configuring Azure Cloud Shell with Advanced Settings, which combination of existing resources can you explicitly designate?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Resource Group, Storage Account, and File Share",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Virtual Network, Subnet, and Network Security Group",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Log Analytics Workspace and Automation Account",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Recovery Services Vault and Backup Policy",
+        "correct": false
+      }
+    ],
+    "explanation": "The Advanced Settings dialog allows administrators to choose an existing Resource Group, Storage Account, and File Share (or specify new names) rather than accepting default auto-provisioning.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 3"
+  },
+  {
+    "id": "q-p01-m01-09",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "Azure Cloud Shell - Concurrent Instances",
+    "question": "An administrator opens five separate browser tabs to `shell.azure.com` using the same Microsoft Entra user identity. How many concurrent Cloud Shell sessions can run simultaneously?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Only one active session instance at a time per user account",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Up to five concurrent sessions",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Up to ten concurrent sessions",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Unlimited concurrent sessions",
+        "correct": false
+      }
+    ],
+    "explanation": "Cloud Shell supports only one active session at a time per user account. Opening a second session terminates or takes over the active connection.",
+    "source": "MS Learn Intro to Cloud Shell, Unit 4"
+  },
+  {
+    "id": "q-p01-m01-10",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "Azure Cloud Shell - Integrated Tooling",
+    "question": "Which of the following command-line tools is preinstalled and configured out-of-the-box in Azure Cloud Shell?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "`kubectl`, `helm`, and `terraform`",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Docker Desktop GUI engine",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Wireshark packet sniffer",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Hyper-V management tools",
+        "correct": false
+      }
+    ],
+    "explanation": "Cloud Shell includes common cloud management tools preinstalled: Azure CLI, Azure PowerShell, Git, Kubectl, Helm, Terraform, Ansible, MySQL client, and sqlcmd.",
+    "source": "MS Learn Intro to Cloud Shell, Unit 3; Exam Ref AZ-104, Ch. 1, p. 4"
+  },
+  {
+    "id": "q-p01-m01-11",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "Azure Cloud Shell - Security and Encryption",
+    "question": "What encryption standard does Microsoft apply by default to the underlying infrastructure hosting Azure Cloud Shell storage?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Double encryption at rest",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Client-side BitLocker encryption only",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "No encryption unless Customer-Managed Keys (CMK) are enabled",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "TLS tunnel encryption without storage encryption",
+        "correct": false
+      }
+    ],
+    "explanation": "Microsoft manages Cloud Shell on infrastructure compliant with double encryption at rest by default without requiring administrator action.",
+    "source": "MS Learn Intro to Cloud Shell, Unit 2"
+  },
+  {
+    "id": "q-p01-m01-12",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "Azure Cloud Shell - Long-Running Scripts",
+    "question": "You have a batch provisioning script that requires 45 minutes to execute. Why should you NOT run this script inside Azure Cloud Shell?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "The session will time out after 20 minutes of inactivity and terminate script execution",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Cloud Shell charges per-minute compute billing after 15 minutes",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Cloud Shell CPU quotas throttle execution to zero after 30 minutes",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Cloud Shell only permits read-only commands",
+        "correct": false
+      }
+    ],
+    "explanation": "Cloud Shell is designed for interactive administrative tasks. Any session idle for 20 minutes is disconnected, terminating background scripts. Long-running automation should run in Azure Automation, Azure Functions, or VM Run Commands.",
+    "source": "MS Learn Intro to Cloud Shell, Unit 4"
+  },
+  {
+    "id": "q-p01-m02-01",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "ARM Templates - Declarative Syntax",
+    "question": "What is the key difference between the declarative syntax used in ARM templates and imperative scripting in PowerShell or Bash?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Declarative syntax states what resources to deploy, while imperative scripting specifies the sequence of commands to execute",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Declarative syntax executes faster because it bypasses Azure Resource Manager",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Imperative scripting creates idempotent environments, while declarative syntax cannot",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Declarative syntax can only deploy virtual machines, while imperative scripts deploy all services",
+        "correct": false
+      }
+    ],
+    "explanation": "Declarative syntax describes the intended end-state of the infrastructure without detailing control flow or procedural commands. Imperative scripting requires writing step-by-step commands to create each resource.",
+    "source": "MS Learn Deploy Infrastructure ARM, Unit 2; Exam Ref AZ-104, Ch. 3, p. 131"
+  },
+  {
+    "id": "q-p01-m02-02",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "ARM Templates - Idempotency",
+    "question": "An administrator redeploys the same ARM template five times against the same Resource Group without modifying the template. What is the expected behavior?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "The deployment is idempotent; existing resources matching the template definition remain in the desired state without duplicates",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Five identical duplicate copies of each resource will be created",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "The deployment fails on the second attempt with a DuplicateResourceException",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "All existing resources in the subscription are stopped and deallocated",
+        "correct": false
+      }
+    ],
+    "explanation": "ARM templates are idempotent. Running the same template multiple times results in the same target configuration without creating duplicate resources or causing unintended configuration drift.",
+    "source": "MS Learn Deploy Infrastructure ARM, Unit 2; Exam Ref AZ-104, Ch. 3, p. 131"
+  },
+  {
+    "id": "q-p01-m02-03",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "ARM Templates - Complete Mode Deletion",
+    "question": "A resource group contains three virtual networks (VNet1, VNet2, VNet3). You deploy an ARM template in Complete Mode that defines only VNet1 and VNet2. What happens to VNet3?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "VNet3 is permanently deleted by Azure Resource Manager",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "VNet3 is preserved and left untouched",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "VNet3 is moved to the root management group",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "The deployment fails because VNet3 was not included in the template",
+        "correct": false
+      }
+    ],
+    "explanation": "In Complete Mode, Azure Resource Manager evaluates all existing resources in the target resource group and deletes any resource not specified in the template. In Incremental Mode, unreferenced resources remain intact.",
+    "source": "Exam Ref AZ-104, Ch. 3, p. 132"
+  },
+  {
+    "id": "q-p01-m02-04",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "ARM Templates - Default Deployment Mode",
+    "question": "What is the default deployment mode when deploying an ARM template if no mode parameter is explicitly specified?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Incremental Mode",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Complete Mode",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Validate-Only Mode",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "What-If Mode",
+        "correct": false
+      }
+    ],
+    "explanation": "Incremental Mode is always the default deployment mode in Azure Resource Manager. Existing resources not defined in the template are left untouched.",
+    "source": "Exam Ref AZ-104, Ch. 3, p. 132"
+  },
+  {
+    "id": "q-p01-m02-05",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "ARM Templates - Core JSON Sections",
+    "question": "Which ARM template section defines values that are evaluated internally to simplify complex expressions, but cannot be overridden by external deployment inputs?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "`variables`",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "`parameters`",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "`resources`",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "`outputs`",
+        "correct": false
+      }
+    ],
+    "explanation": "`variables` define internal values that simplify template syntax. Unlike `parameters`, variable values cannot be passed in from outside at deployment time.",
+    "source": "MS Learn Deploy Infrastructure ARM, Unit 4; Exam Ref AZ-104, Ch. 3, p. 131"
+  },
+  {
+    "id": "q-p01-m02-06",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "ARM Templates - uniqueString Function",
+    "question": "Why is the `uniqueString([resourceGroup().id])` expression frequently used when naming Azure Storage accounts in ARM templates?",
+    "answer": "It generates a deterministic 13-character hash unique to the resource group ID to satisfy global naming requirements.",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "It generates a deterministic 13-character hash unique to the resource group ID to satisfy global naming requirements",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "It generates a random GUID that changes on every deployment execution",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "It queries the Microsoft Entra tenant to generate an alphanumeric company code",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "It validates that the storage account name is between 3 and 24 uppercase letters",
+        "correct": false
+      }
+    ],
+    "explanation": "`uniqueString()` creates a 13-character deterministic hash based on its input parameters. When fed `resourceGroup().id`, it guarantees the same unique string within that resource group across repeated deployments.",
+    "source": "MS Learn Deploy Infrastructure ARM, Unit 4; Exam Ref AZ-104, Ch. 3, p. 133"
+  },
+  {
+    "id": "q-p01-m02-07",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "ARM Templates - Resource Dependencies",
+    "question": "You are deploying a Virtual Machine and a Virtual Network in the same ARM template. Which property ensures the Virtual Network finishes provisioning before the VM starts deployment?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "`dependsOn`",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "`runAfter`",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "`parent`",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "`condition`",
+        "correct": false
+      }
+    ],
+    "explanation": "The `dependsOn` element specifies explicit dependencies between resources. Azure Resource Manager uses this dependency graph to sequence resource creation.",
+    "source": "MS Learn Deploy Infrastructure ARM, Unit 2; Exam Ref AZ-104, Ch. 3, p. 134"
+  },
+  {
+    "id": "q-p01-m02-08",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "ARM Templates - Parallel Deployment",
+    "question": "How does Azure Resource Manager handle the deployment of multiple resources in an ARM template when no `dependsOn` relationship exists between them?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "It deploys the resources in parallel to minimize overall deployment time",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "It deploys them sequentially in the alphabetical order of their resource names",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "It deploys them sequentially in the order they appear in the JSON file",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "It halts deployment and throws a MissingDependencyError",
+        "correct": false
+      }
+    ],
+    "explanation": "When resources do not have dependency relationships, Azure Resource Manager deploys them concurrently in parallel to maximize performance.",
+    "source": "MS Learn Deploy Infrastructure ARM, Unit 2"
+  },
+  {
+    "id": "q-p01-m02-09",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "ARM Templates - What-If Operation",
+    "question": "Which Azure CLI command allows an administrator to preview which resources will be created, modified, or deleted by an ARM template without making actual changes?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "`az deployment group what-if`",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "`az deployment group validate`",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "`az resource preview`",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "`az bicep build --dry-run`",
+        "correct": false
+      }
+    ],
+    "explanation": "`az deployment group what-if` previews the changes that will occur when deploying the template (including deletions in Complete Mode). `validate` checks template syntax and quotas but does not output a resource diff.",
+    "source": "Exam Ref AZ-104, Ch. 3, p. 133"
+  },
+  {
+    "id": "q-p01-m02-10",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "ARM Templates - Pre-Deployment Validation",
+    "question": "What does running `az deployment group validate` check before executing a deployment?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Validates template syntax, parameter types, resource schemas, and subscription quota limits",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Simulates OS boot inside the virtual machines",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Verifies that all users have logged out of the target resource group",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Executes a penetration test against target subnets",
+        "correct": false
+      }
+    ],
+    "explanation": "`validate` sends the template to Azure Resource Manager to verify JSON syntax, parameter definitions, and provider API schemas without provisioning resources.",
+    "source": "MS Learn Deploy Infrastructure ARM, Unit 3; Exam Ref AZ-104, Ch. 3, p. 133"
+  },
+  {
+    "id": "q-p01-m02-11",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "ARM Templates - Dynamic Location Best Practice",
+    "question": "What is the recommended best practice for defining resource locations in an ARM template to ensure multi-region portability?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Set the location to `[resourceGroup().location]` or pass it as a parameter",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Hardcode the location string as `\"East US\"` in every resource definition",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Omit the location property entirely because ARM sets it automatically",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Hardcode the location as `\"global\"` for all resources",
+        "correct": false
+      }
+    ],
+    "explanation": "Using `[resourceGroup().location]` sets the resource location to match the resource group containing it, ensuring the template can be deployed across different regions without modifying hardcoded strings.",
+    "source": "MS Learn Deploy Infrastructure ARM, Unit 4; Exam Ref AZ-104, Ch. 3, p. 133"
+  },
+  {
+    "id": "q-p01-m02-12",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "ARM Templates - Outputs Purpose",
+    "question": "What is the primary function of the `outputs` section in an ARM template?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "To return values generated during deployment (such as a public IP or FQDN) to the deployment caller",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "To stream real-time container diagnostic logs to Log Analytics",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "To record user keystrokes during template creation",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "To write deployment status to an on-premises syslog server",
+        "correct": false
+      }
+    ],
+    "explanation": "The `outputs` section returns values from the deployed resources back to the script, pipeline, or calling template (e.g., dynamically provisioned endpoints or IP addresses).",
+    "source": "MS Learn Deploy Infrastructure ARM, Unit 4; Exam Ref AZ-104, Ch. 3, p. 131"
+  },
+  {
+    "id": "q-p01-m02-13",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "ARM Templates - Parameter Constraints",
+    "question": "Which attribute in an ARM template parameter definition limits user input to a predefined list of valid values (e.g., `[\"Standard_LRS\", \"Standard_GRS\"]`)?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "`allowedValues`",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "`validOptions`",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "`restrictedTo`",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "`enumeration`",
+        "correct": false
+      }
+    ],
+    "explanation": "The `allowedValues` property restricts parameter inputs to a specific array of allowed choices.",
+    "source": "MS Learn Deploy Infrastructure ARM, Unit 4"
+  },
+  {
+    "id": "q-p01-m02-14",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "ARM Templates - Bicep Relationship",
+    "question": "How does Azure Bicep relate to JSON ARM templates?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Bicep is a transparent domain-specific abstraction that compiles (transpiles) directly to ARM JSON templates",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Bicep replaces Azure Resource Manager with a proprietary third-party engine",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Bicep can only deploy resources to on-premises Azure Stack Hub",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Bicep is an imperative scripting language that bypasses Azure Resource Manager REST APIs",
+        "correct": false
+      }
+    ],
+    "explanation": "Azure Bicep is a domain-specific language designed to provide cleaner syntax than JSON. It transpiles directly into standard ARM template JSON before submission to Resource Manager.",
+    "source": "MS Learn Deploy Infrastructure ARM, Unit 1 note; Exam Ref AZ-104, Ch. 3, p. 135"
+  },
+  {
+    "id": "q-p01-m02-15",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "Bicep - Modifying Templates with Expressions",
+    "question": "You are modifying an existing Bicep file to configure storage SKU dynamically based on an environment parameter `environmentType`. If `environmentType == 'prod'`, SKU should be `Standard_GRS`, otherwise `Standard_LRS`. Which Bicep ternary expression correctly implements this logic?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "var skuName = environmentType == 'prod' ? 'Standard_GRS' : 'Standard_LRS'",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "if (environmentType == 'prod') { var skuName = 'Standard_GRS' } else { 'Standard_LRS' }",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "var skuName = iif(environmentType == 'prod', 'Standard_GRS', 'Standard_LRS')",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "select case environmentType when 'prod' then 'Standard_GRS' else 'Standard_LRS'",
+        "correct": false
+      }
+    ],
+    "explanation": "Bicep supports standard ternary conditional operators using `condition ? trueValue : FalseValue`. This allows concise inline dynamic property resolution without verbose ARM JSON `[if(...)]` functions.",
+    "source": "Exam Ref AZ-104, Ch. 3, p. 136; MS Learn Bicep Basics, Unit 4"
+  },
+  {
+    "id": "q-p01-m02-16",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "Bicep - Decompiling ARM JSON Templates",
+    "question": "An organization has a library of legacy ARM JSON templates. You need to convert an existing ARM template file named `storage.json` into a modern Azure Bicep file. Which Azure CLI command performs this conversion?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "`az bicep decompile --file storage.json`",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "`az bicep build --file storage.json`",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "`az deployment group convert --template-file storage.json --format bicep`",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "`az resource transform --input storage.json --to bicep`",
+        "correct": false
+      }
+    ],
+    "explanation": "The `az bicep decompile` command converts an existing ARM JSON template into an equivalent Bicep file (`.bicep`), allowing teams to modernize their infrastructure-as-code repository.",
+    "source": "Exam Ref AZ-104, Ch. 3, p. 137; MS Learn Bicep Basics, Unit 5"
+  },
+  {
+    "id": "q-p01-m02-17",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "ARM Templates - Exporting Deployments",
+    "question": "An administrator manually provisions a complex web architecture in the Azure portal and wants to export the complete resource configuration as a reusable ARM JSON template. Where can this template be exported directly from the portal?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "From the Resource Group blade under Automation > 'Export template', or from the Resource Group 'Deployments' history blade.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Only by submitting a service request to Azure Support.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "From Azure Cost Management under Export invoices.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "From Microsoft Entra ID under App Registrations.",
+        "correct": false
+      }
+    ],
+    "explanation": "Azure allows exporting existing configurations as ARM templates either at the Resource Group level (under 'Export template') or by opening a past deployment record in the resource group's 'Deployments' history blade and selecting 'Template'.",
+    "source": "Exam Ref AZ-104, Ch. 3, p. 134; MS Learn Deploy Infrastructure ARM, Unit 5"
+  },
+  {
+    "id": "q-p01-m02-18",
+    "section": "01-prerequisites-for-azure-administrators",
+    "topic": "Bicep - Native CLI Deployment",
+    "question": "You have written a file named `main.bicep`. How do you deploy this file directly to a resource group named `rg-prod` using the Azure CLI without manually compiling it to JSON first?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "`az deployment group create --resource-group rg-prod --template-file main.bicep`",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "`az bicep publish --file main.bicep --target rg-prod`",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "`az resource deploy --group rg-prod --file main.bicep`",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "`az group create --name rg-prod --bicep-file main.bicep`",
+        "correct": false
+      }
+    ],
+    "explanation": "The Azure CLI natively supports Bicep files via the standard `az deployment group create` command with the `--template-file` parameter pointing directly to `.bicep`. The Azure CLI automatically transpiles the Bicep file in memory during submission.",
+    "source": "Exam Ref AZ-104, Ch. 3, p. 136; MS Learn Bicep Basics, Unit 3"
+  }
+]

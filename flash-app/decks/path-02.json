@@ -1,0 +1,626 @@
+[
+  {
+    "id": "p02-m01-01",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Microsoft Entra ID - Authentication Protocols",
+    "question": "Which modern authentication protocols does Microsoft Entra ID support natively for web and cloud applications?",
+    "answer": "SAML 2.0, OpenID Connect (OIDC), OAuth 2.0, and WS-Federation.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 2; MS Learn Understand Entra ID, Unit 2"
+  },
+  {
+    "id": "p02-m01-02",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Microsoft Entra ID - Protocol Differences vs AD DS",
+    "question": "Does Microsoft Entra ID natively support legacy Kerberos and NTLM authentication without add-on domain services?",
+    "answer": "No, native Entra ID uses HTTP-based web protocols; Kerberos and NTLM require Active Directory Domain Services or Microsoft Entra Domain Services.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 3; MS Learn Understand Entra ID, Unit 2"
+  },
+  {
+    "id": "p02-m01-03",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Microsoft Entra ID - Edition Requirements for P1",
+    "question": "What minimum Microsoft Entra ID edition is required for dynamic group membership and on-premises password writeback?",
+    "answer": "Microsoft Entra ID P1.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 4; MS Learn Understand Entra ID, Unit 4"
+  },
+  {
+    "id": "p02-m01-04",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Microsoft Entra ID - Edition Requirements for P2",
+    "question": "Which advanced security features specifically require Microsoft Entra ID P2 licenses?",
+    "answer": "Privileged Identity Management (PIM) and Microsoft Entra ID Protection (risk-based Conditional Access).",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 4; MS Learn Understand Entra ID, Unit 4"
+  },
+  {
+    "id": "p02-m01-05",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Microsoft Entra ID - Default Domain Name",
+    "question": "What domain suffix is assigned by default to a newly created Microsoft Entra ID tenant before adding a custom domain?",
+    "answer": "`.onmicrosoft.com` (e.g., `contoso.onmicrosoft.com`).",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 7; MS Learn Understand Entra ID, Unit 3"
+  },
+  {
+    "id": "p02-m01-06",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Microsoft Entra ID - Custom Domain Verification Record",
+    "question": "Which DNS record type is typically created at your domain registrar to verify domain ownership in Microsoft Entra ID?",
+    "answer": "A DNS TXT record (or alternately an MX record).",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 7; MS Learn Understand Entra ID, Unit 3"
+  },
+  {
+    "id": "p02-m01-07",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Microsoft Entra ID - Tenant Definition",
+    "question": "What is a Microsoft Entra ID tenant?",
+    "answer": "A dedicated, isolated instance of Microsoft Entra ID that represents an organization and houses its directory objects.",
+    "source": "MS Learn Understand Entra ID, Unit 2"
+  },
+  {
+    "id": "p02-m01-08",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Microsoft Entra ID - Primary Domain Name Deletion",
+    "question": "Can you delete the initial `.onmicrosoft.com` domain name from a Microsoft Entra ID tenant?",
+    "answer": "No, the initial `.onmicrosoft.com` domain is immutable and cannot be deleted or renamed.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 8"
+  },
+  {
+    "id": "p02-m01-09",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Microsoft Entra ID - Subscription Directory Association",
+    "question": "Can an Azure subscription trust more than one Microsoft Entra ID tenant simultaneously?",
+    "answer": "No, each Azure subscription can trust only one Microsoft Entra tenant at a time.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 11; MS Learn Understand Entra ID, Unit 3"
+  },
+  {
+    "id": "p02-m01-10",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Microsoft Entra ID - Single Tenant Multiple Subscriptions",
+    "question": "Can multiple Azure subscriptions trust the same Microsoft Entra ID tenant?",
+    "answer": "Yes, a single tenant can be trusted by multiple subscriptions.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 11"
+  },
+  {
+    "id": "p02-m01-11",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Microsoft Entra ID - Flat vs Hierarchical Structure",
+    "question": "Does Microsoft Entra ID use Organizational Units (OUs) and Group Policy Objects (GPOs) like Windows Server AD?",
+    "answer": "No, Entra ID is a flat directory structure without OUs or native Active Directory GPOs.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 3"
+  },
+  {
+    "id": "p02-m01-12",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Microsoft Entra ID - Hybrid Identity Sync Tool",
+    "question": "Which tool synchronizes on-premises Active Directory objects into Microsoft Entra ID?",
+    "answer": "Microsoft Entra Connect (or Microsoft Entra Cloud Sync).",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 5; MS Learn Understand Entra ID, Unit 4"
+  },
+  {
+    "id": "p02-m02-01",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Identity Management - User Types",
+    "question": "What are the three primary types of user accounts in Microsoft Entra ID based on their origin?",
+    "answer": "Cloud identities (created natively in Entra ID), Directory-synced identities (synced from on-premises AD), and Guest identities (B2B invited users).",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 13; MS Learn Manage Identities, Unit 2"
+  },
+  {
+    "id": "p02-m02-02",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Identity Management - Deleted User Soft-Delete Window",
+    "question": "How long does a deleted user remain in the 'Deleted users' recycle bin before permanent deletion?",
+    "answer": "30 days (during which it can be restored with its original permissions intact).",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 15; MS Learn Manage Identities, Unit 3"
+  },
+  {
+    "id": "p02-m02-03",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Identity Management - Bulk Operations Format",
+    "question": "What file format is required when performing bulk user creation or group membership updates in Microsoft Entra admin center?",
+    "answer": "CSV (Comma-Separated Values) format using Microsoft's downloadable template.",
+    "source": "MS Learn Manage Identities, Unit 4; Exam Ref AZ-104, Ch. 1, p. 17"
+  },
+  {
+    "id": "p02-m02-04",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Identity Management - Group Types",
+    "question": "What are the two types of groups supported in Microsoft Entra ID?",
+    "answer": "Security groups and Microsoft 365 groups.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 19; MS Learn Manage Identities, Unit 6"
+  },
+  {
+    "id": "p02-m02-05",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Identity Management - Security Groups vs M365 Groups",
+    "question": "Which group type in Entra ID is best suited for assigning RBAC roles and resource permissions?",
+    "answer": "Security groups.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 19; MS Learn Manage Identities, Unit 6"
+  },
+  {
+    "id": "p02-m02-06",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Identity Management - Group Membership Types",
+    "question": "What are the three membership types available for Microsoft Entra ID groups?",
+    "answer": "Assigned (manual), Dynamic User, and Dynamic Device.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 20; MS Learn Manage Identities, Unit 6"
+  },
+  {
+    "id": "p02-m02-07",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Identity Management - Dynamic Group Query Evaluation",
+    "question": "How are members added to or removed from a Dynamic User group in Microsoft Entra ID?",
+    "answer": "Automatically evaluated by rules based on user object attributes (e.g., `(user.department -eq \"Sales\")`).",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 21; MS Learn Manage Identities, Unit 7"
+  },
+  {
+    "id": "p02-m02-08",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Identity Management - Group-Based Licensing",
+    "question": "What is the benefit of group-based licensing in Microsoft Entra ID?",
+    "answer": "Licenses (such as M365 or Entra P1) are automatically assigned or revoked as users join or leave the group.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 23; MS Learn Manage Identities, Unit 8"
+  },
+  {
+    "id": "p02-m02-09",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Identity Management - Group Nesting Limitation in RBAC",
+    "question": "Does Azure RBAC support role assignments to nested groups?",
+    "answer": "No, Azure role assignments only apply to direct group members; nested group members are not granted access.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 20"
+  },
+  {
+    "id": "p02-m02-10",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Identity Management - B2B Collaboration Guest Redirection",
+    "question": "When an external partner user is invited via Entra B2B Collaboration, where does their primary authentication take place?",
+    "answer": "In their home identity provider (e.g., their organization's Entra ID, Google, or Microsoft account).",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 14; MS Learn Manage Identities, Unit 5"
+  },
+  {
+    "id": "p02-m02-11",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Identity Management - User Principal Name (UPN) Structure",
+    "question": "What two components compose a User Principal Name (UPN) in Microsoft Entra ID?",
+    "answer": "The username prefix and the domain suffix, separated by an `@` symbol (e.g., `user@domain.com`).",
+    "source": "MS Learn Manage Identities, Unit 2"
+  },
+  {
+    "id": "p02-m02-12",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Identity Management - Administrative Units (AUs)",
+    "question": "What Entra ID resource allows delegating administrative control over a specific subset of users and groups without granting tenant-wide admin rights?",
+    "answer": "Administrative Units (AUs).",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 25; MS Learn Manage Identities, Unit 9"
+  },
+  {
+    "id": "p02-m03-01",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure Hierarchy - Management Groups Hierarchy Depth",
+    "question": "What is the maximum supported hierarchy depth for Management Groups in Azure?",
+    "answer": "Up to 6 levels of depth (excluding the Root Management Group).",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 29; MS Learn Architectural Components, Unit 4"
+  },
+  {
+    "id": "p02-m03-02",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure Hierarchy - Root Management Group Name",
+    "question": "What is the name of the top-level container automatically created in every tenant to govern all management groups and subscriptions?",
+    "answer": "Tenant Root Group.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 30; MS Learn Architectural Components, Unit 4"
+  },
+  {
+    "id": "p02-m03-03",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure Hierarchy - Management Groups Directory Limit",
+    "question": "How many total Management Groups can be created within a single Microsoft Entra tenant?",
+    "answer": "Up to 10,000 Management Groups.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 30; MS Learn Architectural Components, Unit 4"
+  },
+  {
+    "id": "p02-m03-04",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure Hierarchy - Management Group Parent Assignment",
+    "question": "Can a Management Group or subscription have more than one parent Management Group?",
+    "answer": "No, each Management Group or subscription can have exactly one parent.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 30"
+  },
+  {
+    "id": "p02-m03-05",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure Hierarchy - Four Levels of Scope",
+    "question": "What are the four levels of management scope in Azure from broadest to most specific?",
+    "answer": "Management Group -> Subscription -> Resource Group -> Resource.",
+    "source": "MS Learn Architectural Components, Unit 2; Exam Ref AZ-104, Ch. 1, p. 28"
+  },
+  {
+    "id": "p02-m03-06",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure Hierarchy - Resource Group Membership Rule",
+    "question": "Can an individual Azure resource belong to more than one Resource Group at the same time?",
+    "answer": "No, an Azure resource can only exist in exactly one Resource Group.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 35; MS Learn Architectural Components, Unit 5"
+  },
+  {
+    "id": "p02-m03-07",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure Hierarchy - Resource Group Regional Distribution",
+    "question": "Can a Resource Group contain resources located in different geographic regions than the Resource Group itself?",
+    "answer": "Yes, resources inside a Resource Group can be located in any supported Azure region.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 35; MS Learn Architectural Components, Unit 5"
+  },
+  {
+    "id": "p02-m03-08",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure Hierarchy - Resource Group Deletion Cascade",
+    "question": "What happens to the resources inside a Resource Group when the Resource Group is deleted?",
+    "answer": "All resources inside the Resource Group are permanently deleted.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 36"
+  },
+  {
+    "id": "p02-m03-09",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure Hierarchy - Moving Resources Across Resource Groups",
+    "question": "Can resources be moved from one Resource Group to another or to another subscription?",
+    "answer": "Yes, supported resources can be moved between Resource Groups and between subscriptions without downtime.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 37"
+  },
+  {
+    "id": "p02-m03-10",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Resource Locks - Lock Types",
+    "question": "What are the two types of resource locks supported in Azure Resource Manager?",
+    "answer": "`CanNotDelete` (Delete lock) and `ReadOnly` (Read-only lock).",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 39; MS Learn Architectural Components, Unit 6"
+  },
+  {
+    "id": "p02-m03-11",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Resource Locks - CanNotDelete Behavior",
+    "question": "What operations are allowed on a resource protected by a `CanNotDelete` lock?",
+    "answer": "Authorized users can read and modify the resource, but cannot delete it.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 39"
+  },
+  {
+    "id": "p02-m03-12",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Resource Locks - ReadOnly Side Effects on Storage",
+    "question": "Why does a `ReadOnly` lock on a storage account prevent users from listing account access keys?",
+    "answer": "Because listing keys is a POST request that returns write-capable credentials, which the `ReadOnly` lock blocks.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 40"
+  },
+  {
+    "id": "p02-m04-01",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure Policy - Core Purpose",
+    "question": "What is the primary function of Azure Policy compared to Azure RBAC?",
+    "answer": "Azure Policy governs resource properties, configurations, and compliance, whereas RBAC controls user actions and permissions.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 42; MS Learn Azure Policy, Unit 2"
+  },
+  {
+    "id": "p02-m04-02",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure Policy - Definition vs Initiative",
+    "question": "What is an Azure Policy Initiative (also called a Policy Set)?",
+    "answer": "A collection of multiple policy definitions grouped together toward a single overarching compliance goal.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 44; MS Learn Azure Policy, Unit 3"
+  },
+  {
+    "id": "p02-m04-03",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure Policy - Deny Effect",
+    "question": "What happens when a resource deployment fails compliance with an Azure Policy having the `Deny` effect?",
+    "answer": "The Resource Manager request is immediately rejected and the deployment fails.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 43; MS Learn Azure Policy, Unit 4"
+  },
+  {
+    "id": "p02-m04-04",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure Policy - Audit Effect",
+    "question": "Does an Azure Policy with the `Audit` effect block a non-compliant resource from being created?",
+    "answer": "No, the resource is created, but a non-compliance warning is logged in the compliance dashboard.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 43"
+  },
+  {
+    "id": "p02-m04-05",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure Policy - Append vs Modify Effect",
+    "question": "Which Azure Policy effect adds defined fields or tags to a resource during creation or update?",
+    "answer": "The `Append` effect (or `Modify` effect).",
+    "source": "MS Learn Azure Policy, Unit 4; Exam Ref AZ-104, Ch. 1, p. 43"
+  },
+  {
+    "id": "p02-m04-06",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure Policy - DeployIfNotExists Effect",
+    "question": "What does an Azure Policy with the `DeployIfNotExists` effect do when a condition is met?",
+    "answer": "It automatically deploys a related resource or extension (such as a Log Analytics agent) if it is missing.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 44; MS Learn Azure Policy, Unit 4"
+  },
+  {
+    "id": "p02-m04-07",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure Policy - Remediation Tasks",
+    "question": "How are existing non-compliant resources brought into compliance for `Modify` or `DeployIfNotExists` policies?",
+    "answer": "By creating an Azure Policy Remediation Task, which uses a managed identity to remediate existing resources.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 47; MS Learn Azure Policy, Unit 5"
+  },
+  {
+    "id": "p02-m04-08",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure Policy - Evaluation Triggers",
+    "question": "When does Azure Policy automatically evaluate compliance on resources?",
+    "answer": "During resource creation/update (PUT/PATCH), when a policy is assigned, and periodically every 24 hours.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 45"
+  },
+  {
+    "id": "p02-m04-09",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure Policy - Exclusions Scope",
+    "question": "Can an administrator exclude specific resource groups or resources from an assigned policy at a higher scope?",
+    "answer": "Yes, by adding specific scopes to the 'Exclusions' list of the policy assignment.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 46; MS Learn Azure Policy, Unit 3"
+  },
+  {
+    "id": "p02-m04-10",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure Policy - Scope Inheritance",
+    "question": "If an Azure Policy is assigned at a Management Group, where is that policy enforced?",
+    "answer": "Across all subscriptions, resource groups, and resources residing under that Management Group.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 45"
+  },
+  {
+    "id": "p02-m04-11",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure Policy - Definition Structure",
+    "question": "What JSON block inside an Azure Policy definition contains the `if`/`then` conditional rules?",
+    "answer": "The `policyRule` block.",
+    "source": "MS Learn Azure Policy, Unit 4"
+  },
+  {
+    "id": "p02-m04-12",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure Policy - Disabled Effect",
+    "question": "What is the purpose of setting a policy effect to `Disabled`?",
+    "answer": "It stops the policy rule from evaluating or enforcing compliance without having to delete the assignment.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 44"
+  },
+  {
+    "id": "p02-m05-01",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure RBAC - Three Elements of Role Assignment",
+    "question": "What three elements are required to construct an Azure RBAC role assignment?",
+    "answer": "A Security Principal (who), a Role Definition (what permissions), and a Scope (where).",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 48; MS Learn Secure Resources with RBAC, Unit 2"
+  },
+  {
+    "id": "p02-m05-02",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure RBAC - Owner Role Permissions",
+    "question": "What distinct permission differentiates the `Owner` role from the `Contributor` role in Azure RBAC?",
+    "answer": "The `Owner` role can grant and manage access permissions (RBAC) to others, whereas `Contributor` cannot.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 49; MS Learn Secure Resources with RBAC, Unit 3"
+  },
+  {
+    "id": "p02-m05-03",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure RBAC - Contributor Role Permissions",
+    "question": "Can a user assigned the built-in `Contributor` role assign RBAC permissions to another user?",
+    "answer": "No, `Contributor` has `Microsoft.Authorization/*/Write` excluded.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 49"
+  },
+  {
+    "id": "p02-m05-04",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure RBAC - Reader Role Permissions",
+    "question": "Can a user with the `Reader` role view the access keys of an Azure Storage account?",
+    "answer": "No, viewing access keys is a management plane action that requires `listKeys` write permissions.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 50"
+  },
+  {
+    "id": "p02-m05-05",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure RBAC - User Access Administrator Role",
+    "question": "What is the primary function of the built-in `User Access Administrator` role?",
+    "answer": "To manage user access and role assignments without granting management access to the resources themselves.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 50; MS Learn Secure Resources with RBAC, Unit 3"
+  },
+  {
+    "id": "p02-m05-06",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure RBAC - Custom Role Definition Sections",
+    "question": "Which properties in a custom role JSON definition define granted permissions, excluded permissions, and valid deployment targets?",
+    "answer": "`Actions`, `NotActions`, and `AssignableScopes`.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 52; MS Learn Secure Resources with RBAC, Unit 4"
+  },
+  {
+    "id": "p02-m05-07",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure RBAC - NotActions Behavior",
+    "question": "Does listing an operation in `NotActions` act as a deny rule if the user is granted that permission via another role?",
+    "answer": "No, `NotActions` simply subtracts permissions from `Actions`; it does NOT override permissions granted by another role.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 53"
+  },
+  {
+    "id": "p02-m05-08",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure RBAC - Deny Assignments Priority",
+    "question": "How do Azure Deny Assignments interact with RBAC allow permissions?",
+    "answer": "Deny assignments take absolute precedence over allow role assignments.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 54; MS Learn Secure Resources with RBAC, Unit 2"
+  },
+  {
+    "id": "p02-m05-09",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure RBAC - DataActions vs Actions",
+    "question": "What is the difference between `Actions` and `DataActions` in an RBAC role definition?",
+    "answer": "`Actions` apply to the control/management plane (e.g., creating a VM), while `DataActions` apply to data plane operations (e.g., reading blobs).",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 53"
+  },
+  {
+    "id": "p02-m05-10",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure RBAC - Scope Inheritance Rule",
+    "question": "If a user is assigned `Contributor` at the Subscription level, what role permissions do they have on a Resource Group in that subscription?",
+    "answer": "They inherit full `Contributor` permissions on the Resource Group and all resources inside it.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 48"
+  },
+  {
+    "id": "p02-m05-11",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure RBAC - Custom Roles AssignableScopes Limit",
+    "question": "At which scopes can an Azure custom RBAC role be defined in `AssignableScopes`?",
+    "answer": "At Management Groups, Subscriptions, or Resource Groups (cannot specify individual resources).",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 54"
+  },
+  {
+    "id": "p02-m05-12",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure RBAC - Elevated Access Global Admin",
+    "question": "How can a Global Administrator in Entra ID gain access to manage all Azure subscriptions in their tenant?",
+    "answer": "By turning on the 'Access management for Azure resources' switch, which grants `User Access Administrator` at the Root Management Group.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 51"
+  },
+  {
+    "id": "p02-m06-01",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Entra SSPR - Target Group Scope",
+    "question": "Can Self-Service Password Reset (SSPR) be enabled for a select group of pilot users in Microsoft Entra ID?",
+    "answer": "Yes, SSPR scope options are 'None', 'Selected' (specific group), or 'All'.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 56; MS Learn SSPR, Unit 3"
+  },
+  {
+    "id": "p02-m06-02",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Entra SSPR - Password Writeback Direction",
+    "question": "What is the purpose of Microsoft Entra SSPR Password Writeback?",
+    "answer": "It writes password changes made in the cloud back to on-premises Active Directory in real time via Entra Connect.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 58; MS Learn SSPR, Unit 4"
+  },
+  {
+    "id": "p02-m06-03",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Entra SSPR - Minimum Methods Required",
+    "question": "What are the configuration choices for the number of authentication methods required for a user to reset their password via SSPR?",
+    "answer": "Either 1 method or 2 methods.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 57; MS Learn SSPR, Unit 3"
+  },
+  {
+    "id": "p02-m06-04",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Entra SSPR - Supported Authentication Methods",
+    "question": "Name three supported authentication methods for user verification in Entra SSPR.",
+    "answer": "Mobile app notification/code (Microsoft Authenticator), SMS text message, and Security questions (or email).",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 57; MS Learn SSPR, Unit 3"
+  },
+  {
+    "id": "p02-m06-05",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Entra SSPR - Re-registration Prompt Period",
+    "question": "How often can administrators require users to reconfirm their authentication information for SSPR?",
+    "answer": "Every 0 to 730 days (typically configured for 180 or 365 days).",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 58; MS Learn SSPR, Unit 3"
+  },
+  {
+    "id": "p02-m06-06",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Entra SSPR - Admin Account Password Policy",
+    "question": "How many authentication methods are administrators required to provide by default when resetting passwords, regardless of SSPR policy?",
+    "answer": "Two authentication methods (enforced by Microsoft default administrator policy).",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 57"
+  },
+  {
+    "id": "p02-m06-07",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Entra SSPR - Notification Options",
+    "question": "Which two notification settings can be toggled on when a user successfully resets their password via SSPR?",
+    "answer": "'Notify users on password resets?' and 'Notify all admins when other admins reset their password?'.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 58; MS Learn SSPR, Unit 3"
+  },
+  {
+    "id": "p02-m06-08",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Entra SSPR - Combined Registration Experience",
+    "question": "What is the benefit of the Combined Security Information Registration experience in Microsoft Entra ID?",
+    "answer": "Users register once for both Multi-Factor Authentication (MFA) and Self-Service Password Reset (SSPR).",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 58; MS Learn SSPR, Unit 2"
+  },
+  {
+    "id": "p02-m06-09",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Entra SSPR - Security Questions Minimum Defined",
+    "question": "If Security Questions are configured as an SSPR method, what is the minimum number of questions a user must register and answer to reset?",
+    "answer": "Users must register between 3 and 5 questions, and answer between 3 and 5 questions.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 57"
+  },
+  {
+    "id": "p02-m06-10",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Entra SSPR - Password Writeback Prerequisite Service",
+    "question": "Which on-premises component must have the Password Writeback feature enabled in its configuration wizard?",
+    "answer": "Microsoft Entra Connect Sync.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 59; MS Learn SSPR, Unit 4"
+  },
+  {
+    "id": "p02-m06-11",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Entra SSPR - Account Unlock Capability",
+    "question": "Can users unlock their on-premises Active Directory accounts via SSPR without changing their password?",
+    "answer": "Yes, if 'Allow users to unlock account without resetting their password' is set to Yes.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 59"
+  },
+  {
+    "id": "p02-m06-12",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Entra SSPR - Free Edition Capability",
+    "question": "What limited SSPR functionality is available with the Microsoft Entra ID Free edition?",
+    "answer": "Password reset for cloud-only users only (no on-premises writeback).",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 4"
+  },
+  {
+    "id": "p02-m04-13",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Resource Tags - Inheritance Rule",
+    "question": "Do resource tags applied to a Resource Group automatically inherit down to child resources?",
+    "answer": "No. Tags do not automatically inherit. An Azure Policy with `Modify` or `Append` effect is required to propagate tags.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 33; MS Learn Azure Governance, Unit 4"
+  },
+  {
+    "id": "p02-m04-14",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Resource Groups - Moving Virtual Machines",
+    "question": "When moving a VM to another resource group, what dependent resources must be moved simultaneously?",
+    "answer": "The virtual machine, its network interface card (NIC), and all attached OS and data managed disks.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 32; MS Learn Azure Governance, Unit 3"
+  },
+  {
+    "id": "p02-m03-13",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure Cost Management - Budget Alert Types",
+    "question": "What two condition types can trigger an Azure Cost Management budget alert?",
+    "answer": "1. Actual spending (current accrued spend crosses threshold); 2. Forecasted spending (projected spend will cross threshold by period end).",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 35; MS Learn Manage Subscriptions, Unit 4"
+  },
+  {
+    "id": "p02-m03-14",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Azure Advisor - Cost Recommendations",
+    "question": "What key cost-reduction suggestions does Azure Advisor produce for compute resources?",
+    "answer": "Shutting down or resizing underutilized/idle virtual machines, and purchasing 1- or 3-year Azure Reserved Instances.",
+    "source": "Exam Ref AZ-104, Ch. 1, pp. 36–37; MS Learn Manage Subscriptions, Unit 5"
+  },
+  {
+    "id": "p02-m04-15",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Resource Tags - Inheritance Rule",
+    "question": "Do resource tags applied to a Resource Group automatically inherit down to child resources?",
+    "answer": "No. Tags do not automatically inherit. An Azure Policy with `Modify` or `Append` effect is required to propagate tags.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 33; MS Learn Azure Governance, Unit 4"
+  },
+  {
+    "id": "p02-m03-15",
+    "section": "02-manage-identities-and-governance",
+    "topic": "Resource Groups - Moving Virtual Machines",
+    "question": "When moving a VM to another resource group, what dependent resources must be moved simultaneously?",
+    "answer": "The virtual machine, its network interface card (NIC), and all attached OS and data managed disks.",
+    "source": "Exam Ref AZ-104, Ch. 1, p. 32; MS Learn Azure Governance, Unit 3"
+  }
+]

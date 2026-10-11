@@ -1,0 +1,1382 @@
+[
+  {
+    "id": "q-p06-m01-01",
+    "section": "06-monitor-and-back-up-resources",
+    "topic": "Vault Types - Recovery Services Vault vs Backup Vault",
+    "question": "An administrator needs to configure backup for Azure Virtual Machines, SQL Server running in Azure VMs, and on-premises Windows Servers using the MARS agent. Which vault type must be deployed?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Recovery Services Vault",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Backup Vault",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Key Vault",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Storage Sync Service",
+        "correct": false
+      }
+    ],
+    "explanation": "A Recovery Services Vault is used to back up Azure VMs, SQL Server/SAP HANA running inside Azure VMs, Azure Files, and on-premises servers using the MARS agent. A Backup Vault is used for newer workloads such as Azure Managed Disks, Azure Blob Storage, and Azure Database for PostgreSQL.",
+    "source": "Exam Ref AZ-104, Ch. 5, pp. 331–333; MS Learn Intro to Azure Backup, Unit 2"
+  },
+  {
+    "id": "q-p06-m01-02",
+    "section": "06-monitor-and-back-up-resources",
+    "topic": "Vault Redundancy - Configuration Timing Constraint",
+    "question": "You create a new Recovery Services Vault and accept the default Geo-redundant storage (GRS) setting. You protect 15 production VMs. Later, management requests changing the vault storage redundancy to Locally redundant storage (LRS) to reduce costs. What is required to change the vault to LRS?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "You must stop backup and delete backup data for all 15 protected items before the vault storage redundancy can be changed to LRS.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Select LRS under Backup Configuration in the vault properties; the change takes effect instantly.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Run `Set-AzRecoveryServicesVaultStorageType -Type LRS` while backups are running.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Upgrade the subscription support tier to enable live storage conversion.",
+        "correct": false
+      }
+    ],
+    "explanation": "Vault storage redundancy (LRS vs GRS) must be configured BEFORE protecting any workload. Once any item is protected in the vault, the storage redundancy setting is permanently locked. To change it, you must unprotect and delete all backup items from the vault.",
+    "source": "Exam Ref AZ-104, Ch. 5, p. 333; MS Learn Intro to Azure Backup, Unit 3"
+  },
+  {
+    "id": "q-p06-m01-03",
+    "section": "06-monitor-and-back-up-resources",
+    "topic": "Cross-Region Restore (CRR)",
+    "question": "What capability does Cross-Region Restore (CRR) provide when enabled on a Geo-redundant (GRS) Recovery Services Vault?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "It allows administrators to conduct disaster recovery drills and restore backups in the Azure secondary paired region at any time, even when the primary region is fully operational.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "It automatically fails over all production VMs to the secondary region every 24 hours.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "It duplicates backup copies into a third non-paired geographical region.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "It reduces storage billing costs by 50%.",
+        "correct": false
+      }
+    ],
+    "explanation": "Without Cross-Region Restore, secondary region backups are inaccessible until Microsoft declares an official outage in the primary region. Enabling Cross-Region Restore (CRR) allows administrators to restore workloads directly in the secondary paired region at any time, which is critical for disaster recovery drills and audits.",
+    "source": "Exam Ref AZ-104, Ch. 5, pp. 333–334; MS Learn Intro to Azure Backup, Unit 3"
+  },
+  {
+    "id": "q-p06-m01-04",
+    "section": "06-monitor-and-back-up-resources",
+    "topic": "Backup Soft Delete - Retention Window",
+    "question": "A rogue administrator maliciously deletes backup data for a business-critical VM from a Recovery Services Vault where Soft Delete is enabled. For how many days is the deleted backup data retained in the soft-deleted state at no additional charge?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "14 days",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "7 days",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "30 days",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "90 days",
+        "correct": false
+      }
+    ],
+    "explanation": "Soft Delete in Azure Backup protects against accidental or malicious deletion by keeping deleted backup points available in a 'Soft Deleted' state for 14 additional days at no extra cost, allowing administrators to undelete and restore data.",
+    "source": "Exam Ref AZ-104, Ch. 5, p. 334; MS Learn Intro to Azure Backup, Unit 4"
+  },
+  {
+    "id": "q-p06-m01-05",
+    "section": "06-monitor-and-back-up-resources",
+    "topic": "MARS Agent vs MABS",
+    "question": "You need to back up files and folders on an on-premises physical Windows Server directly to Azure without deploying any local dedicated backup server infrastructure. Which tool should you install on the server?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Microsoft Azure Recovery Services (MARS) agent",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Microsoft Azure Backup Server (MABS)",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "System Center Data Protection Manager (DPM)",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Azure Connected Machine Agent (Azure Arc)",
+        "correct": false
+      }
+    ],
+    "explanation": "The MARS agent (Microsoft Azure Recovery Services agent) installs directly on individual Windows machines to back up files, folders, and system state directly to a Recovery Services Vault without requiring intermediary server hardware or local staging disks.",
+    "source": "Exam Ref AZ-104, Ch. 5, pp. 331–332; MS Learn Intro to Azure Backup, Unit 2"
+  },
+  {
+    "id": "q-p06-m01-06",
+    "section": "06-monitor-and-back-up-resources",
+    "topic": "Microsoft Azure Backup Server (MABS) Capabilities",
+    "question": "Which capability is supported by Microsoft Azure Backup Server (MABS) that is NOT supported by the standalone MARS agent?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Application-aware backups (SQL Server, SharePoint, Exchange) and protection of Hyper-V/VMware virtual machines with local disk caching.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Backing up Azure Virtual Machines directly without agent installation.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Mounting backup recovery points via local drive letters in Windows.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Encrypting data in transit over HTTPS port 443.",
+        "correct": false
+      }
+    ],
+    "explanation": "MABS provides full enterprise workload protection, including application-aware backups for SQL Server, Exchange, and SharePoint, as well as Hyper-V and VMware VM protection. It caches backups to local disk first before sending them to Azure. MARS only supports files, folders, and system state.",
+    "source": "Exam Ref AZ-104, Ch. 5, p. 332; MS Learn Intro to Azure Backup, Unit 2"
+  },
+  {
+    "id": "q-p06-m01-07",
+    "section": "06-monitor-and-back-up-resources",
+    "topic": "Multi-User Authorization (MUA) with Resource Guard",
+    "question": "To satisfy security compliance against ransomware, your enterprise mandates that critical backup operations (such as disabling Soft Delete or deleting backup vaults) must require approval from a secondary security administrator. Which Azure service integrates with Azure Backup to enforce this?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Azure Resource Guard (Multi-User Authorization)",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Microsoft Defender for Cloud JIT",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Azure Bastion Native Client",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Azure Key Vault Managed HSM",
+        "correct": false
+      }
+    ],
+    "explanation": "Multi-User Authorization (MUA) for Azure Backup uses an Azure Resource Guard resource. Critical operations (disabling soft delete, reducing retention, modifying MUA) require permissions on the Resource Guard, typically held by a different security admin in a separate subscription.",
+    "source": "Exam Ref AZ-104, Ch. 5, p. 334; MS Learn Intro to Azure Backup, Unit 4"
+  },
+  {
+    "id": "q-p06-m01-08",
+    "section": "06-monitor-and-back-up-resources",
+    "topic": "Backup Policies - GFS Retention",
+    "question": "An organization requires retaining daily backups for 30 days, weekly backups for 12 weeks, monthly backups for 12 months, and yearly backups for 7 years. Which retention model implemented in Azure Backup policies satisfies this requirement?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Grandfather-Father-Son (GFS) retention architecture",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "FIFO (First In, First Out) rolling queue",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Continuous block differential tracking",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Instant restore snapshot pruning",
+        "correct": false
+      }
+    ],
+    "explanation": "Azure Backup uses the Grandfather-Father-Son (GFS) retention scheme. This allows administrators to define separate retention rules for daily (son), weekly (father), monthly (grandfather), and yearly backups without having to store redundant full daily copies.",
+    "source": "Exam Ref AZ-104, Ch. 5, p. 335; MS Learn Intro to Azure Backup, Unit 3"
+  },
+  {
+    "id": "q-p06-m01-09",
+    "section": "06-monitor-and-back-up-resources",
+    "topic": "Enhanced Backup Policy for Azure VMs",
+    "question": "What is a key capability offered by the Enhanced Backup Policy tier for Azure Virtual Machines that is not available in the Standard policy?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Multiple backups per day (up to every 4 hours) and support for Ultra Disks and Shared Disks.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Free unlimited storage across all Azure regions.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Automatic conversion of Windows VMs to Linux.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Elimination of the need for an Azure VM snapshot extension.",
+        "correct": false
+      }
+    ],
+    "explanation": "The Enhanced Backup Policy tier supports sub-daily RPO (multiple snapshots per day, as frequently as every 4 hours), supports Ultra Disks, Confidential VMs, and Shared Disks, and retains Instant Restore snapshots for up to 30 days.",
+    "source": "Exam Ref AZ-104, Ch. 5, p. 336; MS Learn Intro to Azure Backup, Unit 3"
+  },
+  {
+    "id": "q-p06-m01-10",
+    "section": "06-monitor-and-back-up-resources",
+    "topic": "Azure Backup Center",
+    "question": "What is the primary function of Azure Backup Center in the Azure portal?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "A centralized enterprise management console to monitor, govern, audit, and configure backups across multiple vaults, subscriptions, and regions.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "A physical hardware appliance shipped by Microsoft for offline data migration.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "A database server that runs nightly SQL consistency checks.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "A network virtual appliance used to compress backup packets.",
+        "correct": false
+      }
+    ],
+    "explanation": "Azure Backup Center is a single unified management pane that enables administrators to discover, configure, govern (via Azure Policy), and monitor backup operations across large-scale Azure environments covering multiple subscriptions, vaults, and resource types.",
+    "source": "Exam Ref AZ-104, Ch. 5, p. 333; MS Learn Intro to Azure Backup, Unit 5"
+  },
+  {
+    "id": "q-p06-m01-11",
+    "section": "06-monitor-and-back-up-resources",
+    "topic": "Backup Encryption - Customer-Managed Keys",
+    "question": "You want to encrypt backup data stored in a Recovery Services Vault using Customer-Managed Keys (CMK) hosted in Azure Key Vault. When can you enable CMK encryption on the Recovery Services Vault?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "CMK encryption can only be enabled on a vault that has no registered items or active backups.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "CMK encryption can be enabled at any time, even on existing vaults with active backups.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "CMK encryption is only supported on Backup Vaults, not Recovery Services Vaults.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Only Microsoft Premier Support can configure CMK encryption.",
+        "correct": false
+      }
+    ],
+    "explanation": "Customer-Managed Keys (CMK) encryption for a Recovery Services Vault must be configured before any items are protected. Once an item is registered in the vault, CMK cannot be enabled.",
+    "source": "Exam Ref AZ-104, Ch. 5, p. 334; MS Learn Intro to Azure Backup, Unit 4"
+  },
+  {
+    "id": "q-p06-m01-12",
+    "section": "06-monitor-and-back-up-resources",
+    "topic": "Immutable Vaults",
+    "question": "What protection does enabling the 'Immutable Vault' feature provide in Azure Backup?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "It prevents any user, including Subscription Owners, from deleting recovery points or reducing retention before the retention period expires, protecting against ransomware.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "It converts all data to read-only text files.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "It blocks all network access to the vault from private endpoints.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "It disables automatic backup schedules permanently.",
+        "correct": false
+      }
+    ],
+    "explanation": "Immutable Vault in Azure Backup locks the vault's settings and prevents malicious actors or ransomware from deleting backups or shortening retention periods. Once locked, the immutability policy cannot be reversed.",
+    "source": "Exam Ref AZ-104, Ch. 5, p. 334; MS Learn Intro to Azure Backup, Unit 4"
+  },
+  {
+    "id": "q-p06-m01-13",
+    "section": "06-monitor-and-back-up-resources",
+    "topic": "MARS Agent Data Transfer",
+    "question": "How does the MARS agent optimize bandwidth consumption when transferring on-premises backup data to Azure?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "It transfers only changed blocks (incremental backups) and supports network bandwidth throttling schedules.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "It sends full compressed ZIP files over UDP.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "It requires an ExpressRoute Direct 100 Gbps connection.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "It caches data on public Azure Storage Explorer shares.",
+        "correct": false
+      }
+    ],
+    "explanation": "After an initial full seeding backup, the MARS agent performs incremental backups, transferring only the modified data blocks to Azure. Furthermore, administrators can configure throttling rules during business hours.",
+    "source": "Exam Ref AZ-104, Ch. 5, p. 332; MS Learn Intro to Azure Backup, Unit 2"
+  },
+  {
+    "id": "q-p06-m01-14",
+    "section": "06-monitor-and-back-up-resources",
+    "topic": "Backup Vault - Workloads",
+    "question": "Which set of Azure cloud resources is natively backed up by an Azure Backup Vault rather than a Recovery Services Vault?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Azure Managed Disks, Azure Blob Storage, and Azure Database for PostgreSQL Flexible Server",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Azure Virtual Machines and Azure Files shares only",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Hyper-V virtual machines and System State only",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Azure SQL Managed Instances only",
+        "correct": false
+      }
+    ],
+    "explanation": "Azure Backup Vault is specifically designed to manage backups for operational workloads including Azure Managed Disks, Azure Blobs, Azure Kubernetes Service (AKS), and Azure Database for PostgreSQL Flexible Server.",
+    "source": "Exam Ref AZ-104, Ch. 5, p. 333; MS Learn Intro to Azure Backup, Unit 2"
+  },
+  {
+    "id": "q-p06-m02-01",
+    "section": "06-monitor-and-back-up-resources",
+    "topic": "Azure VM Backup - Instant Restore Tier",
+    "question": "When Azure Backup runs a backup job on an Azure VM, a snapshot is taken and retained locally in the 'Instant Restore' tier. What is the default retention period for Instant Restore snapshots in a standard policy?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "2 days (configurable between 1 and 5 days)",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "14 days",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "30 days",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "90 days",
+        "correct": false
+      }
+    ],
+    "explanation": "The Instant Restore feature retains a local disk snapshot for 2 days by default (configurable from 1 to 5 days). Restoring from the Instant Restore snapshot eliminates the wait time of transferring data from the vault, resulting in near-instant recovery.",
+    "source": "Exam Ref AZ-104, Ch. 5, pp. 336–337; MS Learn Protect VMs with Backup, Unit 3"
+  },
+  {
+    "id": "q-p06-m02-02",
+    "section": "06-monitor-and-back-up-resources",
+    "topic": "Backup Consistency Levels - Application Consistent",
+    "question": "Which snapshot consistency level guarantees that in-memory database transactions and pending I/O operations are committed to disk before the snapshot is taken on a Windows VM?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Application-consistent backup",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Crash-consistent backup",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "File-system consistent backup",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Differential consistent backup",
+        "correct": false
+      }
+    ],
+    "explanation": "An application-consistent backup uses the Volume Shadow Copy Service (VSS) on Windows (or pre/post scripts on Linux) to flush in-memory data and pending transactions to disk before taking the snapshot, ensuring no database corruption or lost transactions upon restore.",
+    "source": "Exam Ref AZ-104, Ch. 5, pp. 337–338; MS Learn Protect VMs with Backup, Unit 3"
+  },
+  {
+    "id": "q-p06-m02-03",
+    "section": "06-monitor-and-back-up-resources",
+    "topic": "Backup Consistency Levels - Crash Consistent",
+    "question": "Under what circumstance does an Azure VM backup fall back to capturing a 'Crash-consistent' backup rather than an Application-consistent backup?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "When the VM snapshot extension fails or the Volume Shadow Copy Service (VSS) times out during snapshot creation.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "When the VM has more than 4 data disks attached.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "When the Recovery Services Vault is configured with LRS.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Whenever a VM is running Linux.",
+        "correct": false
+      }
+    ],
+    "explanation": "If the VM snapshot extension is not running, fails to communicate, or the guest VSS writer times out, Azure Backup captures a crash-consistent backup. A crash-consistent backup captures the exact disk data present at that moment, similar to what would exist after a sudden power outage.",
+    "source": "Exam Ref AZ-104, Ch. 5, p. 338; MS Learn Protect VMs with Backup, Unit 3"
+  },
+  {
+    "id": "q-p06-m02-04",
+    "section": "06-monitor-and-back-up-resources",
+    "topic": "VM Restore - File Recovery (Item-Level Recovery)",
+    "question": "A user accidentally deletes a single document folder on an Azure Virtual Machine. What is the fastest and least disruptive restore method to recover only the deleted folder?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Use 'File Recovery' to download a mount script, mount the recovery point volume as a drive letter on a machine, and copy the folder.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Restore the entire VM to a new virtual machine in a sandbox virtual network.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Replace the existing OS disk on the production VM.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Submit an Azure Support ticket to restore the individual files.",
+        "correct": false
+      }
+    ],
+    "explanation": "The 'File Recovery' (Item-Level Recovery) option generates and downloads an executable/script that establishes an iSCSI connection to mount the recovery point disks locally. You browse the mounted volume in File Explorer and copy the required files directly, without creating or modifying any VMs.",
+    "source": "Exam Ref AZ-104, Ch. 5, pp. 346–347; MS Learn Protect VMs with Backup, Unit 5"
+  },
+  {
+    "id": "q-p06-m02-05",
+    "section": "06-monitor-and-back-up-resources",
+    "topic": "VM Restore - Replace Existing Disks",
+    "question": "You need to restore a production VM from yesterday's backup while keeping the existing private IP address, network interface (NIC), and VM resource ID intact. Which restore option accomplishes this?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Replace existing disks",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Create virtual machine",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Restore disks to storage account",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Cross-Region Restore",
+        "correct": false
+      }
+    ],
+    "explanation": "The 'Replace existing' option swaps the VM's current disks with the restored disks while preserving the VM entity itself, including its resource ID, network interface (NIC), private IP address, and VM configuration.",
+    "source": "Exam Ref AZ-104, Ch. 5, pp. 344–345; MS Learn Protect VMs with Backup, Unit 5"
+  },
+  {
+    "id": "q-p06-m02-06",
+    "section": "06-monitor-and-back-up-resources",
+    "topic": "VM Restore - Staging Storage Account",
+    "question": "When restoring Azure VM disks from a Recovery Services Vault using the 'Restore Disks' option, why does Azure require specifying a 'Staging Location' storage account?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "To store the restored VHD disk files and the generated deployment JSON template used to recreate the VM.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "To charge compute egress fees.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "To temporarily host the VM hypervisor during boot.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "To store the encryption keys from Azure Key Vault.",
+        "correct": false
+      }
+    ],
+    "explanation": "When using 'Restore Disks', Azure exports the raw VHD disk files into a container in the designated staging storage account, along with an ARM deployment JSON template that can be customized to deploy a new VM.",
+    "source": "Exam Ref AZ-104, Ch. 5, pp. 343–344; MS Learn Protect VMs with Backup, Unit 5"
+  },
+  {
+    "id": "q-p06-m02-07",
+    "section": "06-monitor-and-back-up-resources",
+    "topic": "VM Restore - Running VM State Constraint",
+    "question": "You attempt to perform an in-place disk restore using 'Replace Existing' on a production virtual machine named `VM1`, but the operation fails immediately. What must you do before replacing existing disks?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Stop and deallocate `VM1` before initiating the replace operation.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Detach all network interfaces from `VM1`.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Convert the OS disk to Standard HDD.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Disable the Windows firewall.",
+        "correct": false
+      }
+    ],
+    "explanation": "Azure cannot swap or replace the active system disks of a running virtual machine. The VM must be stopped/deallocated prior to initiating the 'Replace Existing' disk swap operation.",
+    "source": "Exam Ref AZ-104, Ch. 5, p. 345; MS Learn Protect VMs with Backup, Unit 6"
+  },
+  {
+    "id": "q-p06-m02-08",
+    "section": "06-monitor-and-back-up-resources",
+    "topic": "VM Backup Extensions",
+    "question": "Which VM extension is automatically installed inside an Azure Windows Virtual Machine when backup is enabled?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "`VMSnapshot` extension",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "`MicrosoftMonitoringAgent` extension",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "`CustomScriptExtension`",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "`AzureNetworkWatcherExtension`",
+        "correct": false
+      }
+    ],
+    "explanation": "When Azure Backup initiates protection on an Azure VM, it automatically installs the `VMSnapshot` extension on Windows (or `VMSnapshotLinux` on Linux) to coordinate taking the VSS consistent disk snapshots.",
+    "source": "Exam Ref AZ-104, Ch. 5, p. 336; MS Learn Protect VMs with Backup, Unit 2"
+  },
+  {
+    "id": "q-p06-m02-09",
+    "section": "06-monitor-and-back-up-resources",
+    "topic": "File Recovery Script - Requirements",
+    "question": "When running the generated executable script for Item-Level File Recovery, what protocol and network requirements must be met on the machine running the script?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Outbound connectivity to Azure Backup service endpoints over TCP port 443 and an active local iSCSI initiator service.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Inbound TCP port 3389 open to the public internet.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "An active ExpressRoute circuit with BGP peering.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "The machine must be joined to the same Active Directory domain as the VM.",
+        "correct": false
+      }
+    ],
+    "explanation": "The script establishes a secure iSCSI connection to Azure Backup over port 443. The machine running the script must have the Microsoft iSCSI Initiator service running and outbound HTTPS access to Azure.",
+    "source": "Exam Ref AZ-104, Ch. 5, p. 346; MS Learn Protect VMs with Backup, Unit 5"
+  },
+  {
+    "id": "q-p06-m02-10",
+    "section": "06-monitor-and-back-up-resources",
+    "topic": "VM Backup - Cross-Zonal Restore",
+    "question": "An Azure VM located in Availability Zone 1 fails due to a datacenter hardware failure. You have a backup of the VM in a Zone-Redundant (ZRS) Recovery Services Vault. How can you restore the VM to Availability Zone 2?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Use the 'Create Virtual Machine' restore option and specify Availability Zone 2 in the target configuration.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Cross-zonal restore is unsupported; the VM must be restored to Zone 1.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Perform a customer failover of the storage account.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Mount the VHD via File Recovery and copy to Zone 2.",
+        "correct": false
+      }
+    ],
+    "explanation": "When using a Recovery Services Vault with ZRS (or GZRS), Azure Backup supports Cross-Zonal Restore. When restoring the VM via 'Create Virtual Machine', you can designate a different Availability Zone (e.g. Zone 2) as the target.",
+    "source": "Exam Ref AZ-104, Ch. 5, p. 344; MS Learn Protect VMs with Backup, Unit 4"
+  },
+  {
+    "id": "q-p06-m02-11",
+    "section": "06-monitor-and-back-up-resources",
+    "topic": "Backup Pre-Checks",
+    "question": "What is the purpose of the 'Backup Pre-Check' status displayed for an Azure Virtual Machine in the Backup center?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "It verifies that the VM agent is responsive, that disk encryption secrets are accessible, and that network connectivity to Azure Backup endpoints exists.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "It runs a virus scan across all files on the guest OS.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "It checks whether the VM has an active Windows Server license key.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "It calculates the monthly billing cost of the VM.",
+        "correct": false
+      }
+    ],
+    "explanation": "Backup Pre-Check validates prerequisites before scheduled backup runs, including the VM Agent status, Azure Backup extension responsiveness, Key Vault permissions (for encrypted VMs), and network connectivity.",
+    "source": "Exam Ref AZ-104, Ch. 5, p. 339; MS Learn Protect VMs with Backup, Unit 4"
+  },
+  {
+    "id": "q-p06-m02-12",
+    "section": "06-monitor-and-back-up-resources",
+    "topic": "Azure VM Backup - Encrypted VMs (ADE)",
+    "question": "You enable Azure Backup on an Azure Virtual Machine encrypted using Azure Disk Encryption (ADE) with BitLocker. What additional permission must the Azure Backup service have to successfully back up and restore the VM?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Access to the Azure Key Vault containing the BitLocker Encryption Keys (BEKs) and Key Encryption Keys (KEKs).",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Global Admin rights in Microsoft Entra ID.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "A public IP address attached to the primary NIC.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Disabling TLS 1.2 on the Key Vault.",
+        "correct": false
+      }
+    ],
+    "explanation": "For VMs encrypted with Azure Disk Encryption (ADE), Azure Backup must be able to read the Key Vault secrets (BEKs) and keys (KEKs) during backup and restore so the VM disks can be unlocked and mounted.",
+    "source": "Exam Ref AZ-104, Ch. 5, p. 338; MS Learn Protect VMs with Backup, Unit 2"
+  },
+  {
+    "id": "q-p06-m02-13",
+    "section": "06-monitor-and-back-up-resources",
+    "topic": "On-Demand Backup (Backup Now)",
+    "question": "An administrator is about to apply a critical database patch on an Azure VM and initiates an immediate manual backup using 'Backup Now'. How is the retention period determined for an on-demand backup?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "The administrator explicitly specifies a 'Retain Backup Till' date (up to a maximum of 30 days in standard policies).",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "It always inherits the 7-year yearly retention setting.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "It is permanently retained until manually deleted.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "It expires automatically after exactly 24 hours.",
+        "correct": false
+      }
+    ],
+    "explanation": "When triggering an on-demand backup ('Backup Now'), Azure prompts the administrator to specify the 'Retain Backup Till' date. By default in standard policies, on-demand backups can be retained for up to 30 days.",
+    "source": "Exam Ref AZ-104, Ch. 5, p. 340; MS Learn Protect VMs with Backup, Unit 4"
+  },
+  {
+    "id": "q-p06-m02-14",
+    "section": "06-monitor-and-back-up-resources",
+    "topic": "Selective Disk Backup",
+    "question": "An Azure VM has an OS disk and four large data disks. Three data disks contain temporary cache files that do not need data protection. How can you exclude those temporary disks to reduce backup storage costs?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Configure Selective Disk Backup to exclude the specific LUNs of the temporary data disks from the backup policy.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Format the temporary disks using exFAT.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Place a ReadOnly lock on the OS disk.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Move the temporary disks to a separate resource group.",
+        "correct": false
+      }
+    ],
+    "explanation": "Azure Backup supports Selective Disk Backup, which allows administrators to back up only the OS disk or select specific data disks while excluding non-essential scratch or caching disks, significantly reducing backup storage costs.",
+    "source": "Exam Ref AZ-104, Ch. 5, p. 336; MS Learn Protect VMs with Backup, Unit 3"
+  },
+  {
+    "id": "q-p06-m03-01",
+    "section": "06-monitor-and-back-up-resources",
+    "topic": "Metrics vs Logs - Core Comparison",
+    "question": "In Azure Monitor, what is the primary technical difference between 'Metrics' and 'Logs'?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Metrics are lightweight numerical time-series values sampled at regular intervals for near real-time alerting; Logs are structured records, telemetry, and events queried using KQL in Log Analytics.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Metrics are stored for 7 years; Logs are deleted after 24 hours.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Metrics require installing third-party agents; Logs are collected natively without configuration.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Logs can only record billing data; Metrics record CPU data.",
+        "correct": false
+      }
+    ],
+    "explanation": "Metrics are numerical values that describe some aspect of a system at a particular point in time, stored in a lightweight time-series database ideal for rapid near real-time alerting (retained for 93 days). Logs contain structured or unstructured records and events stored in Log Analytics and queried using KQL.",
+    "source": "Exam Ref AZ-104, Ch. 5, pp. 294–296; MS Learn Monitor VMs with Azure Monitor, Unit 2"
+  },
+  {
+    "id": "q-p06-m03-02",
+    "section": "06-monitor-and-back-up-resources",
+    "topic": "Azure Monitor Agent (AMA) & DCRs",
+    "question": "What is the role of Data Collection Rules (DCRs) when using the modern Azure Monitor Agent (AMA)?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "DCRs define centrally what data (event logs, performance counters, syslog) the agent collects and which destination Log Analytics workspaces or Event Hubs receive it.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "DCRs automatically reboot VMs whenever memory utilization exceeds 90%.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "DCRs configure local Windows firewall port rules.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "DCRs generate daily billing invoices for VM usage.",
+        "correct": false
+      }
+    ],
+    "explanation": "Data Collection Rules (DCRs) define the ETL pipeline for Azure Monitor Agent (AMA). They specify which data sources (Windows Event Logs, Linux Syslog, Performance Counters) to collect, allow filtering/transformation via KQL, and designate target destinations.",
+    "source": "Exam Ref AZ-104, Ch. 5, pp. 299–302; MS Learn Monitor VMs with Azure Monitor, Unit 4"
+  },
+  {
+    "id": "q-p06-m03-03",
+    "section": "06-monitor-and-back-up-resources",
+    "topic": "Log Analytics Workspace - Retention & Daily Cap",
+    "question": "What happens if a Log Analytics Workspace reaches its configured 'Daily Cap' (e.g. 10 GB/day) of ingested data?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Data collection stops for the remainder of that day, and an alert notification can be triggered to administrators.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "All virtual machines connected to the workspace are shut down immediately.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "The workspace automatically deletes older logs to free up space.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "The daily cap is automatically increased by 50% with an overage surcharge.",
+        "correct": false
+      }
+    ],
+    "explanation": "Configuring a Daily Cap limits the volume of billable data ingested per day. When the daily limit is reached, log ingestion stops for the rest of the day, resuming automatically at the start of the next UTC day. (Note: Microsoft warns that this can create blind spots).",
+    "source": "Exam Ref AZ-104, Ch. 5, p. 298; MS Learn Monitor VMs with Azure Monitor, Unit 3"
+  },
+  {
+    "id": "q-p06-m03-04",
+    "section": "06-monitor-and-back-up-resources",
+    "topic": "Kusto Query Language (KQL) - Operators",
+    "question": "You want to write a KQL query in Log Analytics to find the top 5 virtual machines with the highest average CPU utilization over the past 24 hours. Which KQL query syntax accomplishes this?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "`Perf | where TimeGenerated > ago(24h) and CounterName == '% Processor Time' | summarize AvgCPU = avg(CounterValue) by Computer | top 5 by AvgCPU desc`",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "`SELECT TOP 5 Computer, AVG(CounterValue) FROM Perf WHERE TimeGenerated > NOW() - 24`",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "`Perf | filter 24h | group by Computer | order by CPU desc | limit 5`",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "`VMs | where Metric == 'CPU' | render barchart top 5`",
+        "correct": false
+      }
+    ],
+    "explanation": "Kusto Query Language (KQL) uses pipe `|` delimited operators. It filters by time and counter (`where`), calculates the aggregate mean grouped by machine (`summarize AvgCPU = avg(...) by Computer`), and sorts the top entries (`top 5 by AvgCPU desc`).",
+    "source": "Exam Ref AZ-104, Ch. 5, pp. 304–307; MS Learn Monitor VMs with Azure Monitor, Unit 5"
+  },
+  {
+    "id": "q-p06-m03-05",
+    "section": "06-monitor-and-back-up-resources",
+    "topic": "Alert Types - Metric vs Log Search",
+    "question": "Why are Metric Alerts in Azure Monitor described as 'stateful' compared to Log Search Alerts which are 'stateless'?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Metric alerts fire when the condition is met and automatically resolve when the condition clears; Log Search alerts evaluate queries at fixed intervals and do not auto-resolve by default.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Metric alerts store state on an attached USB drive; Log Search alerts store state in RAM.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Log Search alerts fire only once in a lifetime; Metric alerts fire every minute permanently.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Metric alerts can only be viewed in the Azure mobile app.",
+        "correct": false
+      }
+    ],
+    "explanation": "Metric alerts track state: when a metric crosses the threshold, an alert is fired with state 'Fired'; when the metric falls back below threshold, Azure Monitor transitions the state to 'Resolved' and sends a resolved notification. Log search alerts simply evaluate query results per run.",
+    "source": "Exam Ref AZ-104, Ch. 5, pp. 312–314; MS Learn Monitor VMs with Azure Monitor, Unit 6"
+  },
+  {
+    "id": "q-p06-m03-06",
+    "section": "06-monitor-and-back-up-resources",
+    "topic": "Action Groups - Capabilities",
+    "question": "What is an Azure Monitor Action Group used for?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "It defines a reusable collection of notification preferences (email, SMS, push, voice) and automated actions (Logic Apps, Azure Functions, Webhooks, Runbooks) triggered when an alert fires.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "It groups virtual machines for scheduled patch reboots.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "It assigns Microsoft Entra ID licenses to security groups.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "It throttles CPU consumption on busy web servers.",
+        "correct": false
+      }
+    ],
+    "explanation": "An Action Group is a reusable container of notification receivers (email/SMS/push/voice) and automated remediation actions (webhooks, Azure Functions, Logic Apps, Runbooks, ITSM connectors). Multiple alerts can reference the same Action Group.",
+    "source": "Exam Ref AZ-104, Ch. 5, pp. 315–317; MS Learn Monitor VMs with Azure Monitor, Unit 6"
+  },
+  {
+    "id": "q-p06-m03-07",
+    "section": "06-monitor-and-back-up-resources",
+    "topic": "Alert Processing Rules - Maintenance Suppression",
+    "question": "Your engineering team performs monthly maintenance and server patching on the third Saturday of every month from 02:00 to 06:00 UTC. During this window, you want to suppress all alert notifications without modifying or disabling individual alert rules. What should you configure?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "An Alert Processing Rule configured with action 'Suppress notifications' and a recurring schedule matching the maintenance window.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Delete the Action Group on Friday evening and recreate it on Monday morning.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Disable each individual alert rule manually in the Azure portal.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Set the Daily Cap on the Log Analytics Workspace to 0 MB.",
+        "correct": false
+      }
+    ],
+    "explanation": "Alert Processing Rules allow applying logic to alerts as they fire. By setting an Alert Processing Rule to 'Suppress notifications' on a planned schedule, alerts can still fire in the background for auditing, but noisy emails, SMS, and webhook actions are suppressed.",
+    "source": "Exam Ref AZ-104, Ch. 5, pp. 319–320; MS Learn Monitor VMs with Azure Monitor, Unit 6"
+  },
+  {
+    "id": "q-p06-m03-08",
+    "section": "06-monitor-and-back-up-resources",
+    "topic": "VM Insights - Map Feature",
+    "question": "What visualization does the 'Map' feature in Azure Monitor VM Insights provide?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "It visualizes active network connections, incoming/outgoing ports, processes, and connected dependencies between the VM and other servers/services.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "It displays a geographical GPS map of Microsoft datacenters across the globe.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "It maps NTFS permissions on the local C: drive.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "It shows Azure billing costs categorized by department.",
+        "correct": false
+      }
+    ],
+    "explanation": "The Map feature in VM Insights (formerly Service Map) discovers running application processes and inbound/outbound network communication dependencies across servers, rendering an interactive visual architectural dependency graph.",
+    "source": "Exam Ref AZ-104, Ch. 5, pp. 308–310; MS Learn Monitor VMs with Azure Monitor, Unit 4"
+  },
+  {
+    "id": "q-p06-m03-09",
+    "section": "06-monitor-and-back-up-resources",
+    "topic": "Activity Log vs Resource Diagnostic Logs",
+    "question": "An administrator wants to audit who stopped a virtual machine last Tuesday. Which log source in Azure Monitor records this control-plane administrative operation?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Azure Activity Log",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Resource Diagnostic Logs",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Windows Application Event Log",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Storage Analytics Metrics",
+        "correct": false
+      }
+    ],
+    "explanation": "The Azure Activity Log is a subscription-level log that captures control-plane operations performed on Azure resources ('who did what, when, and to which resource' — such as VM deallocate, delete resource group, update NSG). Diagnostic logs capture data-plane internal resource behavior.",
+    "source": "Exam Ref AZ-104, Ch. 5, pp. 302–304; MS Learn Monitor VMs with Azure Monitor, Unit 3"
+  },
+  {
+    "id": "q-p06-m03-10",
+    "section": "06-monitor-and-back-up-resources",
+    "topic": "Diagnostic Settings - Destinations",
+    "question": "Which three destinations can receive resource logs and metrics exported via Azure Monitor Diagnostic Settings?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Log Analytics Workspace, Azure Storage Account, and Azure Event Hubs (or partner solutions)",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Azure Key Vault, GitHub repository, and Cloud Shell",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Recovery Services Vault, Azure DNS, and Azure Bastion",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Azure File Sync, Azure Front Door, and Azure Virtual Desktop",
+        "correct": false
+      }
+    ],
+    "explanation": "Azure Diagnostic Settings can stream platform logs and metrics to three primary destinations: a Log Analytics workspace (for query/analysis), an Azure Storage account (for long-term archival), and an Event Hub (for streaming to SIEMs like Splunk or external solutions).",
+    "source": "Exam Ref AZ-104, Ch. 5, pp. 303–304; MS Learn Monitor VMs with Azure Monitor, Unit 3"
+  },
+  {
+    "id": "q-p06-m03-11",
+    "section": "06-monitor-and-back-up-resources",
+    "topic": "Metric Alert Dimensions & Splitting",
+    "question": "You configure a single Azure Monitor metric alert rule to monitor percentage CPU across 10 virtual machines in a resource group. You want the alert to notify you specifically indicating WHICH individual VM breached the threshold. What must you configure in the alert rule?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Add the `Computer` or `vmName` dimension and enable dimension splitting (`*`).",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Create 10 separate action groups with individual email addresses.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Set the alert severity level to Sev 0.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Disable multi-resource scoping.",
+        "correct": false
+      }
+    ],
+    "explanation": "Azure Monitor supports multi-resource metric alerts with dimension splitting. By selecting the VM dimension (e.g. `Computer`) and splitting on all values (`*`), the alert rule evaluates each VM instance individually and generates separate alert instances identifying the exact VM that exceeded the limit.",
+    "source": "Exam Ref AZ-104, Ch. 5, p. 314; MS Learn Monitor VMs with Azure Monitor, Unit 6"
+  },
+  {
+    "id": "q-p06-m03-12",
+    "section": "06-monitor-and-back-up-resources",
+    "topic": "Activity Log Retention",
+    "question": "What is the default retention period for events stored in the Azure Activity Log before they are purged?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "90 days",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "30 days",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "365 days",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "14 days",
+        "correct": false
+      }
+    ],
+    "explanation": "Azure retains Activity Log data for 90 days at no cost. If an organization requires retaining Activity Log events for longer (e.g., 1 or 7 years for regulatory compliance), they must export it via Diagnostic Settings to a Log Analytics Workspace or Storage Account.",
+    "source": "Exam Ref AZ-104, Ch. 5, p. 303; MS Learn Monitor VMs with Azure Monitor, Unit 3"
+  },
+  {
+    "id": "q-p06-m03-13",
+    "section": "06-monitor-and-back-up-resources",
+    "topic": "Metrics Explorer - Aggregation Types",
+    "question": "When viewing the 'Percentage CPU' metric in Azure Metrics Explorer, you want to identify the single highest CPU spike that occurred over the last hour. Which aggregation type should you select on the chart?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Max",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Average",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Sum",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Count",
+        "correct": false
+      }
+    ],
+    "explanation": "The 'Max' aggregation type reveals the highest recorded value during each sample interval, making it the proper metric aggregation to catch transient spikes. 'Average' smooths out spikes, and 'Sum' calculates the total of all samples.",
+    "source": "Exam Ref AZ-104, Ch. 5, p. 295; MS Learn Monitor VMs with Azure Monitor, Unit 2"
+  },
+  {
+    "id": "q-p06-m03-14",
+    "section": "06-monitor-and-back-up-resources",
+    "topic": "Log Analytics Query - Search vs Where Performance",
+    "question": "In Kusto Query Language (KQL) for Log Analytics, why is using table-scoped filters like `SecurityEvent | where EventID == 4625` recommended over global `search '4625'`?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Table-scoped queries scan only the specific indexed columns of that table, resulting in much faster execution and lower resource consumption than full-text workspace scans.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "`search` queries are deprecated and not supported in Azure.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "`where` queries can return results from third-party clouds.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "`search` cannot be used with integers.",
+        "correct": false
+      }
+    ],
+    "explanation": "Using a table name followed by `where` filters only the specific table and indexed column, providing optimized query performance. The global `search` operator executes an unindexed full-text search across all tables and columns in the workspace, which is significantly slower and computationally expensive.",
+    "source": "Exam Ref AZ-104, Ch. 5, p. 305; MS Learn Monitor VMs with Azure Monitor, Unit 5"
+  },
+  {
+    "id": "q-p06-m01-15",
+    "section": "06-monitor-and-back-up-resources",
+    "topic": "Azure Site Recovery (ASR) - Core Architecture",
+    "question": "Which Azure BCDR service provides continuous block-level data replication, automated failover, and disaster recovery orchestration for Azure VMs between paired regions?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Azure Site Recovery (ASR)",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Azure Backup Vault",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Azure Traffic Manager",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Azure Import/Export Service",
+        "correct": false
+      }
+    ],
+    "explanation": "Azure Site Recovery (ASR) is Azure's disaster recovery service. It orchestrates replication of virtual machines (Azure VMs, VMware, physical servers), providing low RPO/RTO failover and failback to a secondary recovery region.",
+    "source": "Exam Ref AZ-104, Ch. 5, pp. 348–350; MS Learn Intro to Azure Backup, Unit 2"
+  },
+  {
+    "id": "q-p06-m01-16",
+    "section": "06-monitor-and-back-up-resources",
+    "topic": "Site Recovery - Test Failover Drill",
+    "question": "Your company's compliance policy requires conducting a quarterly disaster recovery drill for an Azure VM replicated via Azure Site Recovery. The test must NOT cause downtime in production or interrupt ongoing replication. Which action should you execute?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Perform a 'Test Failover' and select an isolated non-production virtual network in the recovery region.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Perform a 'Planned Failover' and reboot the primary VM.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Perform an 'Unplanned Failover' and delete the production storage account.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Stop replication, export the VHD, and mount it via PowerShell.",
+        "correct": false
+      }
+    ],
+    "explanation": "A 'Test Failover' creates temporary test VMs in an isolated non-production virtual network in the recovery region to validate disaster recovery readiness without impacting ongoing production operations or halting replication.",
+    "source": "Exam Ref AZ-104, Ch. 5, pp. 351–352; MS Learn Intro to Azure Backup, Unit 5"
+  },
+  {
+    "id": "q-p06-m01-17",
+    "section": "06-monitor-and-back-up-resources",
+    "topic": "Site Recovery - Planned vs Unplanned Failover",
+    "question": "In Azure Site Recovery, what is the crucial operational difference between a 'Planned Failover' and an 'Unplanned Failover'?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "A Planned Failover shuts down the source VM and flushes all pending data to ensure zero data loss before failover; an Unplanned Failover initiates immediate failover during an unexpected outage and may experience minor data loss based on the last RPO.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "A Planned Failover deletes all secondary data disks; an Unplanned Failover keeps them.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "An Unplanned Failover can only be run once per calendar year.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Planned Failovers are only supported on Windows VMs.",
+        "correct": false
+      }
+    ],
+    "explanation": "Planned Failover gracefully shuts down the source VM, synchronizes all remaining data blocks to the target region, and powers on the target VM, guaranteeing zero data loss. Unplanned Failover is executed during unplanned outages where the primary site is unreachable.",
+    "source": "Exam Ref AZ-104, Ch. 5, pp. 352–353; MS Learn Intro to Azure Backup, Unit 5"
+  },
+  {
+    "id": "q-p06-m03-15",
+    "section": "06-monitor-and-back-up-resources",
+    "topic": "Backup Monitoring - Backup Reports with Log Analytics",
+    "question": "How do you generate long-term enterprise audit reports, capacity trend analysis, and policy compliance reporting across all Recovery Services Vaults in an Azure tenant?",
+    "choices": [
+      {
+        "id": "c1",
+        "text": "Configure Diagnostic Settings on each vault to stream Azure Backup data to a Log Analytics Workspace, then view Backup Reports in Backup Center.",
+        "correct": true
+      },
+      {
+        "id": "c2",
+        "text": "Download CSV files manually from each VM's backup blade every Friday.",
+        "correct": false
+      },
+      {
+        "id": "c3",
+        "text": "Enable IP Flow Verify on the backup subnets.",
+        "correct": false
+      },
+      {
+        "id": "c4",
+        "text": "Create an Azure Advisor alert rule.",
+        "correct": false
+      }
+    ],
+    "explanation": "Azure Backup Reports utilizes a Log Analytics Workspace as its reporting repository. By sending vault diagnostic logs to Log Analytics, administrators can view rich historical dashboards in Backup Center covering backup storage trends, restore success rates, and policy compliance.",
+    "source": "Exam Ref AZ-104, Ch. 5, pp. 340–342; MS Learn Monitor VMs with Azure Monitor, Unit 3"
+  }
+]
