@@ -2,6 +2,8 @@
 
 A self-contained, offline-first study suite and interactive training environment for the **AZ-104 Microsoft Azure Administrator** certification.
 
+**This is ENTIRELY slop-coded.  I didn't write ZIP of this; I just wanted a quick couple of tools for flashcards and simple quizes, etc.**
+
 ---
 
 ## 🏛️ Repository Overview
